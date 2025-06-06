@@ -1,0 +1,11 @@
+Note for dev ops
+Build: mvn clean package -Dmaven.test.skip
+
+
+CREATE DATABASE db_elms_tenant_bootstrap CHARACTER SET utf8;
+CREATE USER 'elms-salve-usr' IDENTIFIED BY 'elms-salve-usr@123';
+CREATE USER 'elms-salve-usr'@'localhost' IDENTIFIED BY 'elms-salve-usr@123';
+
+GRANT ALL PRIVILEGES ON db_elms_tenant_bootstrap.* TO 'elms-salve-usr';
+FLUSH PRIVILEGES;
+
