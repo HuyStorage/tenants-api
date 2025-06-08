@@ -46,15 +46,15 @@ public class LogInterceptor implements HandlerInterceptor {
         TenantJwt jwt = userService.getAddInfoFromToken();
         log.error("Token: {}", jwt);
         String tenantName = request.getHeader("X-tenant");
-        if(jwt!=null && jwt.getTenantId()!=null){
+        if (jwt != null && jwt.getTenantId() != null) {
             TenantDBContext.setCurrentTenant(jwt.getTenantId().split("&")[0]);
             return true;
-        }else if(tenantName != null){
+        } else if (tenantName != null) {
             TenantDBContext.setCurrentTenant(tenantName);
             return true;
         }
-        // loi tenant
-        throw new UnauthorizationException("Invalid tenant: "+ TenantDBContext.getCurrentTenant());
+        // tenant error
+        throw new UnauthorizationException("Invalid tenant: " + TenantDBContext.getCurrentTenant());
     }
 
 
