@@ -23,10 +23,6 @@ public class UpdateEmployeeForm {
     @ApiModelProperty(required = true)
     private String username;
 
-    @EmployeeKind
-    @ApiModelProperty(required = true)
-    private Integer kind;
-
     @PhoneConstraint
     @ApiModelProperty(name = "phone", required = true)
     private String phone;

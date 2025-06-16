@@ -7,9 +7,6 @@ public class BaseConstant {
     public static final Integer USER_KIND_EMPLOYEE = 3;
     public static final Integer USER_KIND_USER = 4;
 
-    public static final Integer USER_KIND_EMPLOYEE_EDITOR = 100;
-    public static final Integer USER_KIND_EMPLOYEE_PUBLISHER = 101;
-
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_PENDING = 0;
     public static final Integer STATUS_LOCK = -1;

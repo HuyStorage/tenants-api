@@ -1,6 +1,5 @@
 package com.tenant.api.exception;
 
-
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.form.ErrorForm;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,9 +13,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @RestController
@@ -43,24 +42,42 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiMessageDto, HttpStatus.NOT_FOUND);
     }
 
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request) {
+        List<ErrorForm> errorForms = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> new ErrorForm(fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.toList());
+
+        ApiMessageDto<List<ErrorForm>> dto = new ApiMessageDto<>();
+        dto.setCode("ERROR");
+        dto.setResult(false);
+        dto.setMessage("Invalid form");
+        dto.setData(errorForms);
+
+        return new ResponseEntity<>(dto, HttpStatus.BAD_REQUEST);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ApiMessageDto<List<ErrorForm>> exceptionHandler(Exception ex) {
-        log.error(""+ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiMessageDto<List<ErrorForm>> apiMessageDto = new ApiMessageDto<>();
         apiMessageDto.setCode("ERROR");
         apiMessageDto.setResult(false);
-        if(ex instanceof MyBindingException){
+        if (ex instanceof MyBindingException) {
             try {
                 List<ErrorForm> errorForms = Arrays.asList(mapper.readValue(ex.getMessage(), ErrorForm[].class));
                 apiMessageDto.setData(errorForms);
                 apiMessageDto.setMessage("Invalid form");
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error(e.getMessage());
             }
-        }else{
-            apiMessageDto.setMessage("[Ex2]: "+ex.getMessage());
+        } else {
+            apiMessageDto.setMessage("[Ex2]: " + ex.getMessage());
         }
         return apiMessageDto;
     }

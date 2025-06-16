@@ -1,6 +1,9 @@
 package com.tenant.api.form.employee;
 
-import com.tenant.api.validation.*;
+import com.tenant.api.validation.EmailConstraint;
+import com.tenant.api.validation.PhoneConstraint;
+import com.tenant.api.validation.StatusConstraint;
+import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -17,10 +20,6 @@ public class CreateEmployeeForm {
     @UsernameConstraint
     @ApiModelProperty(required = true)
     private String username;
-
-    @EmployeeKind
-    @ApiModelProperty(required = true)
-    private Integer kind;
 
     @PhoneConstraint(allowNull = true)
     @ApiModelProperty(name = "phone")

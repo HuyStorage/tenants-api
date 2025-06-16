@@ -89,6 +89,7 @@ public class EmployeeController extends ABasicController {
         employee = employeeMapper.fromCreateEmployeeFormToEntity(form);
         employee.setPassword(passwordEncoder.encode(form.getPassword()));
         employee.setGroup(group);
+        employee.setKind(group.getKind());
 
         employeeRepository.save(employee);
         return makeSuccessResponse("Create employee success");
@@ -160,6 +161,7 @@ public class EmployeeController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
         if (employee.getGroup() != null && !Objects.equals(group.getId(), employee.getGroup().getId())) {
             employee.setGroup(group);
+            employee.setKind(group.getKind());
         }
         List<String> deleteFiles = new ArrayList<>();
         if (!Objects.equals(form.getAvatarPath(), employee.getAvatarPath())) {

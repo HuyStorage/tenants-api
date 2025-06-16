@@ -42,7 +42,6 @@ public interface EmployeeMapper {
     EmployeeDto fromEntityToEmployeeDtoProfile(Employee employee);
 
     @Mapping(source = "username", target = "username")
-    @Mapping(source = "kind", target = "kind")
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
@@ -52,7 +51,6 @@ public interface EmployeeMapper {
     Employee fromCreateEmployeeFormToEntity(CreateEmployeeForm form);
 
     @Mapping(source = "username", target = "username")
-    @Mapping(source = "kind", target = "kind")
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
