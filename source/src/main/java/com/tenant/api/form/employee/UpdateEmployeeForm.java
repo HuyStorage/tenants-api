@@ -53,4 +53,8 @@ public class UpdateEmployeeForm {
     @StatusConstraint
     @ApiModelProperty(name = "status", required = true)
     private Integer status;
+
+    @NotNull
+    @ApiModelProperty(name = "groupId", required = true)
+    private Long groupId;
 }

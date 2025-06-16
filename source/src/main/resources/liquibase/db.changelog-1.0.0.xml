@@ -58,4 +58,77 @@
             <column name="kind" type="INT" afterColumn="username"/>
         </addColumn>
     </changeSet>
+
+    <changeSet author="Tenant" id="1750048484604-3">
+        <createTable tableName="db_group">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_groupPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="kind" type="INT"/>
+            <column name="description" type="VARCHAR(1000)"/>
+            <column name="is_system_role" type="BIT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1750048484604-4">
+        <createTable tableName="db_group_permission">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_group_permissionPK"/>
+            </column>
+            <column name="group_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="p_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1750048484604-5">
+        <addUniqueConstraint columnNames="name" constraintName="UC_DB_GROUPNAME_COL" tableName="db_group"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1750048484604-6">
+        <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_group_permission" constraintName="FKgnq1pmgr63kue15pnw3901ioy" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="add-group-id-db_employee">
+        <addColumn tableName="db_employee">
+            <column name="group_id" type="BIGINT" afterColumn="kind"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1750048816176-6">
+        <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_employee" constraintName="FK3dmv32mmijjxed84ypab8e2qw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group" validate="true"/>
+    </changeSet>
+
 </databaseChangeLog>

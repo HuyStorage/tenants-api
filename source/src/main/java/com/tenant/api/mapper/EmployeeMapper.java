@@ -10,7 +10,8 @@ import org.mapstruct.*;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = {GroupMapper.class})
 public interface EmployeeMapper {
 
     @Mapping(source = "id", target = "id")
@@ -35,6 +36,7 @@ public interface EmployeeMapper {
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
     @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "group", target = "group", qualifiedByName = "fromEntityToGroupDto")
     @BeanMapping(ignoreByDefault = true)
     @Named("fromEntityToEmployeeDtoProfile")
     EmployeeDto fromEntityToEmployeeDtoProfile(Employee employee);

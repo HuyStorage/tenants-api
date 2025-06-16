@@ -1,6 +1,7 @@
 package com.tenant.api.dto.employee;
 
 import com.tenant.api.dto.ABasicAdminDto;
+import com.tenant.api.dto.group.GroupDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -33,4 +34,7 @@ public class EmployeeDto extends ABasicAdminDto {
 
     @ApiModelProperty(name = "status")
     private Integer status;
+
+    @ApiModelProperty(name = "group")
+    private GroupDto group;
 }

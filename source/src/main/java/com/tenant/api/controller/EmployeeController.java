@@ -18,7 +18,10 @@ import com.tenant.api.service.feign.FeignAccountAuthService;
 import com.tenant.api.service.feign.FeignConst;
 import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
 import com.tenant.api.storage.tenant.model.Employee;
+import com.tenant.api.storage.tenant.model.Group;
+import com.tenant.api.storage.tenant.model.GroupPermission;
 import com.tenant.api.storage.tenant.repository.EmployeeRepository;
+import com.tenant.api.storage.tenant.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/employee")
@@ -48,6 +52,9 @@ public class EmployeeController extends ABasicController {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -77,8 +84,11 @@ public class EmployeeController extends ABasicController {
         if (StringUtils.isNoneBlank(form.getPhone()) && employeeRepository.existsByPhoneAndStatusNot(form.getPhone(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Employee] Phone is existed", ErrorCode.EMPLOYEE_ERROR_PHONE_EXISTED);
         }
+        Group group = groupRepository.findByIdAndStatus(form.getGroupId(), BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
         employee = employeeMapper.fromCreateEmployeeFormToEntity(form);
         employee.setPassword(passwordEncoder.encode(form.getPassword()));
+        employee.setGroup(group);
 
         employeeRepository.save(employee);
         return makeSuccessResponse("Create employee success");
@@ -146,6 +156,11 @@ public class EmployeeController extends ABasicController {
                 && employeeRepository.existsByUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Employee] Username existed", ErrorCode.EMPLOYEE_ERROR_USERNAME_EXISTED);
         }
+        Group group = groupRepository.findByIdAndStatus(form.getGroupId(), BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
+        if (employee.getGroup() != null && !Objects.equals(group.getId(), employee.getGroup().getId())) {
+            employee.setGroup(group);
+        }
         List<String> deleteFiles = new ArrayList<>();
         if (!Objects.equals(form.getAvatarPath(), employee.getAvatarPath())) {
             String avatarPath = employee.getAvatarPath();
@@ -186,6 +201,10 @@ public class EmployeeController extends ABasicController {
             log.error("User had been locked");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+        String permissions = employee.getGroup().getPermissions().stream()
+                .map(GroupPermission::getPermissionCode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(","));
         MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
         request.add("grant_type", "employee");
         request.add("username", username);
@@ -193,6 +212,7 @@ public class EmployeeController extends ABasicController {
         request.add("tenantId", form.getTenantId());
         request.add("userId", employee.getId().toString());
         request.add("userKind", String.valueOf(employee.getKind()));
+        request.add("permissions", permissions);
         LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
         log.info(result.toString());
         return result;
