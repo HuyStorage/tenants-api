@@ -8,11 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,12 +23,13 @@ import java.util.List;
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     final ObjectMapper mapper = new ObjectMapper();
+
     @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<ApiMessageDto<String>> globleExcpetionHandler(NotFoundException ex) {
-        log.error(""+ex.getMessage(), ex);
+    public ResponseEntity<ApiMessageDto<String>> globalExceptionHandler(NotFoundException ex) {
+        log.error(ex.getMessage(), ex);
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-        apiMessageDto.setCode("ERROR");
         apiMessageDto.setResult(false);
+        apiMessageDto.setCode(ex.getCode());
         apiMessageDto.setMessage(ex.getMessage());
         return new ResponseEntity<>(apiMessageDto, HttpStatus.NOT_FOUND);
     }

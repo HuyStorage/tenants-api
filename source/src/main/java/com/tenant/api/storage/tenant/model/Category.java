@@ -17,6 +17,8 @@ import javax.persistence.Table;
 @Getter
 @Setter
 public class Category extends Auditable<String> {
+
     private String name;
 
+    private String slug;
 }

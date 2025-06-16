@@ -14,18 +14,18 @@ import java.util.Optional;
 public class AuditorAwareImpl implements AuditorAware<String> {
 
     @Override
-    public Optional<String> getCurrentAuditor(){
+    public Optional<String> getCurrentAuditor() {
         String currentUser = getCurrentUser();
-        return Optional.of(currentUser==null?"unknown":currentUser);
+        return Optional.of(currentUser == null ? "unknown" : currentUser);
 
     }
 
-    public  String getCurrentUser() {
+    public String getCurrentUser() {
         try {
             ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-            HttpSession session =  attr.getRequest().getSession();
-            TenantJwt tenantJwt = (TenantJwt) session.getAttribute("user_sesson");
-            if(tenantJwt !=null){
+            HttpSession session = attr.getRequest().getSession();
+            TenantJwt tenantJwt = (TenantJwt) session.getAttribute("user_session");
+            if (tenantJwt != null) {
                 return tenantJwt.getUsername();
             }
         } catch (IllegalStateException e) {

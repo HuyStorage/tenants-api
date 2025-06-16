@@ -396,7 +396,7 @@
 					<diffChangeLogFile>${basedir}/src/main/resources/liquibase/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
 					<outputChangeLogFile>${basedir}/src/main/resources/liquibase/db.changelog-1.0.0.xml</outputChangeLogFile>
 					<driver>com.mysql.cj.jdbc.Driver</driver>
-					<url>jdbc:mysql://localhost:3306/db_tenant</url>
+					<url>jdbc:mysql://localhost:4000/db_tenant</url>
 					<defaultSchemaName/>
 					<username>root</username>
 					<password>root</password>

@@ -11,7 +11,6 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Data
 public class CategoryCriteria {
 
@@ -19,24 +18,24 @@ public class CategoryCriteria {
     private String name;
     private Integer status;
 
-    public Specification<Category> getCriteria() {
+    public Specification<Category> getSpecification() {
         return new Specification<Category>() {
             private static final long serialVersionUID = 1L;
+
             @Override
             public Predicate toPredicate(Root<Category> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
-                if(getId() != null){
+                if (getId() != null) {
                     predicates.add(cb.equal(root.get("id"), getId()));
                 }
 
-                if(getStatus() != null){
+                if (getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), getStatus()));
                 }
 
-                if(getName() != null){
-                    predicates.add(cb.like(cb.lower(root.get("name")),"%"+ getName()+"%"));
+                if (getName() != null) {
+                    predicates.add(cb.like(cb.lower(root.get("name")), "%" + getName().toLowerCase() + "%"));
                 }
-                query.orderBy(cb.asc(root.get("rank")));
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }
         };
