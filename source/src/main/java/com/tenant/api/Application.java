@@ -29,33 +29,33 @@ import java.util.TimeZone;
 @EnableConfigurationProperties({LiquibaseProperties.class})
 public class Application {
 
-	@Autowired
+    @Autowired
     FeignAccountAuthService accountAuthService;
 
-	@Autowired
-	UserServiceImpl userService;
+    @Autowired
+    UserServiceImpl userService;
 
-	@Value("${auth.internal.username}")
-	private String username;
-	@Value("${auth.internal.password}")
-	private String password;
+    @Value("${auth.internal.username}")
+    private String username;
+    @Value("${auth.internal.password}")
+    private String password;
 
-	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 
 
-	@PostConstruct
-	public void initialize() {
-		MultiValueMap<String,String> request = new LinkedMultiValueMap<>();
-		request.add("grant_type","password");
-		request.add("username",username);
-		request.add("password",password);
-		LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL,request);
-		if(result == null || result.getAccessToken() == null){
-			throw new RuntimeException("APPLICATION FAILED TO START: CAN NOT GET KEY ");
-		}
-		userService.AUTH_SERVER_TOKEN = result.getAccessToken();
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-	}
+    @PostConstruct
+    public void initialize() {
+        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
+        request.add("grant_type", "password");
+        request.add("username", username);
+        request.add("password", password);
+        LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        if (result == null || result.getAccessToken() == null) {
+            throw new RuntimeException("APPLICATION FAILED TO START: CAN NOT GET KEY ");
+        }
+        userService.AUTH_SERVER_TOKEN = result.getAccessToken();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
 }

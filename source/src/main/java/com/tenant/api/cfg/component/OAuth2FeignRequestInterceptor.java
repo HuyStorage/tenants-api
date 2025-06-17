@@ -33,17 +33,17 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor { // cá
 
     @Override
     public void apply(RequestTemplate template) {
-        if(template.headers().containsKey(FeignAccountAuthService.LOGIN_TYPE)){
-            if(Objects.equals(template.headers().get(FeignAccountAuthService.LOGIN_TYPE).toArray()[0], FeignConst.LOGIN_TYPE_INTERNAL)){
+        if (template.headers().containsKey(FeignAccountAuthService.LOGIN_TYPE)) {
+            if (Objects.equals(template.headers().get(FeignAccountAuthService.LOGIN_TYPE).toArray()[0], FeignConst.LOGIN_TYPE_INTERNAL)) {
                 String auth = internalAuthUsername + ":" + internalAuthpassword;
-                log.error("-----------> internal = "+auth);
+                log.error("-----------> internal = " + auth);
                 byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
                 template.header(AUTHORIZATION_HEADER, String.format("%s %s", BASIC_AUTH_TYPE, new String(encodedAuth)));
-            }else{
-                log.error("-----------> not found type = "+template.headers().get(FeignAccountAuthService.LOGIN_TYPE).toArray()[0]);
+            } else {
+                log.error("-----------> not found type = " + template.headers().get(FeignAccountAuthService.LOGIN_TYPE).toArray()[0]);
             }
             template.removeHeader(FeignAccountAuthService.LOGIN_TYPE);
-        }else{
+        } else {
             log.error("-----------> Constructing Header {} for Token {}, token {}", AUTHORIZATION_HEADER, BEARER_TOKEN_TYPE, String.format("%s %s", BEARER_TOKEN_TYPE, userService.AUTH_SERVER_TOKEN));
             template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, userService.AUTH_SERVER_TOKEN));
         }

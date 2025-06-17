@@ -1,9 +1,13 @@
 package com.tenant.api.dto.dbConfig;
 
 
-import lombok.Data;
+import io.swagger.annotations.ApiModel;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@ApiModel
 public class DbConfigDto {
     private Long id;
     private String name;

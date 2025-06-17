@@ -1,6 +1,5 @@
 package com.tenant.api.storage.base;
 
-
 import com.tenant.api.constant.BaseConstant;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
 @MappedSuperclass

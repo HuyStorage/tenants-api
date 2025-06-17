@@ -4,6 +4,10 @@ import com.tenant.api.storage.tenant.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor<Category> {
+import java.util.Optional;
 
+public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor<Category> {
+    Optional<Category> findFirstBySlug(String slug);
+
+    boolean existsBySlug(String slug);
 }

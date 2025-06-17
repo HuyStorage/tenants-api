@@ -9,6 +9,7 @@
 	<name>base-tenant-api</name>
 	<packaging>jar</packaging>
 	<description>Base Tenant Api</description>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>11</java.version>
@@ -353,7 +354,7 @@
 							<goal>repackage</goal>
 						</goals>
 						<configuration>
-							<classifier>spring-boot</classifier>
+<!--							<classifier>spring-boot</classifier>-->
 							<mainClass>
                                 com.tenant.api.Application
                             </mainClass>
@@ -395,7 +396,7 @@
 					<diffChangeLogFile>${basedir}/src/main/resources/liquibase/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
 					<outputChangeLogFile>${basedir}/src/main/resources/liquibase/db.changelog-1.0.0.xml</outputChangeLogFile>
 					<driver>com.mysql.cj.jdbc.Driver</driver>
-					<url>jdbc:mysql://localhost:3306/db_tenant</url>
+					<url>jdbc:mysql://localhost:4000/db_tenant</url>
 					<defaultSchemaName/>
 					<username>root</username>
 					<password>root</password>
