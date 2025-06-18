@@ -26,6 +26,17 @@ public interface VideoLibraryMapper {
     @IterableMapping(elementTargetType = VideoLibraryDto.class, qualifiedByName = "entityToVideoLibraryDto")
     List<VideoLibraryDto> fromEntityToVideoLibraryDtoList(List<VideoLibrary> videoLibraries);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToVideoLibraryAutoCompleteDto")
+    VideoLibraryDto entityToVideoLibraryAutoCompleteDto(VideoLibrary video);
+
+    @IterableMapping(elementTargetType = VideoLibraryDto.class, qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
+    List<VideoLibraryDto> fromEntityToVideoLibraryAutoCompleteDtoList(List<VideoLibrary> videoLibraries);
+
     @Mapping(source = "name", target = "name")
     @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)

@@ -11,6 +11,7 @@ public class ErrorCode {
      */
     public static final String CATEGORY_ERROR_NOT_FOUND = "ERROR-CATEGORY-ERROR-0000";
     public static final String CATEGORY_ERROR_NAME_EXISTED = "ERROR-CATEGORY-ERROR-0002";
+    public static final String CATEGORY_ERROR_HAS_MOVIE = "ERROR-CATEGORY-ERROR-0003";
 
     /**
      * Starting error code Employee
@@ -46,4 +47,12 @@ public class ErrorCode {
      */
     public static final String MOVIE_ERROR_NOT_FOUND = "ERROR-MOVIE-ERROR-0000";
     public static final String MOVIE_ERROR_SLUG_EXISTED = "ERROR-MOVIE-ERROR-0002";
+    public static final String MOVIE_ERROR_HAS_ITEM = "ERROR-MOVIE-ERROR-0003";
+
+    /**
+     * Starting error code Movie Item
+     */
+    public static final String MOVIE_ITEM_ERROR_NOT_FOUND = "ERROR-MOVIE-ITEM-ERROR-0000";
+    public static final String MOVIE_ITEM_ERROR_PARENT_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0002";
+    public static final String MOVIE_ITEM_ERROR_VIDEO_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0003";
 }

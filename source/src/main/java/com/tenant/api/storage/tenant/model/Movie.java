@@ -25,6 +25,7 @@ public class Movie extends Auditable<String> {
 
     private String slug;
 
+    @Column(columnDefinition = "text")
     private String description;
 
     @Column(name = "thumbnail_url")

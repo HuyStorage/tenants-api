@@ -1,17 +1,17 @@
 package com.tenant.api.validation.impl;
 
 import com.tenant.api.constant.BaseConstant;
-import com.tenant.api.validation.MovieTypeConstraint;
+import com.tenant.api.validation.MovieItemKindConstraint;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Objects;
 
-public class MovieTypeValidation implements ConstraintValidator<MovieTypeConstraint, Integer> {
+public class MovieItemKindValidation implements ConstraintValidator<MovieItemKindConstraint, Integer> {
     private boolean allowNull;
 
     @Override
-    public void initialize(MovieTypeConstraint constraintAnnotation) {
+    public void initialize(MovieItemKindConstraint constraintAnnotation) {
         allowNull = constraintAnnotation.allowNull();
     }
 
@@ -20,7 +20,8 @@ public class MovieTypeValidation implements ConstraintValidator<MovieTypeConstra
         if (value == null && allowNull) {
             return true;
         }
-        return Objects.equals(value, BaseConstant.MOVIE_TYPE_SINGLE)
-                || Objects.equals(value, BaseConstant.MOVIE_TYPE_SERIES);
+        return Objects.equals(value, BaseConstant.MOVIE_ITEM_KIND_SEASON)
+                || Objects.equals(value, BaseConstant.MOVIE_ITEM_KIND_EPISODE)
+                || Objects.equals(value, BaseConstant.MOVIE_ITEM_KIND_TRAILER);
     }
 }

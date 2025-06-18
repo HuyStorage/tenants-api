@@ -14,7 +14,10 @@ public class BaseConstant {
 
     public static final Integer MOVIE_TYPE_SINGLE = 1;
     public static final Integer MOVIE_TYPE_SERIES = 2;
-    public static final Integer MOVIE_TYPE_TRAILER = 3;
+
+    public static final Integer MOVIE_ITEM_KIND_SEASON = 1;
+    public static final Integer MOVIE_ITEM_KIND_EPISODE = 2;
+    public static final Integer MOVIE_ITEM_KIND_TRAILER = 3;
 
     public static final Integer AGE_RATING_GENERAL = 1;   // G - General Audience
     public static final Integer AGE_RATING_PG = 2;        // PG - Parental Guidance

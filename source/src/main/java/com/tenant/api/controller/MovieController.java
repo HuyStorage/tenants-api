@@ -3,25 +3,18 @@ package com.tenant.api.controller;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
-import com.tenant.api.dto.group.GroupDto;
 import com.tenant.api.dto.movie.MovieDto;
-import com.tenant.api.dto.video.VideoLibraryDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
-import com.tenant.api.form.video.CreateVideoLibraryForm;
-import com.tenant.api.form.video.UpdateVideoLibraryForm;
 import com.tenant.api.mapper.MovieMapper;
-import com.tenant.api.mapper.VideoLibraryMapper;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
-import com.tenant.api.storage.tenant.criteria.VideoLibraryCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
-import com.tenant.api.storage.tenant.model.VideoLibrary;
 import com.tenant.api.storage.tenant.repository.CategoryRepository;
+import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.MovieRepository;
-import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -49,6 +42,9 @@ public class MovieController extends ABasicController {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private MovieItemRepository movieItemRepository;
+
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -69,22 +65,22 @@ public class MovieController extends ABasicController {
         return makeSuccessResponse("Create movie success");
     }
 
-    @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/get/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_V')")
     public ApiMessageDto<MovieDto> getById(@PathVariable("id") Long id) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
 
-        return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get video library success");
+        return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get movie success");
     }
 
-    @GetMapping(value = "/get/{slug}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/get/slug/{slug}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_V')")
     public ApiMessageDto<MovieDto> getBySlug(@PathVariable("slug") String slug) {
         Movie movie = movieRepository.findFirstBySlug(slug)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
 
-        return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get video library success");
+        return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get movie success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -121,6 +117,15 @@ public class MovieController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
+        if (movieItemRepository.existsByMovieId(movie.getId())) {
+            throw new BadRequestException("[Movie] Cannot delete, movie still has items", ErrorCode.MOVIE_ERROR_HAS_ITEM);
+        }
+
+        if (!movie.getCategories().isEmpty()) {
+            movieRepository.deleteMovieCategory(movie.getId());
+        }
+
         movieRepository.delete(movie);
         return makeSuccessResponse("Delete movie success");
     }

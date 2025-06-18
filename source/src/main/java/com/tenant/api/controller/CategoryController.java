@@ -12,6 +12,7 @@ import com.tenant.api.mapper.CategoryMapper;
 import com.tenant.api.storage.tenant.criteria.CategoryCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.repository.CategoryRepository;
+import com.tenant.api.storage.tenant.repository.MovieRepository;
 import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class CategoryController extends ABasicController {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private MovieRepository movieRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CA_C')")
@@ -97,6 +101,11 @@ public class CategoryController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
+
+        if (movieRepository.existsByCategories_Id(category.getId())) {
+            throw new BadRequestException("[Category] Cannot delete, still linked to movies", ErrorCode.CATEGORY_ERROR_HAS_MOVIE);
+        }
+
         categoryRepository.delete(category);
         return makeSuccessResponse("Delete category success");
     }

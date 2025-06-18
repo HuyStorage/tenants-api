@@ -18,7 +18,7 @@ import java.util.List;
 @ApiModel
 public class UpdateMovieForm {
 
-    @NotBlank(message = "id cannot be empty")
+    @NotNull(message = "id cannot be empty")
     @ApiModelProperty(required = true)
     private Long id;
 
