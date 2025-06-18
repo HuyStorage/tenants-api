@@ -40,4 +40,10 @@ public class ErrorCode {
      */
     public static final String VIDEO_LIBRARY_ERROR_NOT_FOUND = "ERROR-VIDEO-LIBRARY-ERROR-0000";
     public static final String VIDEO_LIBRARY_ERROR_NAME_EXISTED = "ERROR-VIDEO-LIBRARY-ERROR-0002";
+
+    /**
+     * Starting error code Movie
+     */
+    public static final String MOVIE_ERROR_NOT_FOUND = "ERROR-MOVIE-ERROR-0000";
+    public static final String MOVIE_ERROR_SLUG_EXISTED = "ERROR-MOVIE-ERROR-0002";
 }

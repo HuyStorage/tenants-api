@@ -14,8 +14,8 @@ public interface VideoLibraryMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "originalUrl", target = "originalUrl")
-    @Mapping(source = "hlsUrl", target = "hlsUrl")
+    @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "status", target = "status")
@@ -27,14 +27,16 @@ public interface VideoLibraryMapper {
     List<VideoLibraryDto> fromEntityToVideoLibraryDtoList(List<VideoLibrary> videoLibraries);
 
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "originalUrl", target = "originalUrl")
-    @Mapping(source = "hlsUrl", target = "hlsUrl")
+    @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     VideoLibrary fromCreateVideoLibraryFormToEntity(CreateVideoLibraryForm form);
 
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "originalUrl", target = "originalUrl")
-    @Mapping(source = "hlsUrl", target = "hlsUrl")
+    @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateVideoLibraryFormToEntity(UpdateVideoLibraryForm form, @MappingTarget VideoLibrary videoLibrary);
 }

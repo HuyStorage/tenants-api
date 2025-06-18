@@ -12,6 +12,17 @@ public class BaseConstant {
     public static final Integer STATUS_LOCK = -1;
     public static final Integer STATUS_DELETE = -2;
 
+    public static final Integer MOVIE_TYPE_SINGLE = 1;
+    public static final Integer MOVIE_TYPE_SERIES = 2;
+    public static final Integer MOVIE_TYPE_TRAILER = 3;
+
+    public static final Integer AGE_RATING_GENERAL = 1;   // G - General Audience
+    public static final Integer AGE_RATING_PG = 2;        // PG - Parental Guidance
+    public static final Integer AGE_RATING_PG13 = 3;      // PG-13 - Not under 13
+    public static final Integer AGE_RATING_R = 4;         // R - Restricted (under 17 needs adult)
+    public static final Integer AGE_RATING_NC17 = 5;      // NC-17 - No one 17 and under admitted
+    public static final Integer AGE_RATING_18_PLUS = 6;   // 18+ - Local classification
+
     public static final String APP_ID_GENERATOR_NAME = "idGenerator";
     public static final String APP_ID_GENERATOR_STRATEGY = "com.tenant.api.storage.id.IdGenerator";
 

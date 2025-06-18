@@ -156,4 +156,56 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet author="Tenant" id="1750239035726-1">
+        <createTable tableName="db_movie">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_moviePK"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="original_title" type="VARCHAR(255)"/>
+            <column name="slug" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="thumbnail_url" type="VARCHAR(255)"/>
+            <column name="poster_url" type="VARCHAR(255)"/>
+            <column name="release_date" type="datetime"/>
+            <column name="type" type="INT"/>
+            <column name="is_featured" type="BIT"/>
+            <column name="language" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(255)"/>
+            <column name="age_rating" type="INT"/>
+            <column name="view_count" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1750239035726-2">
+        <createTable tableName="db_movie_category">
+            <column name="movie_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1750239035726-3">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="db_movie_category" constraintName="FKnwoqvjbydwqilv6cbw6guh839" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_category" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1750239035726-4">
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_category" constraintName="FKotcsg8vx36iyex2s0s5t3c928" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+    </changeSet>
 </databaseChangeLog>

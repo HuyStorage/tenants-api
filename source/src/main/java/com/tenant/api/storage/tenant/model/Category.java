@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
-
 @Entity
 @Table(name = DatabaseConstant.PREFIX_TABLE + "category")
 @EntityListeners(AuditingEntityListener.class)

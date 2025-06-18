@@ -1,5 +1,6 @@
 package com.tenant.api.form.video;
 
+import com.tenant.api.validation.StatusConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -22,5 +23,9 @@ public class CreateVideoLibraryForm {
 
     @NotBlank(message = "hlsUrl cannot be empty")
     @ApiModelProperty(required = true)
-    private Integer hlsUrl;
+    private String hlsUrl;
+
+    @StatusConstraint
+    @ApiModelProperty(required = true)
+    private Integer status;
 }
