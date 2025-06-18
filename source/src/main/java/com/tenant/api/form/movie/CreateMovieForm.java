@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class CreateMovieForm {
     @ApiModelProperty(required = true)
     private String posterUrl;
 
-    @NotBlank(message = "releaseDate cannot be empty")
+    @NotNull(message = "releaseDate cannot be null")
     @ApiModelProperty(required = true)
     private Date releaseDate;
 
