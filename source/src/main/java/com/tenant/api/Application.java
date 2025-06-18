@@ -44,7 +44,6 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-
     @PostConstruct
     public void initialize() {
         MultiValueMap<String, String> request = new LinkedMultiValueMap<>();

@@ -1,0 +1,61 @@
+package com.tenant.api.storage.tenant.model;
+
+import com.tenant.api.constant.DatabaseConstant;
+import com.tenant.api.storage.base.Auditable;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Table(name = DatabaseConstant.PREFIX_TABLE + "movie")
+@EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
+public class Movie extends Auditable<String> {
+
+    private String title;
+
+    @Column(name = "original_title")
+    private String originalTitle;
+
+    private String slug;
+
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
+    @Column(name = "poster_url")
+    private String posterUrl;
+
+    @Column(name = "release_date")
+    private Date releaseDate;
+
+    private Integer type; // 1: SINGLE, 2: SERIES
+
+    @Column(name = "is_featured")
+    private Boolean isFeatured = false;
+
+    private String language; // eg. vi, en, ko, ...
+
+    private String country;
+
+    private Integer ageRating; // 1: G, 2: PG, 3: PG-13, 4: R, 5: NC-17, 6: 18+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = DatabaseConstant.PREFIX_TABLE + "movie_category",
+            joinColumns = @JoinColumn(name = "movie_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id")
+    )
+    private List<Category> categories = new ArrayList<>();
+
+    @Column(name = "view_count")
+    private Long viewCount = 0L;
+}
