@@ -34,4 +34,10 @@ public class ErrorCode {
     public static final String PERMISSION_ERROR_NOT_FOUND = "ERROR-PERMISSION-ERROR-0001";
     public static final String PERMISSION_ERROR_NAME_EXISTED = "ERROR-PERMISSION-ERROR-0002";
     public static final String PERMISSION_ERROR_CODE_EXISTED = "ERROR-PERMISSION-ERROR-0003";
+
+    /**
+     * Starting error code Video Library
+     */
+    public static final String VIDEO_LIBRARY_ERROR_NOT_FOUND = "ERROR-VIDEO-LIBRARY-ERROR-0000";
+    public static final String VIDEO_LIBRARY_ERROR_NAME_EXISTED = "ERROR-VIDEO-LIBRARY-ERROR-0002";
 }

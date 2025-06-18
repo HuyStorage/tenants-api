@@ -131,4 +131,29 @@
         <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_employee" constraintName="FK3dmv32mmijjxed84ypab8e2qw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group" validate="true"/>
     </changeSet>
 
+    <changeSet author="Tenant" id="1750222928222-1">
+        <createTable tableName="db_video_library">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_video_libraryPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="original_url" type="VARCHAR(255)"/>
+            <column name="hls_url" type="VARCHAR(255)"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
