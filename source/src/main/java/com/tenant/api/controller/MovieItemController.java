@@ -11,7 +11,9 @@ import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.form.movieItem.CreateMovieItemForm;
+import com.tenant.api.form.movieItem.OrderingMovieItemForm;
 import com.tenant.api.form.movieItem.UpdateMovieItemForm;
+import com.tenant.api.form.movieItem.UpdateOrderingMovieItemForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
@@ -34,7 +36,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/movie-item")
@@ -125,5 +129,32 @@ public class MovieItemController extends ABasicController {
         movieItemRepository.deleteByParentId(movieItem.getId());
         movieItemRepository.delete(movieItem);
         return makeSuccessResponse("Delete movie item success");
+    }
+
+    @PutMapping(value = "/update-ordering", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_I_U')")
+    public ApiMessageDto<Void> updateOrdering(@Valid @RequestBody UpdateOrderingMovieItemForm form) {
+        List<Long> ids = form.getOrderingMovieItems().stream()
+                .map(OrderingMovieItemForm::getId)
+                .collect(Collectors.toList());
+        List<MovieItem> movieItems = movieItemRepository.findAllByKindAndIdIn(form.getKind(), ids);
+
+        if (movieItems.size() != ids.size()) {
+            throw new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND);
+        }
+
+        if (movieItems.stream().anyMatch(mi -> !Objects.equals(mi.getKind(), form.getKind()))) {
+            throw new BadRequestException("All items must have the same kind", ErrorCode.MOVIE_ITEM_ERROR_KIND_INVALID);
+        }
+
+        Map<Long, Integer> orderingMap = form.getOrderingMovieItems().stream()
+                .collect(Collectors.toMap(OrderingMovieItemForm::getId, OrderingMovieItemForm::getOrdering));
+
+        for (MovieItem item : movieItems) {
+            item.setOrdering(orderingMap.get(item.getId()));
+        }
+        movieItemRepository.saveAll(movieItems);
+
+        return makeSuccessResponse("Update movie item success");
     }
 }
