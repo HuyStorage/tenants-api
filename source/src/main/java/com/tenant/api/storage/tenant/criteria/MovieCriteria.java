@@ -1,7 +1,6 @@
 package com.tenant.api.storage.tenant.criteria;
 
 import com.tenant.api.storage.tenant.model.Movie;
-import com.tenant.api.storage.tenant.model.VideoLibrary;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -18,6 +17,8 @@ public class MovieCriteria {
     private Long id;
     private String title;
     private String originalTitle;
+    private Integer type;
+    private Integer ageRating;
     private Integer status;
 
     public Specification<Movie> getSpecification() {
@@ -41,6 +42,14 @@ public class MovieCriteria {
 
                 if (getOriginalTitle() != null) {
                     predicates.add(cb.like(cb.lower(root.get("originalTitle")), "%" + getOriginalTitle().toLowerCase() + "%"));
+                }
+
+                if (getType() != null) {
+                    predicates.add(cb.equal(root.get("type"), getType()));
+                }
+
+                if (getAgeRating() != null) {
+                    predicates.add(cb.equal(root.get("ageRating"), getAgeRating()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

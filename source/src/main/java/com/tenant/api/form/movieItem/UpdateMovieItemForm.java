@@ -28,4 +28,7 @@ public class UpdateMovieItemForm {
     @StatusConstraint
     @ApiModelProperty(required = true)
     private Integer status;
+
+    @ApiModelProperty
+    private Long videoId;
 }

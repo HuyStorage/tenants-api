@@ -247,4 +247,9 @@
     <changeSet author="Tenant" id="1750265225963-4">
         <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="db_movie_item" constraintName="FKqlmqpfgvxl14djnndsgylpxy9" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie_item" validate="true"/>
     </changeSet>
+    <changeSet author="Tenant" id="1750304352118-1">
+        <addColumn tableName="db_video_library">
+            <column name="thumbnail_url" type="varchar(255)" afterColumn="hls_url"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

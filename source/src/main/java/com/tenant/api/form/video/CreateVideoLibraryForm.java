@@ -25,6 +25,9 @@ public class CreateVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String hlsUrl;
 
+    @ApiModelProperty
+    private String thumbnailUrl;
+
     @StatusConstraint
     @ApiModelProperty(required = true)
     private Integer status;
