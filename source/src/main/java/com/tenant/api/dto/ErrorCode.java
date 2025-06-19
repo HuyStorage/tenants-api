@@ -62,4 +62,11 @@ public class ErrorCode {
      * Starting error code Person
      */
     public static final String PERSON_ERROR_NOT_FOUND = "ERROR-PERSON-ERROR-0000";
+
+    /**
+     * Starting error code Movie Person
+     */
+    public static final String MOVIE_PERSON_ERROR_NOT_FOUND = "ERROR-MOVIE-PERSON-ERROR-0000";
+    public static final String MOVIE_PERSON_ERROR_KIND_INVALID = "ERROR-MOVIE-PERSON-ERROR-0001";
+    public static final String MOVIE_PERSON_ERROR_INVALID_REQUEST = "ERROR-MOVIE-PERSON-ERROR-0002";
 }
