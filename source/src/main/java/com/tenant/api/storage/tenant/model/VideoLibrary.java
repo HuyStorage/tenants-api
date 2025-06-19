@@ -25,4 +25,7 @@ public class VideoLibrary extends Auditable<String> {
 
     @Column(name = "hls_url")
     private String hlsUrl;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
 }

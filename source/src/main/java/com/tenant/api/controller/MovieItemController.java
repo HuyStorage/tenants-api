@@ -65,6 +65,8 @@ public class MovieItemController extends ABasicController {
         MovieItem parent = null;
         VideoLibrary video = null;
         int ordering;
+        Movie movie = movieRepository.findById(form.getMovieId())
+                .orElseThrow(() -> new NotFoundException("[Movie] Movie not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
         if (!Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
             if (form.getParentId() == null) {
                 throw new BadRequestException("[Movie Item] Parent is required", ErrorCode.MOVIE_ITEM_ERROR_PARENT_REQUIRED);
@@ -74,14 +76,20 @@ public class MovieItemController extends ABasicController {
             }
             parent = movieItemRepository.findById(form.getParentId())
                     .orElseThrow(() -> new NotFoundException("[Movie Item] Parent not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
-            video = videoLibraryRepository.findById(form.getParentId())
+            video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
             ordering = movieItemRepository.getNextOrdering(parent.getId(), form.getMovieId());
         } else {
             ordering = movieItemRepository.getNextOrderingForSeason(form.getMovieId());
+            if (movie.getType().equals(BaseConstant.MOVIE_TYPE_SINGLE)) {
+                if (form.getVideoId() == null) {
+                    throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
+                }
+                video = videoLibraryRepository.findById(form.getVideoId())
+                        .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
+            }
         }
-        Movie movie = movieRepository.findById(form.getMovieId())
-                .orElseThrow(() -> new NotFoundException("[Movie] Movie not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
         MovieItem movieItem = movieItemMapper.fromCreateMovieItemFormToEntity(form);
         movieItem.setParent(parent);
         movieItem.setVideo(video);

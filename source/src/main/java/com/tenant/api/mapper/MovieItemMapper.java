@@ -37,6 +37,7 @@ public interface MovieItemMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "kind", target = "kind")
     @Mapping(source = "ordering", target = "ordering")
+    @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieItemAutoCompleteDto")
     MovieItemDto entityToMovieItemAutoCompleteDto(MovieItem movieItem);

@@ -16,6 +16,7 @@ public interface VideoLibraryMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "status", target = "status")
@@ -30,6 +31,7 @@ public interface VideoLibraryMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToVideoLibraryAutoCompleteDto")
     VideoLibraryDto entityToVideoLibraryAutoCompleteDto(VideoLibrary video);
@@ -40,6 +42,7 @@ public interface VideoLibraryMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     VideoLibrary fromCreateVideoLibraryFormToEntity(CreateVideoLibraryForm form);
@@ -47,6 +50,7 @@ public interface VideoLibraryMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "originalUrl", target = "originalUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "hlsUrl", target = "hlsUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateVideoLibraryFormToEntity(UpdateVideoLibraryForm form, @MappingTarget VideoLibrary videoLibrary);
