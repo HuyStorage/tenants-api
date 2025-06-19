@@ -33,6 +33,13 @@ public class BaseConstant {
     public static final String PHONE_PATTERN = "^0[35789][0-9]{8}$";
     public static final String EMAIL_PATTERN = "^(?!.*[.]{2,})[a-zA-Z0-9.%]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
+    public static final Integer GENDER_MALE = 1;
+    public static final Integer GENDER_FEMALE = 2;
+    public static final Integer GENDER_OTHER = 3;
+
+    public static final Integer PERSON_KIND_ACTOR = 1;
+    public static final Integer PERSON_KIND_DIRECTOR = 2;
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

@@ -57,4 +57,9 @@ public class ErrorCode {
     public static final String MOVIE_ITEM_ERROR_VIDEO_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0003";
     public static final String MOVIE_ITEM_ERROR_KIND_INVALID = "ERROR-MOVIE-ITEM-ERROR-0004";
     public static final String MOVIE_ITEM_ERROR_INVALID_REQUEST = "ERROR-MOVIE-ITEM-ERROR-0005";
+
+    /**
+     * Starting error code Person
+     */
+    public static final String PERSON_ERROR_NOT_FOUND = "ERROR-PERSON-ERROR-0000";
 }

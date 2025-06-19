@@ -81,15 +81,10 @@ public class MovieItemController extends ABasicController {
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
 
-        Integer ordering = (parent != null)
-                ? movieItemRepository.findMaxOrdering(parent.getId(), form.getMovieId())
-                : movieItemRepository.findMaxOrderingForSeason(form.getMovieId());
-
         MovieItem movieItem = movieItemMapper.fromCreateMovieItemFormToEntity(form);
         movieItem.setParent(parent);
         movieItem.setVideo(video);
         movieItem.setMovie(movie);
-        movieItem.setOrdering((ordering != null) ? ordering + 1 : 0);
 
         movieItemRepository.save(movieItem);
 
