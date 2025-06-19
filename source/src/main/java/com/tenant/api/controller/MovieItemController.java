@@ -4,25 +4,17 @@ import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
-import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.dto.movieItem.MovieItemDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
-import com.tenant.api.form.movie.CreateMovieForm;
-import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.form.movieItem.CreateMovieItemForm;
 import com.tenant.api.form.movieItem.OrderingMovieItemForm;
 import com.tenant.api.form.movieItem.UpdateMovieItemForm;
-import com.tenant.api.form.movieItem.UpdateOrderingMovieItemForm;
 import com.tenant.api.mapper.MovieItemMapper;
-import com.tenant.api.mapper.MovieMapper;
-import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
-import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
-import com.tenant.api.storage.tenant.repository.CategoryRepository;
 import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.MovieRepository;
 import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
@@ -62,39 +54,42 @@ public class MovieItemController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMovieItemForm form) {
-        MovieItem parent = null;
-        VideoLibrary video = null;
-        int ordering;
         Movie movie = movieRepository.findById(form.getMovieId())
                 .orElseThrow(() -> new NotFoundException("[Movie] Movie not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
-        if (!Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+        MovieItem parent = null;
+        VideoLibrary video = null;
+
+        boolean isRequiredVideo = false;
+        if (Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
+                isRequiredVideo = true;
+            }
+        } else {
             if (form.getParentId() == null) {
                 throw new BadRequestException("[Movie Item] Parent is required", ErrorCode.MOVIE_ITEM_ERROR_PARENT_REQUIRED);
             }
+            parent = movieItemRepository.findById(form.getParentId())
+                    .orElseThrow(() -> new NotFoundException("[Movie Item] Parent not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+            isRequiredVideo = true;
+        }
+
+        if (isRequiredVideo) {
             if (form.getVideoId() == null) {
                 throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
             }
-            parent = movieItemRepository.findById(form.getParentId())
-                    .orElseThrow(() -> new NotFoundException("[Movie Item] Parent not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
-            ordering = movieItemRepository.getNextOrdering(parent.getId(), form.getMovieId());
-        } else {
-            ordering = movieItemRepository.getNextOrderingForSeason(form.getMovieId());
-            if (movie.getType().equals(BaseConstant.MOVIE_TYPE_SINGLE)) {
-                if (form.getVideoId() == null) {
-                    throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
-                }
-                video = videoLibraryRepository.findById(form.getVideoId())
-                        .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
-            }
         }
+
+        Integer ordering = (parent != null)
+                ? movieItemRepository.findMaxOrdering(parent.getId(), form.getMovieId())
+                : movieItemRepository.findMaxOrderingForSeason(form.getMovieId());
 
         MovieItem movieItem = movieItemMapper.fromCreateMovieItemFormToEntity(form);
         movieItem.setParent(parent);
         movieItem.setVideo(video);
         movieItem.setMovie(movie);
-        movieItem.setOrdering(ordering);
+        movieItem.setOrdering((ordering != null) ? ordering + 1 : 0);
 
         movieItemRepository.save(movieItem);
 
@@ -124,7 +119,26 @@ public class MovieItemController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateMovieItemForm form) {
         MovieItem movieItem = movieItemRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+        boolean isRequiredVideo = false;
+        VideoLibrary video = null;
+
+        if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+            if (Objects.equals(movieItem.getMovie().getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
+                isRequiredVideo = true;
+            }
+        } else {
+            isRequiredVideo = true;
+        }
+
+        if (isRequiredVideo) {
+            if (form.getVideoId() == null) {
+                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
+            }
+            video = videoLibraryRepository.findById(form.getVideoId())
+                    .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
+        }
         movieItemMapper.fromUpdateMovieItemFormToEntity(form, movieItem);
+        movieItem.setVideo(video);
         movieItemRepository.save(movieItem);
         return makeSuccessResponse("Update movie item success");
     }
@@ -141,21 +155,20 @@ public class MovieItemController extends ABasicController {
 
     @PutMapping(value = "/update-ordering", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_U')")
-    public ApiMessageDto<Void> updateOrdering(@Valid @RequestBody UpdateOrderingMovieItemForm form) {
-        List<Long> ids = form.getOrderingMovieItems().stream()
+    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid OrderingMovieItemForm> form) {
+        if (form == null || form.isEmpty()) {
+            throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
+        }
+        List<Long> ids = form.stream()
                 .map(OrderingMovieItemForm::getId)
                 .collect(Collectors.toList());
-        List<MovieItem> movieItems = movieItemRepository.findAllByKindAndIdIn(form.getKind(), ids);
+        List<MovieItem> movieItems = movieItemRepository.findAllById(ids);
 
         if (movieItems.size() != ids.size()) {
             throw new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND);
         }
 
-        if (movieItems.stream().anyMatch(mi -> !Objects.equals(mi.getKind(), form.getKind()))) {
-            throw new BadRequestException("All items must have the same kind", ErrorCode.MOVIE_ITEM_ERROR_KIND_INVALID);
-        }
-
-        Map<Long, Integer> orderingMap = form.getOrderingMovieItems().stream()
+        Map<Long, Integer> orderingMap = form.stream()
                 .collect(Collectors.toMap(OrderingMovieItemForm::getId, OrderingMovieItemForm::getOrdering));
 
         for (MovieItem item : movieItems) {

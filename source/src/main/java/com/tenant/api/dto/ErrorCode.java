@@ -56,4 +56,5 @@ public class ErrorCode {
     public static final String MOVIE_ITEM_ERROR_PARENT_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0002";
     public static final String MOVIE_ITEM_ERROR_VIDEO_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0003";
     public static final String MOVIE_ITEM_ERROR_KIND_INVALID = "ERROR-MOVIE-ITEM-ERROR-0004";
+    public static final String MOVIE_ITEM_ERROR_INVALID_REQUEST = "ERROR-MOVIE-ITEM-ERROR-0005";
 }
