@@ -214,7 +214,7 @@ public class EmployeeController extends ABasicController {
         }
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
-        employeeRepository.delete(employee);
+        employeeRepository.deleteById(id);
         accountRepository.deleteById(id);
         return makeSuccessResponse("Delete employee success");
     }
