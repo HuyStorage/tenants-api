@@ -86,8 +86,8 @@ public class MoviePersonController extends ABasicController {
                 moviePerson = new MoviePerson();
                 moviePerson.setMovie(movie);
                 moviePerson.setPerson(person);
-                moviePerson.setKind(item.getKind());
             }
+            moviePerson.setKind(item.getKind());
             moviePerson.setOrdering(item.getOrdering());
             moviePerson.setCharacterName(item.getCharacterName() != null && item.getKind().equals(BaseConstant.PERSON_KIND_ACTOR)
                     ? item.getCharacterName() : null);

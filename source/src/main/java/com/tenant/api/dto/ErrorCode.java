@@ -16,6 +16,16 @@ public class ErrorCode {
     /**
      * Starting error code Employee
      */
+    public static final String ACCOUNT_ERROR_NOT_FOUND = "ERROR-ACCOUNT-ERROR-0000";
+    public static final String ACCOUNT_ERROR_USERNAME_EXISTED = "ERROR-ACCOUNT-ERROR-0002";
+    public static final String ACCOUNT_ERROR_PHONE_EXISTED = "ERROR-ACCOUNT-ERROR-0003";
+    public static final String ACCOUNT_ERROR_EMAIL_EXISTED = "ERROR-ACCOUNT-ERROR-0004";
+    public static final String ACCOUNT_ERROR_WRONG_PASSWORD = "ERROR-ACCOUNT-ERROR-0005";
+    public static final String ACCOUNT_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-ACCOUNT-ERROR-0006";
+
+    /**
+     * Starting error code Employee
+     */
     public static final String EMPLOYEE_ERROR_NOT_FOUND = "ERROR-EMPLOYEE-ERROR-0000";
     public static final String EMPLOYEE_ERROR_USERNAME_EXISTED = "ERROR-EMPLOYEE-ERROR-0002";
     public static final String EMPLOYEE_ERROR_PHONE_EXISTED = "ERROR-EMPLOYEE-ERROR-0003";

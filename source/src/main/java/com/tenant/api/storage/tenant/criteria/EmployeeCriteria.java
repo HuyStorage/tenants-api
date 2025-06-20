@@ -33,7 +33,7 @@ public class EmployeeCriteria {
                 }
 
                 if (getKind() != null) {
-                    predicates.add(cb.equal(root.get("kind"), getKind()));
+                    predicates.add(cb.equal(root.get("account").get("kind"), getKind()));
                 }
 
                 if (getStatus() != null) {
@@ -41,15 +41,15 @@ public class EmployeeCriteria {
                 }
 
                 if (getUsername() != null) {
-                    predicates.add(cb.like(cb.lower(root.get("username")), "%" + getUsername().toLowerCase() + "%"));
+                    predicates.add(cb.like(cb.lower(root.get("account").get("username")), "%" + getUsername().toLowerCase() + "%"));
                 }
 
                 if (getFullName() != null) {
-                    predicates.add(cb.like(cb.lower(root.get("fullName")), "%" + getFullName().toLowerCase() + "%"));
+                    predicates.add(cb.like(cb.lower(root.get("account").get("fullName")), "%" + getFullName().toLowerCase() + "%"));
                 }
 
                 if (getPhone() != null) {
-                    predicates.add(cb.like(cb.lower(root.get("phone")), "%" + getPhone().toLowerCase() + "%"));
+                    predicates.add(cb.like(cb.lower(root.get("account").get("phone")), "%" + getPhone().toLowerCase() + "%"));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }
