@@ -56,27 +56,41 @@ public class MoviePersonController extends ABasicController {
     public ApiMessageDto<Void> create(@Valid @RequestBody AddMoviePersonForm form) {
         Movie movie = movieRepository.findById(form.getMovieId())
                 .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
-        List<MoviePerson> moviePersonList = new ArrayList<>();
         List<Long> personIds = form.getPersons().stream()
                 .map(AddMoviePersonItemForm::getPersonId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); // personIds incoming
 
-        List<Person> people = personRepository.findAllById(personIds);
-        if (people.size() != personIds.size()) {
+        List<Person> personList = personRepository.findAllById(personIds);
+        if (personList.size() != personIds.size()) {
             throw new NotFoundException("[Person] not found", ErrorCode.PERSON_ERROR_NOT_FOUND);
         }
+        Map<Long, Person> personMap = personList.stream()
+                .collect(Collectors.toMap(Person::getId, p -> p)); // key: personId, value: Person
 
-        Map<Long, Person> personMap = people.stream()
-                .collect(Collectors.toMap(Person::getId, p -> p));
+        // delete not in persons incoming
+        moviePersonRepository.deleteByMovieIdAndPersonIdNotIn(movie.getId(), personIds);
+
+        List<MoviePerson> moviePersonOld = moviePersonRepository.findAllByMovieId(movie.getId());
+        Map<Long, MoviePerson> moviePersonMap = moviePersonOld.stream()
+                .collect(Collectors.toMap(mp -> mp.getPerson().getId(), mp -> mp)); // key: personId, value: MoviePerson
+
+        List<MoviePerson> moviePersonList = new ArrayList<>();
         for (AddMoviePersonItemForm item : form.getPersons()) {
             Person person = personMap.get(item.getPersonId());
+            MoviePerson moviePerson;
 
-            MoviePerson moviePerson = new MoviePerson();
-            moviePerson.setMovie(movie);
-            moviePerson.setPerson(person);
-            moviePerson.setKind(item.getKind());
+            // if existed -> update
+            if (moviePersonMap.containsKey(item.getPersonId())) {
+                moviePerson = moviePersonMap.get(item.getPersonId());
+            } else { // create new
+                moviePerson = new MoviePerson();
+                moviePerson.setMovie(movie);
+                moviePerson.setPerson(person);
+                moviePerson.setKind(item.getKind());
+            }
             moviePerson.setOrdering(item.getOrdering());
-            moviePerson.setCharacterName(item.getCharacterName() != null ? item.getCharacterName() : null);
+            moviePerson.setCharacterName(item.getCharacterName() != null && item.getKind().equals(BaseConstant.PERSON_KIND_ACTOR)
+                    ? item.getCharacterName() : null);
 
             moviePersonList.add(moviePerson);
         }

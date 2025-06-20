@@ -50,6 +50,7 @@ public interface PersonMapper {
     @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "bio", target = "bio")
     @Mapping(source = "gender", target = "gender")
+    @Mapping(source = "dateOfBirth", target = "dateOfBirth")
     @Mapping(source = "kinds", target = "kinds")
     @BeanMapping(ignoreByDefault = true)
     Person fromCreatePersonFormToEntity(CreatePersonForm form);
@@ -59,6 +60,7 @@ public interface PersonMapper {
     @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "bio", target = "bio")
     @Mapping(source = "gender", target = "gender")
+    @Mapping(source = "dateOfBirth", target = "dateOfBirth")
     @Mapping(source = "kinds", target = "kinds")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdatePersonFormToEntity(UpdatePersonForm form, @MappingTarget Person person);

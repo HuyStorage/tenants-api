@@ -30,7 +30,7 @@ public class CreatePersonForm {
 
     @GenderConstraint
     @ApiModelProperty(required = true)
-    private String gender;
+    private Integer gender;
 
     @ApiModelProperty
     private Date dateOfBirth;

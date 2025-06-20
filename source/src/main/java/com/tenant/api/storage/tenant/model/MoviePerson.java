@@ -17,9 +17,11 @@ import java.util.Date;
 public class MoviePerson extends Auditable<String> {
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_id")
     private Movie movie;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_id")
     private Person person;
 
     private Integer kind; // 1: DIRECTOR, 2: ACTOR
