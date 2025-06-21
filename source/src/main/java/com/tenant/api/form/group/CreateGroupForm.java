@@ -24,4 +24,7 @@ public class CreateGroupForm {
     @NotNull(message = "permissions cant not be null")
     @ApiModelProperty(name = "permissions", required = true)
     private List<Long> permissions;
+
+    @ApiModelProperty(name = "kind")
+    private Integer kind;
 }

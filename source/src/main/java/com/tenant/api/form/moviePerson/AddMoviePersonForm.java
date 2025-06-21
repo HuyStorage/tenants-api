@@ -19,7 +19,6 @@ public class AddMoviePersonForm {
     private Long movieId;
 
     @Valid
-    @NotEmpty(message = "persons cannot be empty")
     @ApiModelProperty(required = true)
     private List<AddMoviePersonItemForm> persons;
 }

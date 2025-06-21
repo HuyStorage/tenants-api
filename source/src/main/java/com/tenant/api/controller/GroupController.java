@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -16,6 +17,7 @@ import com.tenant.api.storage.tenant.criteria.GroupCriteria;
 import com.tenant.api.storage.tenant.model.Group;
 import com.tenant.api.storage.tenant.model.GroupPermission;
 import com.tenant.api.storage.tenant.repository.GroupRepository;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -70,7 +72,8 @@ public class GroupController extends ABasicController {
             }
         }
         group.setPermissions(permissions);
-        group.setKind(groupRepository.getNextKind());
+        int kind = createGroupForm.getKind() != null ? createGroupForm.getKind() : groupRepository.getNextKind();
+        group.setKind(kind);
         groupRepository.save(group);
         apiMessageDto.setMessage("Create group success");
         return apiMessageDto;
@@ -135,6 +138,10 @@ public class GroupController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");
         }
+        List<Integer> excludeKinds = new ArrayList<>();
+        excludeKinds.add(BaseConstant.USER_KIND_USER);
+        excludeKinds.add(BaseConstant.USER_KIND_USER_VIP);
+        groupCriteria.setExcludeKinds(excludeKinds);
         Page<Group> groups = groupRepository
                 .findAll(groupCriteria.getSpecification(), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.DESC, "createdDate"))));
         ResponseListDto<List<GroupDto>> responseListDto = makeResponseListDto(groups, groupMapper::fromEntityToGroupDtoList);

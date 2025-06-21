@@ -56,6 +56,12 @@ public class MoviePersonController extends ABasicController {
     public ApiMessageDto<Void> create(@Valid @RequestBody AddMoviePersonForm form) {
         Movie movie = movieRepository.findById(form.getMovieId())
                 .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
+        // delete all
+        if (form.getPersons().isEmpty()) {
+            moviePersonRepository.deleteByMovieId(movie.getId());
+        }
+
         List<Long> personIds = form.getPersons().stream()
                 .map(AddMoviePersonItemForm::getPersonId)
                 .collect(Collectors.toList()); // personIds incoming

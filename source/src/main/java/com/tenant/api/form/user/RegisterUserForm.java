@@ -1,5 +1,6 @@
-package com.tenant.api.form.employee;
+package com.tenant.api.form.user;
 
+import com.tenant.api.validation.EmailConstraint;
 import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,13 +13,18 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @ApiModel
-public class LoginEmployeeForm {
+public class RegisterUserForm {
     @UsernameConstraint
     @ApiModelProperty(required = true)
     private String username;
+
+    @EmailConstraint(allowNull = true)
+    @ApiModelProperty(name = "email")
+    private String email;
 
     @NotEmpty(message = "password cant not be empty")
     @Size(min = 6, message = "password must be at least 6 characters")
     @ApiModelProperty(name = "password", required = true)
     private String password;
+
 }

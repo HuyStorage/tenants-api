@@ -30,7 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         apiMessageDto.setResult(false);
         apiMessageDto.setCode(ex.getCode());
         apiMessageDto.setMessage(ex.getMessage());
-        return new ResponseEntity<>(apiMessageDto, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiMessageDto, HttpStatus.OK);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         dto.setMessage("Invalid form");
         dto.setData(errorForms);
 
-        return new ResponseEntity<>(dto, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -94,7 +94,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiMessageDto<String>> badRequest(BadRequestException ex) {
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
         apiMessageDto.setResult(false);
+        apiMessageDto.setCode(ex.getCode());
         apiMessageDto.setMessage(ex.getMessage());
-        return new ResponseEntity<>(apiMessageDto, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiMessageDto, HttpStatus.OK);
     }
 }

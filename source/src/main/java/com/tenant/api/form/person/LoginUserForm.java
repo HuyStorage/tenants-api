@@ -1,4 +1,4 @@
-package com.tenant.api.form.employee;
+package com.tenant.api.form.person;
 
 import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;
@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @ApiModel
-public class LoginEmployeeForm {
+public class LoginUserForm {
     @UsernameConstraint
     @ApiModelProperty(required = true)
     private String username;

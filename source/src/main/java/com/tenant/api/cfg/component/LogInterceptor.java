@@ -44,7 +44,9 @@ public class LogInterceptor implements HandlerInterceptor {
             SecurityConstant.USER_KIND_USER
     );
     final static List<String> BYPASS_TENANT = List.of(
-            "/v1/employee/login"
+            "/v1/employee/login",
+            "/v1/user/register",
+            "/v1/user/login"
     );
 
     @Override

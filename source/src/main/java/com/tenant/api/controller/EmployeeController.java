@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
@@ -212,7 +213,7 @@ public class EmployeeController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed get");
         }
-        Employee employee = employeeRepository.findById(id)
+        employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
         employeeRepository.deleteById(id);
         accountRepository.deleteById(id);
@@ -242,7 +243,7 @@ public class EmployeeController extends ABasicController {
         request.add("grant_type", "employee");
         request.add("username", username);
         request.add("password", password);
-        request.add("tenantId", form.getTenantId());
+        request.add("tenantId", TenantDBContext.getCurrentTenant());
         request.add("userId", employee.getId().toString());
         request.add("userKind", String.valueOf(employee.getAccount().getKind()));
         request.add("permissions", permissions);

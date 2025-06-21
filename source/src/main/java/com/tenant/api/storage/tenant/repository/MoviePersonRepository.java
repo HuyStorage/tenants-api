@@ -18,7 +18,7 @@ public interface MoviePersonRepository extends JpaRepository<MoviePerson, Long>,
     @Modifying
     @Transactional
     @Query("DELETE MoviePerson mp where mp.movie.id = :movieId")
-    void deleteByMovieId(Long movieId);
+    void deleteByMovieId(@Param("movieId") Long movieId);
 
     @Modifying
     @Transactional

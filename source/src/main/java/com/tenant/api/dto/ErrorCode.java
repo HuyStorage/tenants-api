@@ -34,6 +34,16 @@ public class ErrorCode {
     public static final String EMPLOYEE_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-EMPLOYEE-ERROR-0006";
 
     /**
+     * Starting error code User
+     */
+    public static final String USER_ERROR_NOT_FOUND = "ERROR-USER-ERROR-0000";
+    public static final String USER_ERROR_USERNAME_EXISTED = "ERROR-USER-ERROR-0002";
+    public static final String USER_ERROR_PHONE_EXISTED = "ERROR-USER-ERROR-0003";
+    public static final String USER_ERROR_EMAIL_EXISTED = "ERROR-USER-ERROR-0004";
+    public static final String USER_ERROR_WRONG_PASSWORD = "ERROR-USER-ERROR-0005";
+    public static final String USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-USER-ERROR-0006";
+
+    /**
      * Starting error code Group
      */
     public static final String GROUP_ERROR_NOT_FOUND = "ERROR-GROUP-ERROR-0001";
