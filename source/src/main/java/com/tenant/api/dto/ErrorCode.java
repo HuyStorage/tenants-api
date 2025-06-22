@@ -83,6 +83,7 @@ public class ErrorCode {
      */
     public static final String PERSON_ERROR_NOT_FOUND = "ERROR-PERSON-ERROR-0000";
     public static final String PERSON_ERROR_MOVIE_PERSON_EXISTED = "ERROR-PERSON-ERROR-0001";
+    public static final String PERSON_ERROR_NOT_HAVE_KIND = "ERROR-PERSON-ERROR-0002";
 
     /**
      * Starting error code Movie Person

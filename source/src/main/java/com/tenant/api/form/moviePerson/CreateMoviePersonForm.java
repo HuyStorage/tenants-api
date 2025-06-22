@@ -11,7 +11,12 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ApiModel
-public class AddMoviePersonItemForm {
+public class CreateMoviePersonForm {
+
+    @NotNull(message = "movieId cannot be null")
+    @ApiModelProperty(required = true)
+    private Long movieId;
+
     @NotNull(message = "personId cannot be null")
     @ApiModelProperty(required = true)
     private Long personId;

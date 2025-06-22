@@ -155,10 +155,7 @@ public class UserController extends ABasicController {
     public ApiMessageDto<Void> activeVIP() {
         User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
-        Group group = groupRepository.findFirstByKindAndStatus(BaseConstant.USER_KIND_USER_VIP, BaseConstant.STATUS_ACTIVE)
-                .orElseThrow(() -> new NotFoundException("[Group] Group not found"));
         user.getAccount().setKind(BaseConstant.USER_KIND_USER_VIP);
-        user.getAccount().setGroup(group);
         accountRepository.save(user.getAccount());
 
         return makeSuccessResponse("Active vip success");

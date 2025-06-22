@@ -370,4 +370,26 @@
     <changeSet author="Tenant" id="1750479070891-2">
         <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="db_user" constraintName="FKelwy3xhlg66g6qctshfc0edcm" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_account" validate="true"/>
     </changeSet>
+
+    <changeSet author="Tenant" id="1750479070891-3">
+        <modifyDataType
+                tableName="db_movie"
+                columnName="description"
+                newDataType="TEXT"/>
+    </changeSet>
+
+    <changeSet author="Tenant" id="1750479070891-4">
+        <insert tableName="db_group">
+            <column name="id" valueNumeric="8564510827970560"/>
+            <column name="name" value="USER"/>
+            <column name="kind" valueNumeric="1000"/>
+            <column name="description" value="Role for user"/>
+            <column name="is_system_role" valueBoolean="false"/>
+            <column name="created_by" value="system"/>
+            <column name="created_date" valueDate="2025-06-21T04:22:19"/>
+            <column name="modified_by" value="system"/>
+            <column name="modified_date" valueDate="2025-06-21T04:22:19"/>
+            <column name="status" valueNumeric="1"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
