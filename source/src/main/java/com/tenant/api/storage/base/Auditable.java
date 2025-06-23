@@ -1,6 +1,7 @@
 package com.tenant.api.storage.base;
 
 import com.tenant.api.constant.BaseConstant;
+import com.tenant.api.storage.tenant.model.ReuseId;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,12 +19,7 @@ import java.util.Date;
 @MappedSuperclass
 @Getter
 @Setter
-public class Auditable<T> {
-
-    @Id
-    @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
-    @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
-    private Long id;
+public class Auditable<T> extends ReuseId {
 
     @CreatedBy
     @Column(name = "created_by" ,nullable = false, updatable = false)

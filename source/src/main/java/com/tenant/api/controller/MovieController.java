@@ -14,6 +14,7 @@ import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.repository.CategoryRepository;
 import com.tenant.api.storage.tenant.repository.MovieItemRepository;
+import com.tenant.api.storage.tenant.repository.MoviePersonRepository;
 import com.tenant.api.storage.tenant.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,8 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private MovieItemRepository movieItemRepository;
+    @Autowired
+    private MoviePersonRepository moviePersonRepository;
 
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -122,9 +125,12 @@ public class MovieController extends ABasicController {
             throw new BadRequestException("[Movie] Cannot delete, movie still has items", ErrorCode.MOVIE_ERROR_HAS_ITEM);
         }
 
-        if (!movie.getCategories().isEmpty()) {
-            movieRepository.deleteMovieCategory(movie.getId());
-        }
+        // delete movie person
+        moviePersonRepository.deleteByMovieId(movie.getId());
+
+        // delete movie category
+        movie.getCategories().clear();
+        movieRepository.save(movie);
 
         movieRepository.delete(movie);
         return makeSuccessResponse("Delete movie success");

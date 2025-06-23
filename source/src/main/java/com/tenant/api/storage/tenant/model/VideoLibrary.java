@@ -1,15 +1,14 @@
 package com.tenant.api.storage.tenant.model;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.constant.DatabaseConstant;
 import com.tenant.api.storage.base.Auditable;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = DatabaseConstant.PREFIX_TABLE + "video_library")
@@ -18,14 +17,29 @@ import javax.persistence.Table;
 @Setter
 public class VideoLibrary extends Auditable<String> {
 
+    @Id
+    @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
+    @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
+    private Long id;
+
     private String name;
 
-    @Column(name = "original_url")
-    private String originalUrl;
+    @Column(columnDefinition = "TEXT", name = "short_description")
+    private String shortDescription;
 
-    @Column(name = "hls_url")
-    private String hlsUrl;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "relative_content_path")
+    private String relativeContentPath;
 
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
+
+    private Long duration;
+
+    private Integer state; // 0: PROCESSING, 1: READY
 }

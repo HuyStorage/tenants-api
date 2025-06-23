@@ -16,12 +16,33 @@ public class ErrorCode {
     /**
      * Starting error code Employee
      */
+    public static final String ACCOUNT_ERROR_NOT_FOUND = "ERROR-ACCOUNT-ERROR-0000";
+    public static final String ACCOUNT_ERROR_USERNAME_EXISTED = "ERROR-ACCOUNT-ERROR-0002";
+    public static final String ACCOUNT_ERROR_PHONE_EXISTED = "ERROR-ACCOUNT-ERROR-0003";
+    public static final String ACCOUNT_ERROR_EMAIL_EXISTED = "ERROR-ACCOUNT-ERROR-0004";
+    public static final String ACCOUNT_ERROR_WRONG_PASSWORD = "ERROR-ACCOUNT-ERROR-0005";
+    public static final String ACCOUNT_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-ACCOUNT-ERROR-0006";
+    public static final String ACCOUNT_ERROR_LOOKED = "ERROR-ACCOUNT-ERROR-0007";
+
+    /**
+     * Starting error code Employee
+     */
     public static final String EMPLOYEE_ERROR_NOT_FOUND = "ERROR-EMPLOYEE-ERROR-0000";
     public static final String EMPLOYEE_ERROR_USERNAME_EXISTED = "ERROR-EMPLOYEE-ERROR-0002";
     public static final String EMPLOYEE_ERROR_PHONE_EXISTED = "ERROR-EMPLOYEE-ERROR-0003";
     public static final String EMPLOYEE_ERROR_EMAIL_EXISTED = "ERROR-EMPLOYEE-ERROR-0004";
     public static final String EMPLOYEE_ERROR_WRONG_PASSWORD = "ERROR-EMPLOYEE-ERROR-0005";
     public static final String EMPLOYEE_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-EMPLOYEE-ERROR-0006";
+
+    /**
+     * Starting error code User
+     */
+    public static final String USER_ERROR_NOT_FOUND = "ERROR-USER-ERROR-0000";
+    public static final String USER_ERROR_USERNAME_EXISTED = "ERROR-USER-ERROR-0002";
+    public static final String USER_ERROR_PHONE_EXISTED = "ERROR-USER-ERROR-0003";
+    public static final String USER_ERROR_EMAIL_EXISTED = "ERROR-USER-ERROR-0004";
+    public static final String USER_ERROR_WRONG_PASSWORD = "ERROR-USER-ERROR-0005";
+    public static final String USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-USER-ERROR-0006";
 
     /**
      * Starting error code Group
@@ -57,4 +78,18 @@ public class ErrorCode {
     public static final String MOVIE_ITEM_ERROR_VIDEO_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0003";
     public static final String MOVIE_ITEM_ERROR_KIND_INVALID = "ERROR-MOVIE-ITEM-ERROR-0004";
     public static final String MOVIE_ITEM_ERROR_INVALID_REQUEST = "ERROR-MOVIE-ITEM-ERROR-0005";
+
+    /**
+     * Starting error code Person
+     */
+    public static final String PERSON_ERROR_NOT_FOUND = "ERROR-PERSON-ERROR-0000";
+    public static final String PERSON_ERROR_MOVIE_PERSON_EXISTED = "ERROR-PERSON-ERROR-0001";
+    public static final String PERSON_ERROR_NOT_HAVE_KIND = "ERROR-PERSON-ERROR-0002";
+
+    /**
+     * Starting error code Movie Person
+     */
+    public static final String MOVIE_PERSON_ERROR_NOT_FOUND = "ERROR-MOVIE-PERSON-ERROR-0000";
+    public static final String MOVIE_PERSON_ERROR_KIND_INVALID = "ERROR-MOVIE-PERSON-ERROR-0001";
+    public static final String MOVIE_PERSON_ERROR_INVALID_REQUEST = "ERROR-MOVIE-PERSON-ERROR-0002";
 }

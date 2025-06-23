@@ -19,6 +19,7 @@ public class GroupCriteria implements Serializable {
     private Integer kind;
     private Integer status;
     private Boolean isSystemRole;
+    private List<Integer> excludeKinds;
 
     public Specification<Group> getSpecification() {
         return new Specification<Group>() {
@@ -41,6 +42,9 @@ public class GroupCriteria implements Serializable {
                 }
                 if (getIsSystemRole() != null) {
                     predicates.add(cb.equal(root.get("isSystemRole"), getIsSystemRole()));
+                }
+                if (getExcludeKinds() != null && !getExcludeKinds().isEmpty()) {
+                    predicates.add(cb.not(root.get("kind").in(getExcludeKinds())));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

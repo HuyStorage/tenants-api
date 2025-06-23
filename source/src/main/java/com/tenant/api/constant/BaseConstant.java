@@ -5,7 +5,8 @@ public class BaseConstant {
     public static final Integer USER_KIND_ADMIN = 1;
     public static final Integer USER_KIND_MANAGER = 2;
     public static final Integer USER_KIND_EMPLOYEE = 3;
-    public static final Integer USER_KIND_USER = 4;
+    public static final Integer USER_KIND_USER = 10;
+    public static final Integer USER_KIND_USER_VIP = 11;
 
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_PENDING = 0;
@@ -32,6 +33,16 @@ public class BaseConstant {
     public static final String USERNAME_PATTERN = "^(?=.{3,20}$)(?!.*[_.]{2})[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]$";
     public static final String PHONE_PATTERN = "^0[35789][0-9]{8}$";
     public static final String EMAIL_PATTERN = "^(?!.*[.]{2,})[a-zA-Z0-9.%]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+
+    public static final Integer GENDER_MALE = 1;
+    public static final Integer GENDER_FEMALE = 2;
+    public static final Integer GENDER_OTHER = 3;
+
+    public static final Integer PERSON_KIND_ACTOR = 1;
+    public static final Integer PERSON_KIND_DIRECTOR = 2;
+
+    public static final Integer VIDEO_LIBRARY_STATE_PROCESSING = 0;
+    public static final Integer VIDEO_LIBRARY_STATE_READY = 1;
 
     private BaseConstant(){
         throw new IllegalStateException("Utility class");

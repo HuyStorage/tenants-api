@@ -1,6 +1,5 @@
 package com.tenant.api.storage.tenant.criteria;
 
-import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.MovieItem;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,8 +16,9 @@ public class MovieItemCriteria {
 
     private Long id;
     private String title;
-    private String kind;
+    private Integer kind;
     private Integer status;
+    private Long movieId;
 
     public Specification<MovieItem> getSpecification() {
         return new Specification<MovieItem>() {
@@ -41,6 +41,10 @@ public class MovieItemCriteria {
 
                 if (getKind() != null) {
                     predicates.add(cb.equal(root.get("kind"), getKind()));
+                }
+
+                if (getMovieId() != null) {
+                    predicates.add(cb.equal(root.get("movie").get("id"), getMovieId()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

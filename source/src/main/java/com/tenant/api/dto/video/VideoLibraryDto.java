@@ -10,7 +10,11 @@ import lombok.Setter;
 @ApiModel
 public class VideoLibraryDto extends ABasicAdminDto {
     private String name;
-    private String originalUrl;
-    private String hlsUrl;
+    private String shortDescription;
+    private String description;
+    private String content;
+    private String relativeContentPath;
     private String thumbnailUrl;
+    private Long duration;
+    private Integer state;
 }

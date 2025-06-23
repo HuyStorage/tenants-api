@@ -37,6 +37,7 @@ public interface MovieItemMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "kind", target = "kind")
     @Mapping(source = "ordering", target = "ordering")
+    @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieItemAutoCompleteDto")
@@ -48,6 +49,7 @@ public interface MovieItemMapper {
     @Mapping(source = "title", target = "title")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "kind", target = "kind")
+    @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     MovieItem fromCreateMovieItemFormToEntity(CreateMovieItemForm form);

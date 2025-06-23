@@ -1,6 +1,5 @@
 package com.tenant.api.storage.tenant.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tenant.api.constant.DatabaseConstant;
 import com.tenant.api.storage.base.Auditable;
 import lombok.Getter;
@@ -16,24 +15,12 @@ import javax.persistence.*;
 @Setter
 public class Employee extends Auditable<String> {
 
-    private String username;
+    @Id
+    private Long id;
 
-    private Integer kind;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "account_id")
+    @MapsId
+    private Account account;
 
-    private String phone;
-
-    private String email;
-
-    @JsonIgnore
-    private String password;
-
-    @Column(name = "full_name")
-    private String fullName;
-
-    @Column(name = "avatar_path")
-    private String avatarPath;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group group;
 }

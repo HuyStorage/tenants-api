@@ -26,10 +26,6 @@ public class TenantJwt implements Serializable {
     private Boolean isSuperAdmin = false;
     private String tenantId = EMPTY_STRING;
 
-
-
-
-
     public String toClaim(){
         if(deviceId == null){
             deviceId = -1L;

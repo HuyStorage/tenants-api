@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -51,6 +52,7 @@ public class VideoLibraryController extends ABasicController {
             throw new BadRequestException("[Video Library] Name existed", ErrorCode.VIDEO_LIBRARY_ERROR_NAME_EXISTED);
         }
         videoLibrary = videoLibraryMapper.fromCreateVideoLibraryFormToEntity(form);
+        videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
         videoLibraryRepository.save(videoLibrary);
         return makeSuccessResponse("Create videoLibrary success");
     }
@@ -58,14 +60,9 @@ public class VideoLibraryController extends ABasicController {
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('VID_L_V')")
     public ApiMessageDto<VideoLibraryDto> get(@PathVariable("id") Long id) {
-        ApiMessageDto<VideoLibraryDto> apiMessageDto = new ApiMessageDto<>();
         VideoLibrary videoLibrary = videoLibraryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Video Library] Not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
-
-        apiMessageDto.setData(videoLibraryMapper.entityToVideoLibraryDto(videoLibrary));
-        apiMessageDto.setResult(true);
-        apiMessageDto.setMessage("Get video library success");
-        return apiMessageDto;
+        return makeSuccessResponse(videoLibraryMapper.entityToVideoLibraryDto(videoLibrary), "Get video library success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

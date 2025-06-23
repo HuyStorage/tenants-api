@@ -1,0 +1,22 @@
+package com.tenant.api.dto.person;
+
+import com.tenant.api.dto.ABasicAdminDto;
+import io.swagger.annotations.ApiModel;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Date;
+import java.util.List;
+
+@Getter
+@Setter
+@ApiModel
+public class PersonDto extends ABasicAdminDto {
+    private String name;
+    private String otherName;
+    private String avatarPath;
+    private String bio;
+    private Integer gender;
+    private Date dateOfBirth;
+    private List<Integer> kinds;
+}

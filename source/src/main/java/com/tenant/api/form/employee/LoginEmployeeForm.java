@@ -21,8 +21,4 @@ public class LoginEmployeeForm {
     @Size(min = 6, message = "password must be at least 6 characters")
     @ApiModelProperty(name = "password", required = true)
     private String password;
-
-    @NotEmpty(message = "tenantId cant not be empty")
-    @ApiModelProperty(name = "tenantId", required = true)
-    private String tenantId;
 }
