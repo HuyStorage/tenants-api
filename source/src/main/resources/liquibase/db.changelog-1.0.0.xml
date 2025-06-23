@@ -398,4 +398,38 @@
             <where>id = 8564510827970560</where>
         </update>
     </changeSet>
+
+<!--    update video library-->
+    <changeSet author="Tenant" id="1750689656231-1">
+        <addColumn tableName="db_video_library">
+            <column name="short_description" type="TEXT" afterColumn="name"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1750689656231-2">
+        <addColumn tableName="db_video_library">
+            <column name="description" type="TEXT" afterColumn="short_description"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1750689656231-3">
+        <renameColumn tableName="db_video_library"
+                      oldColumnName="original_url"
+                      newColumnName="content"
+                      columnDataType="varchar(255)"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1750689656231-4">
+        <renameColumn tableName="db_video_library"
+                      oldColumnName="hls_url"
+                      newColumnName="relative_content_path"
+                      columnDataType="varchar(255)"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1750689656231-5">
+        <addColumn tableName="db_video_library">
+            <column name="duration" type="bigint" afterColumn="thumbnail_url"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1750689656231-6">
+        <addColumn tableName="db_video_library">
+            <column name="state" type="integer" afterColumn="duration"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

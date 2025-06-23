@@ -185,7 +185,7 @@ public class UserController extends ABasicController {
         }
         if (user.getStatus() != 1) {
             log.error("User had been locked");
-            throw new UsernameNotFoundException("Invalid username or password.");
+            throw new BadRequestException("Account is locked", ErrorCode.ACCOUNT_ERROR_LOOKED);
         }
         MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
         request.add("grant_type", "user");

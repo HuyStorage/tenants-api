@@ -21,13 +21,12 @@ public class UpdateVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String name;
 
-    @NotBlank(message = "originalUrl cannot be empty")
-    @ApiModelProperty(required = true)
-    private String originalUrl;
+    @ApiModelProperty
+    private String shortDescription;
 
-    @NotBlank(message = "hlsUrl cannot be empty")
+    @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
-    private String hlsUrl;
+    private String description;
 
     @ApiModelProperty
     private String thumbnailUrl;

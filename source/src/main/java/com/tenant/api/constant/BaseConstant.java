@@ -41,6 +41,9 @@ public class BaseConstant {
     public static final Integer PERSON_KIND_ACTOR = 1;
     public static final Integer PERSON_KIND_DIRECTOR = 2;
 
+    public static final Integer VIDEO_LIBRARY_STATE_PROCESSING = 0;
+    public static final Integer VIDEO_LIBRARY_STATE_READY = 1;
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

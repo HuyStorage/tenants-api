@@ -24,12 +24,22 @@ public class VideoLibrary extends Auditable<String> {
 
     private String name;
 
-    @Column(name = "original_url")
-    private String originalUrl;
+    @Column(columnDefinition = "TEXT", name = "short_description")
+    private String shortDescription;
 
-    @Column(name = "hls_url")
-    private String hlsUrl;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "relative_content_path")
+    private String relativeContentPath;
 
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
+
+    private Long duration;
+
+    private Integer state; // 0: PROCESSING, 1: READY
 }
