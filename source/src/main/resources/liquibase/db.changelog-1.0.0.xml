@@ -392,4 +392,10 @@
             <column name="status" valueNumeric="1"/>
         </insert>
     </changeSet>
+    <changeSet author="Tenant" id="1750479070891-5">
+        <update tableName="db_group">
+            <column name="kind" valueNumeric="10"/>
+            <where>id = 8564510827970560</where>
+        </update>
+    </changeSet>
 </databaseChangeLog>

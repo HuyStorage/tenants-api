@@ -5,8 +5,8 @@ public class BaseConstant {
     public static final Integer USER_KIND_ADMIN = 1;
     public static final Integer USER_KIND_MANAGER = 2;
     public static final Integer USER_KIND_EMPLOYEE = 3;
-    public static final Integer USER_KIND_USER = 1000;
-    public static final Integer USER_KIND_USER_VIP = 1001;
+    public static final Integer USER_KIND_USER = 10;
+    public static final Integer USER_KIND_USER_VIP = 11;
 
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_PENDING = 0;
