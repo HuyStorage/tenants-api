@@ -16,40 +16,40 @@ public class TenantJwt implements Serializable {
 
     private Long accountId = -1L;
     private Long storeId = -1L;
-    private String kind = EMPTY_STRING;//token kind
+    private String kind = EMPTY_STRING; // token kind
     private String pemission = EMPTY_STRING;
-    private Long deviceId = -1L;// id cua thiet bi, lưu ở table device để get firebase url..
-    private Integer userKind = -1; //loại user là admin hay là gì
-    private String username = EMPTY_STRING;// username hoac order code
+    private Long deviceId = -1L; // id cua thiet bi, lưu ở table device để get firebase url..
+    private Integer userKind = -1; // loại user là admin hay là gì
+    private String username = EMPTY_STRING; // username
     private Integer tabletKind = -1;
     private Long orderId = -1L;
     private Boolean isSuperAdmin = false;
     private String tenantId = EMPTY_STRING;
 
-    public String toClaim(){
-        if(deviceId == null){
+    public String toClaim() {
+        if (deviceId == null) {
             deviceId = -1L;
         }
-        if(userKind == null){
+        if (userKind == null) {
             userKind = -1;
         }
-        if(username == null){
+        if (username == null) {
             username = EMPTY_STRING;
         }
-        if(tabletKind==null){
+        if (tabletKind == null) {
             tabletKind = -1;
         }
-        if(orderId == null){
+        if (orderId == null) {
             orderId = -1L;
         }
-        return ZipUtils.zipString(accountId+DELIM+storeId+DELIM+kind+DELIM+pemission+DELIM+deviceId+DELIM+userKind+DELIM+username+DELIM+tabletKind+DELIM+orderId+DELIM+isSuperAdmin+DELIM+tenantId) ;
+        return ZipUtils.zipString(accountId + DELIM + storeId + DELIM + kind + DELIM + pemission + DELIM + deviceId + DELIM + userKind + DELIM + username + DELIM + tabletKind + DELIM + orderId + DELIM + isSuperAdmin + DELIM + tenantId);
     }
 
-    public static TenantJwt decode(String input){
+    public static TenantJwt decode(String input) {
         TenantJwt result = null;
         try {
-            String[] items = ZipUtils.unzipString(input).split(DELIM,11);
-            if(items.length >= 10){
+            String[] items = ZipUtils.unzipString(input).split(DELIM, 11);
+            if (items.length >= 10) {
                 result = new TenantJwt();
                 result.setAccountId(parserLong(items[0]));
                 result.setStoreId(parserLong(items[1]));
@@ -61,52 +61,52 @@ public class TenantJwt implements Serializable {
                 result.setTabletKind(parserInt(items[7]));
                 result.setOrderId(parserLong(items[8]));
                 result.setIsSuperAdmin(checkBoolean(items[9]));
-                if(items.length > 10){
+                if (items.length > 10) {
                     result.setTenantId(checkString(items[10]));
                 }
             }
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
-        return  result;
+        return result;
     }
 
-    private static Long parserLong(String input){
-        try{
+    private static Long parserLong(String input) {
+        try {
             Long out = Long.parseLong(input);
-            if(out > 0){
-                return  out;
+            if (out > 0) {
+                return out;
             }
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
         return null;
     }
 
-    private static Integer parserInt(String input){
-        try{
+    private static Integer parserInt(String input) {
+        try {
             Integer out = Integer.parseInt(input);
-            if(out > 0){
-                return  out;
+            if (out > 0) {
+                return out;
             }
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
         return null;
     }
 
-    private static String checkString(String input){
-        if(!input.equals(EMPTY_STRING)){
-            return  input;
+    private static String checkString(String input) {
+        if (!input.equals(EMPTY_STRING)) {
+            return input;
         }
-        return  null;
+        return null;
     }
 
-    private static Boolean checkBoolean(String input){
-        try{
+    private static Boolean checkBoolean(String input) {
+        try {
             return Boolean.parseBoolean(input);
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return false;
         }
     }
