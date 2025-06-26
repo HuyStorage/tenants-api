@@ -19,4 +19,6 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
     void deleteByParentId(@Param("parentId") Long parentId);
 
     boolean existsByMovieId(Long movieId);
+
+    boolean existsByVideoId(Long videoId);
 }

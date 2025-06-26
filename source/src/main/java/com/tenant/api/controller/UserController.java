@@ -6,29 +6,23 @@ import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.account.LoginAuthDto;
-import com.tenant.api.dto.employee.EmployeeDto;
 import com.tenant.api.dto.user.UserDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
-import com.tenant.api.exception.UnauthorizationException;
-import com.tenant.api.form.employee.CreateEmployeeForm;
-import com.tenant.api.form.employee.LoginEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
 import com.tenant.api.form.person.LoginUserForm;
+import com.tenant.api.form.user.ChangePasswordForm;
 import com.tenant.api.form.user.RegisterUserForm;
 import com.tenant.api.form.user.UpdateUserForm;
 import com.tenant.api.form.user.UpdateUserProfileForm;
 import com.tenant.api.mapper.AccountMapper;
-import com.tenant.api.mapper.EmployeeMapper;
 import com.tenant.api.mapper.UserMapper;
 import com.tenant.api.service.feign.FeignAccountAuthService;
 import com.tenant.api.service.feign.FeignConst;
-import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
 import com.tenant.api.storage.tenant.criteria.UserCriteria;
-import com.tenant.api.storage.tenant.model.*;
+import com.tenant.api.storage.tenant.model.Account;
+import com.tenant.api.storage.tenant.model.Group;
+import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
-import com.tenant.api.storage.tenant.repository.EmployeeRepository;
 import com.tenant.api.storage.tenant.repository.GroupRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +44,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/user")
@@ -213,16 +206,6 @@ public class UserController extends ABasicController {
         User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
-        if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
-            if (!passwordEncoder.matches(form.getOldPassword(), user.getAccount().getPassword())) {
-                throw new BadRequestException("[User] Wrong password", ErrorCode.USER_ERROR_WRONG_PASSWORD);
-            }
-            if (form.getNewPassword().equals(form.getOldPassword())) {
-                throw new BadRequestException("[User] New password must be different from old password", ErrorCode.USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD);
-            }
-            user.getAccount().setPassword(passwordEncoder.encode(form.getNewPassword()));
-        }
-
         if (StringUtils.isNotBlank(form.getPhone()) && !Objects.equals(user.getAccount().getPhone(), form.getPhone())
                 && userRepository.existsByAccountPhoneAndStatusNot(form.getPhone(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[User] Phone existed", ErrorCode.USER_ERROR_PHONE_EXISTED);
@@ -238,11 +221,35 @@ public class UserController extends ABasicController {
             String avatarPath = user.getAccount().getAvatarPath();
             deleteFiles.add(avatarPath);
         }
+
         accountMapper.fromUpdateUserProfileFormToEntity(form, user.getAccount());
         accountRepository.save(user.getAccount());
+
+        userMapper.fromUpdateUserProfileFormToEntity(form, user);
+        userRepository.save(user);
         if (!deleteFiles.isEmpty()) {
 //            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
         }
+        return makeSuccessResponse("Update user profile success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PutMapping(value = "/change-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> changePassword(@Valid @RequestBody ChangePasswordForm form) {
+        User user = userRepository.findById(getCurrentUser())
+                .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
+        if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
+            if (!passwordEncoder.matches(form.getOldPassword(), user.getAccount().getPassword())) {
+                throw new BadRequestException("[User] Wrong password", ErrorCode.USER_ERROR_WRONG_PASSWORD);
+            }
+            if (form.getNewPassword().equals(form.getOldPassword())) {
+                throw new BadRequestException("[User] New password must be different from old password", ErrorCode.USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD);
+            }
+            user.getAccount().setPassword(passwordEncoder.encode(form.getNewPassword()));
+        }
+
+        accountRepository.save(user.getAccount());
         return makeSuccessResponse("Update user profile success");
     }
 }

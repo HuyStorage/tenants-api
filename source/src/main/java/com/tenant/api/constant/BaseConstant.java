@@ -44,6 +44,8 @@ public class BaseConstant {
     public static final Integer VIDEO_LIBRARY_STATE_PROCESSING = 0;
     public static final Integer VIDEO_LIBRARY_STATE_READY = 1;
 
+    public static final String CMD_UPDATE_VIDEO = "CMD_UPDATE_VIDEO";
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

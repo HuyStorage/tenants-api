@@ -432,4 +432,9 @@
             <column name="state" type="integer" afterColumn="duration"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1750905041848-1">
+        <addColumn tableName="db_user">
+            <column name="gender" type="integer" afterColumn="account_id"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

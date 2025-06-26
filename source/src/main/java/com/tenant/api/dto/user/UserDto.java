@@ -37,4 +37,7 @@ public class UserDto extends ABasicAdminDto {
 
     @ApiModelProperty(name = "group")
     private GroupDto group;
+
+    @ApiModelProperty(name = "gender")
+    private Integer gender;
 }

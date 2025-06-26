@@ -1,5 +1,6 @@
 package com.tenant.api.storage.tenant.model;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.constant.DatabaseConstant;
 import com.tenant.api.storage.base.Auditable;
 import lombok.Getter;
@@ -22,5 +23,7 @@ public class User extends Auditable<String> {
     @JoinColumn(name = "account_id")
     @MapsId
     private Account account;
+
+    private Integer gender = BaseConstant.GENDER_OTHER;
 
 }
