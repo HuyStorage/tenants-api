@@ -23,13 +23,15 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        TenantJwt tenantJwt = userService.getAddInfoFromToken();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated() || tenantJwt == null) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.of("unknown");
         }
 
+        TenantJwt tenantJwt = userService.getAddInfoFromToken() != null ? userService.getAddInfoFromToken() : null;
+        if (tenantJwt == null || tenantJwt.getAccountId() == null) {
+            return Optional.of("unknown");
+        }
         return Optional.of(tenantJwt.getAccountId().toString());
     }
 }

@@ -120,8 +120,16 @@ public class MoviePersonController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('MOV_P_L')")
     public ApiMessageDto<ResponseListDto<List<MoviePersonDto>>> list(MoviePersonCriteria criteria, Pageable pageable) {
+        Page<MoviePerson> moviePersonPage = moviePersonRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<MoviePersonDto>> responseListDto = makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList);
+        return makeSuccessResponse(responseListDto, "List movie person success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_P_L')")
+    public ApiMessageDto<ResponseListDto<List<MoviePersonDto>>> listForAdmin(MoviePersonCriteria criteria, Pageable pageable) {
         Page<MoviePerson> moviePersonPage = moviePersonRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<MoviePersonDto>> responseListDto = makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList);

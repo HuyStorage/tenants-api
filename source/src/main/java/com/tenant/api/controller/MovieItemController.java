@@ -92,8 +92,16 @@ public class MovieItemController extends ABasicController {
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<MovieItemDto> get(@PathVariable("id") Long id) {
+        MovieItem movieItem = movieItemRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
+        return makeSuccessResponse(movieItemMapper.entityToMovieItemDto(movieItem), "Get movie item success");
+    }
+
+    @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_V')")
-    public ApiMessageDto<MovieItemDto> getById(@PathVariable("id") Long id) {
+    public ApiMessageDto<MovieItemDto> getForAdmin(@PathVariable("id") Long id) {
         MovieItem movieItem = movieItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
 
@@ -101,8 +109,17 @@ public class MovieItemController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('MOV_I_L')")
     public ApiMessageDto<ResponseListDto<List<MovieItemDto>>> list(MovieItemCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
+        return makeSuccessResponse(responseListDto, "List movie item success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_I_L')")
+    public ApiMessageDto<ResponseListDto<List<MovieItemDto>>> listForAdmin(MovieItemCriteria criteria, Pageable pageable) {
         Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);

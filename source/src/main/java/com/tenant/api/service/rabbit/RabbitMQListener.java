@@ -36,8 +36,7 @@ public class RabbitMQListener {
     @RabbitListener(queues = "${rabbitmq.update.video.queue}")
     public void receiveMessage(String message) {
         try {
-            BaseSendMsgForm<UpdateVideoForm> baseMessageForm = objectMapper.readValue(message, new TypeReference<>() {
-            });
+            BaseSendMsgForm<UpdateVideoForm> baseMessageForm = objectMapper.readValue(message, new TypeReference<>() {});
             System.out.println("======> Received message from " + updateVideoQueue + ": " + message);
             if (baseMessageForm.getCmd().equals(BaseConstant.CMD_UPDATE_VIDEO)) {
                 log.warn("==> Processing update video");

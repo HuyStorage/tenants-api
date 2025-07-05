@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -52,7 +53,7 @@ public class MovieController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMovieForm form) {
-        Movie movie = movieRepository.findFirstBySlug(form.getSlug()).orElse(null);
+        Movie movie = movieRepository.findFirstBySlugAndStatus(form.getSlug(), BaseConstant.STATUS_ACTIVE).orElse(null);
         if (movie != null) {
             throw new BadRequestException("[Movie] Slug existed", ErrorCode.MOVIE_ERROR_SLUG_EXISTED);
         }
@@ -78,17 +79,25 @@ public class MovieController extends ABasicController {
     }
 
     @GetMapping(value = "/get/slug/{slug}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('MOV_V')")
     public ApiMessageDto<MovieDto> getBySlug(@PathVariable("slug") String slug) {
-        Movie movie = movieRepository.findFirstBySlug(slug)
+        Movie movie = movieRepository.findFirstBySlugAndStatus(slug, BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
 
         return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get movie success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('MOV_L')")
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> list(MovieCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<MovieDto>> responseListDto = makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList);
+        return makeSuccessResponse(responseListDto, "List movie success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_L')")
+    public ApiMessageDto<ResponseListDto<List<MovieDto>>> listForAdmin(MovieCriteria criteria, Pageable pageable) {
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<MovieDto>> responseListDto = makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList);

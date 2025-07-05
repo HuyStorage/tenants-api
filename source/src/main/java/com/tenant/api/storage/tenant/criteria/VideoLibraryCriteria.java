@@ -17,6 +17,7 @@ public class VideoLibraryCriteria {
     private Long id;
     private String name;
     private Integer status;
+    private Integer state;
 
     public Specification<VideoLibrary> getSpecification() {
         return new Specification<VideoLibrary>() {
@@ -31,6 +32,10 @@ public class VideoLibraryCriteria {
 
                 if (getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), getStatus()));
+                }
+
+                if (getState() != null) {
+                    predicates.add(cb.equal(root.get("state"), getState()));
                 }
 
                 if (getName() != null) {

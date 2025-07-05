@@ -13,6 +13,33 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/v2/api-docs",
+            "/configuration/ui",
+            "/swagger-resources/**",
+            "/configuration/**",
+            "/swagger-ui.html",
+            "/webjars/**",
+
+            // LOGIN
+            "/v1/employee/login",
+            "/v1/user/login",
+            "/v1/user/register",
+
+            // Public GET APIs
+            "/v1/category/get/**",
+            "/v1/category/list",
+            "/v1/movie/get/slug/**",
+            "/v1/movie/list",
+            "/v1/movie-item/get/**",
+            "/v1/movie-item/list",
+            "/v1/movie-person/list",
+            "/v1/person/get/**",
+            "/v1/person/list",
+            "/v1/person/auto-complete",
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -25,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers(HttpMethod.OPTIONS);
-        web.ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources/**", "/configuration/**", "/swagger-ui.html", "/webjars/**", "/v1/employee/login", "/v1/user/login", "/v1/user/register");
+        web.ignoring().antMatchers(PUBLIC_ENDPOINTS);
 
     }
 

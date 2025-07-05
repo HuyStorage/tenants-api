@@ -20,10 +20,8 @@ import com.tenant.api.service.feign.FeignAccountAuthService;
 import com.tenant.api.service.feign.FeignConst;
 import com.tenant.api.storage.tenant.criteria.UserCriteria;
 import com.tenant.api.storage.tenant.model.Account;
-import com.tenant.api.storage.tenant.model.Group;
 import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
-import com.tenant.api.storage.tenant.repository.GroupRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -63,9 +61,6 @@ public class UserController extends ABasicController {
     private UserMapper userMapper;
 
     @Autowired
-    private GroupRepository groupRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -89,12 +84,8 @@ public class UserController extends ABasicController {
             throw new BadRequestException("[Account] Email is existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
         }
 
-        Group group = groupRepository.findFirstByKindAndStatus(BaseConstant.USER_KIND_USER, BaseConstant.STATUS_ACTIVE)
-                .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
-
         account = accountMapper.fromRegisterUserFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
-        account.setGroup(group);
         account.setKind(BaseConstant.USER_KIND_USER);
         accountRepository.save(account);
 

@@ -46,7 +46,17 @@ public class LogInterceptor implements HandlerInterceptor {
     final static List<String> BYPASS_TENANT = List.of(
             "/v1/employee/login",
             "/v1/user/register",
-            "/v1/user/login"
+            "/v1/user/login",
+            "/v1/category/get/**",
+            "/v1/category/list",
+            "/v1/movie/get/slug/**",
+            "/v1/movie/list",
+            "/v1/movie-item/get/**",
+            "/v1/movie-item/list",
+            "/v1/movie-person/list",
+            "/v1/person/get/**",
+            "/v1/person/list",
+            "/v1/person/auto-complete"
     );
 
     @Override

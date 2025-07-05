@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -55,8 +56,19 @@ public class CategoryController extends ABasicController {
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('CA_V')")
     public ApiMessageDto<CategoryDto> get(@PathVariable("id") Long id) {
+        ApiMessageDto<CategoryDto> apiMessageDto = new ApiMessageDto<>();
+        Category serviceCategory = categoryRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
+        apiMessageDto.setData(categoryMapper.entityToCategoryDto(serviceCategory));
+        apiMessageDto.setResult(true);
+        apiMessageDto.setMessage("Get service category success.");
+        return apiMessageDto;
+    }
+
+    @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('CA_V')")
+    public ApiMessageDto<CategoryDto> getForAdmin(@PathVariable("id") Long id) {
         ApiMessageDto<CategoryDto> apiMessageDto = new ApiMessageDto<>();
         Category serviceCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
@@ -68,8 +80,22 @@ public class CategoryController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('CA_L')")
     public ApiMessageDto<ResponseListDto<List<CategoryDto>>> list(CategoryCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Category> categories = categoryRepository.findAll(criteria.getSpecification(), pageable);
+
+        List<CategoryDto> categoryDtoList = categoryMapper.fromEntityToCategoryDtoList(categories.getContent());
+
+        ResponseListDto<List<CategoryDto>> responseListObj = new ResponseListDto<>();
+        responseListObj.setContent(categoryDtoList);
+        responseListObj.setTotalPages(categories.getTotalPages());
+        responseListObj.setTotalElements(categories.getTotalElements());
+        return makeSuccessResponse(responseListObj, "List category success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('CA_L')")
+    public ApiMessageDto<ResponseListDto<List<CategoryDto>>> listForAdmin(CategoryCriteria criteria, Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(criteria.getSpecification(), pageable);
 
         List<CategoryDto> categoryDtoList = categoryMapper.fromEntityToCategoryDtoList(categories.getContent());

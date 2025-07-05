@@ -437,4 +437,9 @@
             <column name="gender" type="integer" afterColumn="account_id"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1750905041848-2">
+        <delete tableName="db_group">
+            <where>id = 8564510827970560</where>
+        </delete>
+    </changeSet>
 </databaseChangeLog>

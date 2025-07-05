@@ -16,6 +16,7 @@ public class PersonCriteria {
     private String otherName;
     private Integer gender;
     private Integer kind;
+    private Integer status;
 
     public Specification<Person> getSpecification() {
         return new Specification<Person>() {
@@ -43,6 +44,10 @@ public class PersonCriteria {
                 if (getKind() != null) {
                     Join<Person, Integer> kindJoin = root.join("kinds");
                     predicates.add(cb.equal(kindJoin, kind));
+                }
+
+                if (getStatus() != null) {
+                    predicates.add(cb.equal(root.get("status"), getStatus()));
                 }
 
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
