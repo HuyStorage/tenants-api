@@ -1,21 +1,22 @@
 package com.tenant.api.form.user;
 
+import com.tenant.api.validation.PasswordConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 @ApiModel
 public class ChangePasswordForm {
-        @Size(min = 6, message = "oldPassword must be at least 6 characters")
-    @ApiModelProperty(name = "oldPassword")
+    @NotBlank(message = "oldPassword cannot be empty")
+    @ApiModelProperty(required = true)
     private String oldPassword;
 
-    @Size(min = 6, message = "newPassword must be at least 6 characters")
-    @ApiModelProperty(name = "newPassword")
+    @PasswordConstraint(message = "newPassword invalid format")
+    @ApiModelProperty(required = true)
     private String newPassword;
 }

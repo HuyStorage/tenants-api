@@ -26,15 +26,13 @@ public class CreateMovieItemForm {
     @ApiModelProperty(required = true)
     private Integer kind;
 
-    @ApiModelProperty
-    private Long parentId;
+    private Long parentId; // can be null
 
     @NotNull(message = "movieId cannot be null")
     @ApiModelProperty(required = true)
     private Long movieId;
 
-    @ApiModelProperty
-    private Long videoId;
+    private Long videoId; // can be null
 
     @NotNull(message = "ordering cannot be null")
     @ApiModelProperty(required = true)

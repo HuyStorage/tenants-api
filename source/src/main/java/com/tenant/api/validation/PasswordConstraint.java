@@ -1,6 +1,6 @@
 package com.tenant.api.validation;
 
-import com.tenant.api.validation.impl.EmailValidation;
+import com.tenant.api.validation.impl.PasswordValidation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -8,11 +8,11 @@ import java.lang.annotation.*;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = EmailValidation.class)
+@Constraint(validatedBy = PasswordValidation.class)
 @Documented
-public @interface EmailConstraint {
+public @interface PasswordConstraint {
     boolean allowNull() default false;
-    String message() default "Email invalid format";
+    String message() default "Password invalid format";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

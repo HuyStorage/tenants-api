@@ -13,14 +13,16 @@ import java.util.List;
 @ApiModel
 public class UpdateGroupForm {
     @NotNull(message = "id cant not be null")
-    @ApiModelProperty(name = "id", required = true)
+    @ApiModelProperty(required = true)
     private Long id;
+
     @NotNull(message = "name cant not be null")
-    @ApiModelProperty(name = "name", required = true)
+    @ApiModelProperty(required = true)
     private String name;
-    @ApiModelProperty(name = "description")
+
     private String description;
+
     @NotNull(message = "permissions cant not be null")
-    @ApiModelProperty(name = "permissions", required = true)
+    @ApiModelProperty(required = true)
     private List<Long> permissions;
 }

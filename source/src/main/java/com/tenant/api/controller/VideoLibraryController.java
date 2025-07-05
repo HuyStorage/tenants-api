@@ -59,6 +59,9 @@ public class VideoLibraryController extends ABasicController {
     @Value("${rabbitmq.convert.video.queue}")
     private String convertVideoQueue;
 
+    @Value("${rabbitmq.media.queue}")
+    private String mediaQueue;
+
     @Autowired
     private RabbitService rabbitService;
 
@@ -75,7 +78,16 @@ public class VideoLibraryController extends ABasicController {
         VideoLibraryDto data = new VideoLibraryDto();
         data.setId(videoLibrary.getId());
         data.setContent(videoLibrary.getContent());
-        rabbitService.handleSendMsg(appName, convertVideoQueue, data, "CMD_CONVERT_VIDEO", null, null, null, TenantDBContext.getCurrentTenant());
+        rabbitService.handleSendMsg(
+                appName,
+                convertVideoQueue,
+                data,
+                BaseConstant.CMD_CONVERT_VIDEO,
+                null,
+                null,
+                null,
+                TenantDBContext.getCurrentTenant()
+        );
         return makeSuccessResponse("Create videoLibrary success");
     }
 
@@ -122,7 +134,20 @@ public class VideoLibraryController extends ABasicController {
         if (movieItemRepository.existsByVideoId(videoLibrary.getId())) {
             throw new BadRequestException("[Video Library] Movie item existed", ErrorCode.VIDEO_LIBRARY_ERROR_MOVIE_ITEM_EXISTED);
         }
+        VideoLibraryDto data = new VideoLibraryDto();
+        data.setId(id);
+        rabbitService.handleSendMsg(
+                appName,
+                mediaQueue,
+                data,
+                BaseConstant.CMD_DELETE_VIDEO,
+                null,
+                null,
+                null,
+                TenantDBContext.getCurrentTenant()
+        );
         videoLibraryRepository.delete(videoLibrary);
+        // send message to delete folder
         return makeSuccessResponse("Delete video library success");
     }
 }

@@ -33,6 +33,7 @@ public class BaseConstant {
     public static final String USERNAME_PATTERN = "^(?=.{3,20}$)(?!.*[_.]{2})[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]$";
     public static final String PHONE_PATTERN = "^0[35789][0-9]{8}$";
     public static final String EMAIL_PATTERN = "^(?!.*[.]{2,})[a-zA-Z0-9.%]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    public static final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$";
 
     public static final Integer GENDER_MALE = 1;
     public static final Integer GENDER_FEMALE = 2;
@@ -46,6 +47,8 @@ public class BaseConstant {
     public static final Integer VIDEO_LIBRARY_STATE_ERROR = 2;
 
     public static final String CMD_UPDATE_VIDEO = "CMD_UPDATE_VIDEO";
+    public static final String CMD_CONVERT_VIDEO = "CMD_CONVERT_VIDEO";
+    public static final String CMD_DELETE_VIDEO = "CMD_DELETE_VIDEO";
 
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
