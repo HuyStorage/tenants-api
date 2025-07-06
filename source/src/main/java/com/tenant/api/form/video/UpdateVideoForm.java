@@ -14,4 +14,5 @@ public class UpdateVideoForm {
     private String content;
     private String relativeContentPath;
     private Integer state;
+    private Long duration;
 }

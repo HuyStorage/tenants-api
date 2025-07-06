@@ -21,6 +21,7 @@ public class VideoService {
             videoLibrary.setContent(form.getContent());
             videoLibrary.setRelativeContentPath(form.getRelativeContentPath());
             videoLibrary.setState(form.getState());
+            videoLibrary.setDuration(form.getDuration());
             videoLibraryRepository.save(videoLibrary);
         }
         log.warn("End updating video ID: {}", form.getId());
