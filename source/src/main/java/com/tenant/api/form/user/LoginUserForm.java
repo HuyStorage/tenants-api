@@ -1,4 +1,4 @@
-package com.tenant.api.form.person;
+package com.tenant.api.form.user;
 
 import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;

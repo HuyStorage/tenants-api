@@ -14,37 +14,33 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = DatabaseConstant.PREFIX_TABLE + "person")
+@Table(name = DatabaseConstant.PREFIX_TABLE + "side_bar")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class Person extends Auditable<String> {
+public class Sidebar extends Auditable<String> {
 
     @Id
     @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
     private Long id;
 
-    private String name;
+    private String description;
 
-    @Column(name = "other_name")
-    private String otherName;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_item_id")
+    private MovieItem movieItem;
 
-    @Column(name = "avatar_path")
-    private String avatarPath;
+    @Column(name = "web_thumbnail_url")
+    private String webThumbnailUrl;
 
-    @Column(columnDefinition = "TEXT")
-    private String bio;
+    @Column(name = "mobile_thumbnail_url")
+    private String mobileThumbnailUrl;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = DatabaseConstant.PREFIX_TABLE + "person_kind", joinColumns = @JoinColumn(name = "person_id"))
-    @Column(name = "kind")
-    private List<Integer> kinds = new ArrayList<>();
+    @Column(name = "main_color")
+    private String mainColor;
 
-    private Integer gender;
+    private Integer ordering;
 
-    @Column(name = "date_of_birth")
-    private Date dateOfBirth;
-
-    private String country;
+    private Boolean active = false;
 }

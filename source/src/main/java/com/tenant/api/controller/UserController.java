@@ -9,7 +9,7 @@ import com.tenant.api.dto.account.LoginAuthDto;
 import com.tenant.api.dto.user.UserDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
-import com.tenant.api.form.person.LoginUserForm;
+import com.tenant.api.form.user.LoginUserForm;
 import com.tenant.api.form.user.ChangePasswordForm;
 import com.tenant.api.form.user.RegisterUserForm;
 import com.tenant.api.form.user.UpdateUserForm;

@@ -1,4 +1,4 @@
-package com.tenant.api.form.moviePerson;
+package com.tenant.api.form;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ApiModel
-public class OrderingMoviePersonForm {
+public class UpdateOrderingForm {
 
     @NotNull(message = "id cannot be null")
     @ApiModelProperty(required = true)

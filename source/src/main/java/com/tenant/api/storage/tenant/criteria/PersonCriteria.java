@@ -17,6 +17,7 @@ public class PersonCriteria {
     private Integer gender;
     private Integer kind;
     private Integer status;
+    private String country;
 
     public Specification<Person> getSpecification() {
         return new Specification<Person>() {
@@ -48,6 +49,10 @@ public class PersonCriteria {
 
                 if (getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), getStatus()));
+                }
+
+                if (getCountry() != null) {
+                    predicates.add(cb.like(cb.lower(root.get("country")), "%" + getCountry().toLowerCase() + "%"));
                 }
 
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));

@@ -93,4 +93,10 @@ public class ErrorCode {
     public static final String MOVIE_PERSON_ERROR_NOT_FOUND = "ERROR-MOVIE-PERSON-ERROR-0000";
     public static final String MOVIE_PERSON_ERROR_KIND_INVALID = "ERROR-MOVIE-PERSON-ERROR-0001";
     public static final String MOVIE_PERSON_ERROR_INVALID_REQUEST = "ERROR-MOVIE-PERSON-ERROR-0002";
+
+    /**
+     * Starting error code Sidebar
+     */
+    public static final String SIDEBAR_ERROR_NOT_FOUND = "ERROR-SIDEBAR-ERROR-0000";
+    public static final String SIDEBAR_ERROR_MOVIE_EXISTED = "ERROR-SIDEBAR-ERROR-0001";
 }

@@ -50,6 +50,9 @@ public class BaseConstant {
     public static final String CMD_CONVERT_VIDEO = "CMD_CONVERT_VIDEO";
     public static final String CMD_DELETE_VIDEO = "CMD_DELETE_VIDEO";
 
+    public static final Boolean SIDEBAR_ACTIVE_TRUE = true;
+    public static final boolean SIDEBAR_ACTIVE_FALSE = false;
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

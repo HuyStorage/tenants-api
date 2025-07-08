@@ -7,8 +7,8 @@ import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.moviePerson.MoviePersonDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.moviePerson.CreateMoviePersonForm;
-import com.tenant.api.form.moviePerson.OrderingMoviePersonForm;
 import com.tenant.api.form.moviePerson.UpdateMoviePersonForm;
 import com.tenant.api.mapper.MoviePersonMapper;
 import com.tenant.api.storage.tenant.criteria.MoviePersonCriteria;
@@ -95,12 +95,12 @@ public class MoviePersonController extends ABasicController {
 
     @PutMapping(value = "/update-ordering", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_P_U')")
-    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid OrderingMoviePersonForm> form) {
+    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid UpdateOrderingForm> form) {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_PERSON_ERROR_INVALID_REQUEST);
         }
         List<Long> ids = form.stream()
-                .map(OrderingMoviePersonForm::getId)
+                .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());
         List<MoviePerson> moviePersonList = moviePersonRepository.findAllById(ids);
 
@@ -109,7 +109,7 @@ public class MoviePersonController extends ABasicController {
         }
 
         Map<Long, Integer> orderingMap = form.stream()
-                .collect(Collectors.toMap(OrderingMoviePersonForm::getId, OrderingMoviePersonForm::getOrdering));
+                .collect(Collectors.toMap(UpdateOrderingForm::getId, UpdateOrderingForm::getOrdering));
 
         for (MoviePerson item : moviePersonList) {
             item.setOrdering(orderingMap.get(item.getId()));

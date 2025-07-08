@@ -40,6 +40,8 @@ public class UpdatePersonForm {
     @ApiModelProperty
     private Date dateOfBirth;
 
+    private String country;
+
     @PersonKindConstraint
     @ApiModelProperty(required = true)
     private List<Integer> kinds;

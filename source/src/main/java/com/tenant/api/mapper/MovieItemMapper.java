@@ -46,6 +46,17 @@ public interface MovieItemMapper {
     @IterableMapping(elementTargetType = MovieItemDto.class, qualifiedByName = "entityToMovieItemAutoCompleteDto")
     List<MovieItemDto> fromEntityToMovieItemAutoCompleteDtoList(List<MovieItem> movieItems);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "kind", target = "kind")
+    @Mapping(source = "ordering", target = "ordering")
+    @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieShortDto")
+    @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToMovieItemShortDto")
+    MovieItemDto entityToMovieItemShortDto(MovieItem movieItem);
+
     @Mapping(source = "title", target = "title")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "kind", target = "kind")
