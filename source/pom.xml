@@ -355,9 +355,9 @@
 				<version>${spring-boot}</version>
 				<executions>
 					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
+<!--						<goals>-->
+<!--							<goal>repackage</goal>-->
+<!--						</goals>-->
 						<configuration>
 <!--							<classifier>spring-boot</classifier>-->
 							<mainClass>

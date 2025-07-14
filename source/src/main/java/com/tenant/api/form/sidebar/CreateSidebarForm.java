@@ -28,9 +28,5 @@ public class CreateSidebarForm {
     @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "mainColor must be in hex format")
     private String mainColor;
 
-    @NotNull(message = "ordering cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordering;
-
     private Boolean active;
 }

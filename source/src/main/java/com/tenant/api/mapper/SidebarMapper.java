@@ -35,7 +35,6 @@ public interface SidebarMapper {
     @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "mainColor", target = "mainColor")
-    @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "active", target = "active")
     @BeanMapping(ignoreByDefault = true)
     Sidebar fromCreateSidebarFormToEntity(CreateSidebarForm form);

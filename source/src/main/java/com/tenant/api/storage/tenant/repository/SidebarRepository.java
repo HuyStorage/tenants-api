@@ -28,4 +28,7 @@ public interface SidebarRepository extends JpaRepository<Sidebar, Long>, JpaSpec
             "JOIN db_movie_item mi ON s.movie_item_id = mi.id " +
             "WHERE mi.parent_id = :movieItemId", nativeQuery = true)
     void deleteByMovieItemParentId(@Param("movieItemId") Long movieItemId);
+
+    @Query("SELECT MAX(s.ordering) FROM Sidebar s")
+    Optional<Integer> findMaxOrdering();
 }

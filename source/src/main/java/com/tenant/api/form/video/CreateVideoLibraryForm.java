@@ -17,7 +17,6 @@ public class CreateVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String name;
 
-    @ApiModelProperty
     private String shortDescription;
 
     @NotBlank(message = "description cannot be empty")
@@ -28,8 +27,13 @@ public class CreateVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String content;
 
-    @ApiModelProperty
     private String thumbnailUrl;
+
+    private Long introStart;
+
+    private Long introEnd;
+
+    private Long outroStart;
 
     @StatusConstraint
     @ApiModelProperty(required = true)

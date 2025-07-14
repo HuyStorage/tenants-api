@@ -48,4 +48,7 @@ public class MovieItem extends Auditable<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private VideoLibrary video;
+
+    @Column(name = "release_date")
+    private Date releaseDate;
 }

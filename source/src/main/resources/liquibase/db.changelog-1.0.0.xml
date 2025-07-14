@@ -529,4 +529,24 @@
     <changeSet author="Tenant" id="1751949113262-2">
         <dropColumn columnName="start_date" tableName="db_side_bar"/>
     </changeSet>
+    <changeSet author="Tenant" id="1751967725079-1">
+        <addColumn tableName="db_video_library">
+            <column name="intro_start" type="bigint" afterColumn="duration"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1751967725079-2">
+        <addColumn tableName="db_video_library">
+            <column name="intro_end" type="bigint" afterColumn="intro_start"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1751967725079-3">
+        <addColumn tableName="db_video_library">
+            <column name="outro_start" type="bigint" afterColumn="intro_end"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1752120342913-1">
+        <addColumn tableName="db_movie_item">
+            <column name="release_date" type="datetime" afterColumn="video_id"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

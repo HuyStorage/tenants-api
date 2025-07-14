@@ -57,6 +57,8 @@ public class SidebarController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Movie Item] not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
         Sidebar sidebar = sidebarMapper.fromCreateSidebarFormToEntity(form);
         sidebar.setMovieItem(movieItem);
+        int ordering = sidebarRepository.findMaxOrdering().map(o -> o + 1).orElse(0);
+        sidebar.setOrdering(ordering);
         sidebarRepository.save(sidebar);
         return makeSuccessResponse("Create sidebar success");
     }

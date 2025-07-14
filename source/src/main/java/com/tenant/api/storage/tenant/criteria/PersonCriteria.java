@@ -1,5 +1,6 @@
 package com.tenant.api.storage.tenant.criteria;
 
+import com.tenant.api.storage.tenant.model.MoviePerson;
 import com.tenant.api.storage.tenant.model.Person;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +19,7 @@ public class PersonCriteria {
     private Integer kind;
     private Integer status;
     private String country;
+    private Long movieId;
 
     public Specification<Person> getSpecification() {
         return new Specification<Person>() {
@@ -53,6 +55,14 @@ public class PersonCriteria {
 
                 if (getCountry() != null) {
                     predicates.add(cb.like(cb.lower(root.get("country")), "%" + getCountry().toLowerCase() + "%"));
+                }
+
+                if (getMovieId() != null) {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<MoviePerson> mpRoot = subquery.from(MoviePerson.class);
+                    subquery.select(mpRoot.get("person").get("id"))
+                            .where(cb.equal(mpRoot.get("movie").get("id"), getMovieId()));
+                    predicates.add(root.get("id").in(subquery));
                 }
 
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));

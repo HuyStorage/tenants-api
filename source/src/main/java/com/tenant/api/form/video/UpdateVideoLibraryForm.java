@@ -21,15 +21,19 @@ public class UpdateVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String name;
 
-    @ApiModelProperty
     private String shortDescription;
 
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
     private String description;
 
-    @ApiModelProperty
     private String thumbnailUrl;
+
+    private Long introStart;
+
+    private Long introEnd;
+
+    private Long outroStart;
 
     @StatusConstraint
     @ApiModelProperty(required = true)
