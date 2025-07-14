@@ -1,23 +1,21 @@
 package com.tenant.api.controller;
 
-import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.account.LoginAuthDto;
+import com.tenant.api.dto.user.GoogleMobileCallback;
+import com.tenant.api.dto.user.GoogleWebCallback;
 import com.tenant.api.dto.user.UserDto;
+import com.tenant.api.dto.user.UserGoogleInfo;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
-import com.tenant.api.form.user.LoginUserForm;
-import com.tenant.api.form.user.ChangePasswordForm;
-import com.tenant.api.form.user.RegisterUserForm;
-import com.tenant.api.form.user.UpdateUserForm;
-import com.tenant.api.form.user.UpdateUserProfileForm;
+import com.tenant.api.form.user.*;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.UserMapper;
-import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
+import com.tenant.api.service.GoogleService;
+import com.tenant.api.service.LoginService;
 import com.tenant.api.storage.tenant.criteria.UserCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.User;
@@ -26,7 +24,6 @@ import com.tenant.api.storage.tenant.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -34,11 +31,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -64,14 +60,10 @@ public class UserController extends ABasicController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private FeignAccountAuthService accountAuthService;
+    private LoginService loginService;
 
-    @Value("${auth.internal.user.username}")
-    private String username;
-
-    @Value("${auth.internal.user.password}")
-    private String password;
-
+    @Autowired
+    private GoogleService googleService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -158,27 +150,16 @@ public class UserController extends ABasicController {
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public LoginAuthDto login(@Valid @RequestBody LoginUserForm form) {
-        User user = userRepository.findFirstByAccountUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE).orElse(null);
+        User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
         if (user == null) {
-            log.error("Invalid username or password.");
+            log.error("Invalid email or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
         if (!passwordEncoder.matches(form.getPassword(), user.getAccount().getPassword())) {
             log.error("Invalid username or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
-        if (user.getStatus() != 1) {
-            log.error("User had been locked");
-            throw new BadRequestException("Account is locked", ErrorCode.ACCOUNT_ERROR_LOOKED);
-        }
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("grant_type", "user");
-        request.add("username", username);
-        request.add("password", password);
-        request.add("tenantId", TenantDBContext.getCurrentTenant());
-        request.add("userId", user.getId().toString());
-        request.add("userKind", String.valueOf(user.getAccount().getKind()));
-        LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        LoginAuthDto result = loginService.getToken(user.getAccount(), BaseConstant.LOGIN_ROLE_USER);
         log.info(result.toString());
         return result;
     }
@@ -242,5 +223,31 @@ public class UserController extends ABasicController {
 
         accountRepository.save(user.getAccount());
         return makeSuccessResponse("Update user profile success");
+    }
+
+    @GetMapping(value = "/auth/social-login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<String> socialLogin(@RequestParam Integer loginType) {
+        String redirectUri = googleService.generateAuthUrl();
+        return makeSuccessResponse(redirectUri, "Success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/auth/web-callback", produces = MediaType.APPLICATION_JSON_VALUE)
+    public LoginAuthDto socialWebCallback(@Valid @RequestBody GoogleWebCallback googleCallback) throws IOException {
+        UserGoogleInfo userInfo = googleService.getUserInfo(googleCallback.getCode());
+        LoginAuthDto result = loginService.handleSocialLogin(userInfo);
+        log.info(result.toString());
+
+        return result;
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/auth/mobile-callback", produces = MediaType.APPLICATION_JSON_VALUE)
+    public LoginAuthDto socialMobileCallback(@Valid @RequestBody GoogleMobileCallback callback) throws IOException {
+        UserGoogleInfo userInfo = googleService.verifyIdToken(callback.getIdToken(), callback.getPlatform());
+        LoginAuthDto result = loginService.handleSocialLogin(userInfo);
+        log.info(result.toString());
+
+        return result;
     }
 }

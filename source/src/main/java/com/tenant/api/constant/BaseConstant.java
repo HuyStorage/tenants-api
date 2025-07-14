@@ -8,6 +8,15 @@ public class BaseConstant {
     public static final Integer USER_KIND_USER = 10;
     public static final Integer USER_KIND_USER_VIP = 11;
 
+    public static final Integer LOGIN_ROLE_EMPLOYEE = 1;
+    public static final Integer LOGIN_ROLE_USER = 2;
+
+    public static final int PLATFORM_IOS = 1;
+    public static final int PLATFORM_ANDROID = 2;
+
+    public static final String GRANT_TYPE_EMPLOYEE = "employee";
+    public static final String GRANT_TYPE_USER = "user";
+
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_PENDING = 0;
     public static final Integer STATUS_LOCK = -1;

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 
-
 @Service
 @Slf4j
 public class EmailService {
@@ -26,10 +25,10 @@ public class EmailService {
                     StandardCharsets.UTF_8.name());
             helper.setTo(email);
             helper.setSubject(subject);
-            helper.setText(msg,html);
+            helper.setText(msg, html);
 
             emailSender.send(message);
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }

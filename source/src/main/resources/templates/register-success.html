@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký thành công - MovieHub</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', sans-serif;">
+<div style="max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+    <!-- Header -->
+    <div style="background-color: #1e3a8a; color: #ffffff; padding: 20px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">🎬 MovieHub</h1>
+        <p style="margin: 5px 0 0; font-size: 16px;">Nền tảng xem phim trực tuyến hiện đại</p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 30px;">
+        <h2 style="color: #1e3a8a;">👋 Chào mừng bạn đến với MovieHub!</h2>
+        <p>Xin chào <strong>${email}</strong>,</p>
+        <p>Bạn đã đăng ký tài khoản thành công trên <strong>MovieHub</strong>. Dưới đây là thông tin đăng nhập của bạn:</p>
+
+        <table style="width: 100%; margin: 20px 0; font-size: 16px;">
+            <tr>
+                <td style="padding: 8px 0;"><strong>Email:</strong></td>
+                <td>${email}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0;"><strong>Mật khẩu:</strong></td>
+                <td>${password}</td>
+            </tr>
+        </table>
+
+        <p style="color: #dc2626;"><strong>⚠️ Lưu ý:</strong> Vì lý do bảo mật, bạn nên đổi mật khẩu sau khi đăng nhập lần đầu.</p>
+
+        <p>Nếu bạn không thực hiện hành động này, bạn có thể bỏ qua email này.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f9fafb; padding: 20px; text-align: center; font-size: 13px; color: #888888;">
+        📮 Đây là email tự động từ hệ thống MovieHub. Vui lòng không phản hồi lại email này.
+        <br>© 2025 MovieHub. All rights reserved.
+    </div>
+</div>
+</body>
+</html>

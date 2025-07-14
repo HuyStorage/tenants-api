@@ -26,6 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/employee/login",
             "/v1/user/login",
             "/v1/user/register",
+            "/v1/user/auth/social-login",
+            "/v1/user/auth/web-callback",
+            "/v1/user/auth/mobile-callback",
 
             // Public GET APIs
             "/v1/category/get/**",
