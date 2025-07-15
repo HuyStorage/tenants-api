@@ -16,5 +16,8 @@ public class VideoLibraryDto extends ABasicAdminDto {
     private String relativeContentPath;
     private String thumbnailUrl;
     private Long duration;
+    private Long introStart;
+    private Long introEnd;
+    private Long outroStart;
     private Integer state;
 }

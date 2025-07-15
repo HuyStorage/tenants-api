@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface PhoneConstraint {
     boolean allowNull() default false;
-    String message() default "Phone must be a well-formed phone number";
+    String message() default "Phone invalid format";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -8,6 +8,15 @@ public class BaseConstant {
     public static final Integer USER_KIND_USER = 10;
     public static final Integer USER_KIND_USER_VIP = 11;
 
+    public static final Integer LOGIN_ROLE_EMPLOYEE = 1;
+    public static final Integer LOGIN_ROLE_USER = 2;
+
+    public static final int PLATFORM_IOS = 1;
+    public static final int PLATFORM_ANDROID = 2;
+
+    public static final String GRANT_TYPE_EMPLOYEE = "employee";
+    public static final String GRANT_TYPE_USER = "user";
+
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_PENDING = 0;
     public static final Integer STATUS_LOCK = -1;
@@ -33,6 +42,7 @@ public class BaseConstant {
     public static final String USERNAME_PATTERN = "^(?=.{3,20}$)(?!.*[_.]{2})[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]$";
     public static final String PHONE_PATTERN = "^0[35789][0-9]{8}$";
     public static final String EMAIL_PATTERN = "^(?!.*[.]{2,})[a-zA-Z0-9.%]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    public static final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$";
 
     public static final Integer GENDER_MALE = 1;
     public static final Integer GENDER_FEMALE = 2;
@@ -43,6 +53,14 @@ public class BaseConstant {
 
     public static final Integer VIDEO_LIBRARY_STATE_PROCESSING = 0;
     public static final Integer VIDEO_LIBRARY_STATE_READY = 1;
+    public static final Integer VIDEO_LIBRARY_STATE_ERROR = 2;
+
+    public static final String CMD_UPDATE_VIDEO = "CMD_UPDATE_VIDEO";
+    public static final String CMD_CONVERT_VIDEO = "CMD_CONVERT_VIDEO";
+    public static final String CMD_DELETE_VIDEO = "CMD_DELETE_VIDEO";
+
+    public static final Boolean SIDEBAR_ACTIVE_TRUE = true;
+    public static final boolean SIDEBAR_ACTIVE_FALSE = false;
 
     private BaseConstant(){
         throw new IllegalStateException("Utility class");

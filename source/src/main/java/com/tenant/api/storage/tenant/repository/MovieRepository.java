@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecificationExecutor<Movie> {
-    Optional<Movie> findFirstBySlug(String slug);
+    Optional<Movie> findFirstBySlugAndStatus(String slug, Integer status);
 
     boolean existsBySlug(String slug);
 

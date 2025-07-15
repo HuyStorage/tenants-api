@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -26,15 +27,13 @@ public class CreateMovieItemForm {
     @ApiModelProperty(required = true)
     private Integer kind;
 
-    @ApiModelProperty
-    private Long parentId;
+    private Long parentId; // can be null
 
     @NotNull(message = "movieId cannot be null")
     @ApiModelProperty(required = true)
     private Long movieId;
 
-    @ApiModelProperty
-    private Long videoId;
+    private Long videoId; // can be null
 
     @NotNull(message = "ordering cannot be null")
     @ApiModelProperty(required = true)
@@ -43,4 +42,8 @@ public class CreateMovieItemForm {
     @StatusConstraint
     @ApiModelProperty(required = true)
     private Integer status;
+
+    @NotNull(message = "releaseDate cannot be null")
+    @ApiModelProperty(required = true)
+    private Date releaseDate;
 }

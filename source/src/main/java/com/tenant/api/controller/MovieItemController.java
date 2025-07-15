@@ -7,8 +7,8 @@ import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.movieItem.MovieItemDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.movieItem.CreateMovieItemForm;
-import com.tenant.api.form.movieItem.OrderingMovieItemForm;
 import com.tenant.api.form.movieItem.UpdateMovieItemForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
@@ -17,13 +17,17 @@ import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
 import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.MovieRepository;
+import com.tenant.api.storage.tenant.repository.SidebarRepository;
 import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -50,6 +54,8 @@ public class MovieItemController extends ABasicController {
     @Autowired
     private VideoLibraryRepository videoLibraryRepository;
 
+    @Autowired
+    private SidebarRepository sidebarRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_C')")
@@ -92,8 +98,16 @@ public class MovieItemController extends ABasicController {
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<MovieItemDto> get(@PathVariable("id") Long id) {
+        MovieItem movieItem = movieItemRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
+        return makeSuccessResponse(movieItemMapper.entityToMovieItemDto(movieItem), "Get movie item success");
+    }
+
+    @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_V')")
-    public ApiMessageDto<MovieItemDto> getById(@PathVariable("id") Long id) {
+    public ApiMessageDto<MovieItemDto> getForAdmin(@PathVariable("id") Long id) {
         MovieItem movieItem = movieItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
 
@@ -101,8 +115,19 @@ public class MovieItemController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('MOV_I_L')")
     public ApiMessageDto<ResponseListDto<List<MovieItemDto>>> list(MovieItemCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
+        Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
+        return makeSuccessResponse(responseListDto, "List movie item success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_I_L')")
+    public ApiMessageDto<ResponseListDto<List<MovieItemDto>>> listForAdmin(MovieItemCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
@@ -138,11 +163,14 @@ public class MovieItemController extends ABasicController {
         return makeSuccessResponse("Update movie item success");
     }
 
+    @Transactional("tenantTransactionManager")
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_D')")
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         MovieItem movieItem = movieItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+        sidebarRepository.deleteByMovieItemParentId(id);
+        sidebarRepository.deleteByMovieItemId(id);
         movieItemRepository.deleteByParentId(movieItem.getId());
         movieItemRepository.delete(movieItem);
         return makeSuccessResponse("Delete movie item success");
@@ -150,12 +178,12 @@ public class MovieItemController extends ABasicController {
 
     @PutMapping(value = "/update-ordering", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_U')")
-    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid OrderingMovieItemForm> form) {
+    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid UpdateOrderingForm> form) {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
         }
         List<Long> ids = form.stream()
-                .map(OrderingMovieItemForm::getId)
+                .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());
         List<MovieItem> movieItems = movieItemRepository.findAllById(ids);
 
@@ -164,7 +192,7 @@ public class MovieItemController extends ABasicController {
         }
 
         Map<Long, Integer> orderingMap = form.stream()
-                .collect(Collectors.toMap(OrderingMovieItemForm::getId, OrderingMovieItemForm::getOrdering));
+                .collect(Collectors.toMap(UpdateOrderingForm::getId, UpdateOrderingForm::getOrdering));
 
         for (MovieItem item : movieItems) {
             item.setOrdering(orderingMap.get(item.getId()));

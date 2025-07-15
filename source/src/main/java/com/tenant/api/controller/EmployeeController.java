@@ -1,6 +1,5 @@
 package com.tenant.api.controller;
 
-import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
@@ -16,20 +15,17 @@ import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.EmployeeMapper;
-import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
+import com.tenant.api.service.LoginService;
 import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.Employee;
 import com.tenant.api.storage.tenant.model.Group;
-import com.tenant.api.storage.tenant.model.GroupPermission;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
 import com.tenant.api.storage.tenant.repository.EmployeeRepository;
 import com.tenant.api.storage.tenant.repository.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -37,15 +33,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/employee")
@@ -71,13 +64,7 @@ public class EmployeeController extends ABasicController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private FeignAccountAuthService accountAuthService;
-
-    @Value("${auth.internal.employee.username}")
-    private String username;
-
-    @Value("${auth.internal.employee.password}")
-    private String password;
+    private LoginService loginService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -235,19 +222,7 @@ public class EmployeeController extends ABasicController {
             log.error("User had been locked");
             throw new BadRequestException("Account is locked", ErrorCode.ACCOUNT_ERROR_LOOKED);
         }
-        String permissions = employee.getAccount().getGroup().getPermissions().stream()
-                .map(GroupPermission::getPermissionCode)
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining(","));
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("grant_type", "employee");
-        request.add("username", username);
-        request.add("password", password);
-        request.add("tenantId", TenantDBContext.getCurrentTenant());
-        request.add("userId", employee.getId().toString());
-        request.add("userKind", String.valueOf(employee.getAccount().getKind()));
-        request.add("permissions", permissions);
-        LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        LoginAuthDto result = loginService.getToken(employee.getAccount(), BaseConstant.LOGIN_ROLE_EMPLOYEE);
         log.info(result.toString());
         return result;
     }

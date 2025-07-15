@@ -7,8 +7,8 @@ import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.moviePerson.MoviePersonDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.moviePerson.CreateMoviePersonForm;
-import com.tenant.api.form.moviePerson.OrderingMoviePersonForm;
 import com.tenant.api.form.moviePerson.UpdateMoviePersonForm;
 import com.tenant.api.mapper.MoviePersonMapper;
 import com.tenant.api.storage.tenant.criteria.MoviePersonCriteria;
@@ -21,7 +21,9 @@ import com.tenant.api.storage.tenant.repository.PersonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -95,12 +97,12 @@ public class MoviePersonController extends ABasicController {
 
     @PutMapping(value = "/update-ordering", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_P_U')")
-    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid OrderingMoviePersonForm> form) {
+    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid UpdateOrderingForm> form) {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_PERSON_ERROR_INVALID_REQUEST);
         }
         List<Long> ids = form.stream()
-                .map(OrderingMoviePersonForm::getId)
+                .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());
         List<MoviePerson> moviePersonList = moviePersonRepository.findAllById(ids);
 
@@ -109,7 +111,7 @@ public class MoviePersonController extends ABasicController {
         }
 
         Map<Long, Integer> orderingMap = form.stream()
-                .collect(Collectors.toMap(OrderingMoviePersonForm::getId, OrderingMoviePersonForm::getOrdering));
+                .collect(Collectors.toMap(UpdateOrderingForm::getId, UpdateOrderingForm::getOrdering));
 
         for (MoviePerson item : moviePersonList) {
             item.setOrdering(orderingMap.get(item.getId()));
@@ -120,8 +122,18 @@ public class MoviePersonController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('MOV_P_L')")
     public ApiMessageDto<ResponseListDto<List<MoviePersonDto>>> list(MoviePersonCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
+        Page<MoviePerson> moviePersonPage = moviePersonRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<MoviePersonDto>> responseListDto = makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList);
+        return makeSuccessResponse(responseListDto, "List movie person success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_P_L')")
+    public ApiMessageDto<ResponseListDto<List<MoviePersonDto>>> listForAdmin(MoviePersonCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MoviePerson> moviePersonPage = moviePersonRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<MoviePersonDto>> responseListDto = makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList);

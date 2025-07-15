@@ -50,21 +50,17 @@ public class CreateMovieForm {
     @ApiModelProperty(required = true)
     private Integer type;
 
-    @ApiModelProperty
     private Boolean isFeatured;
 
-    @ApiModelProperty
     private String language;
 
-    @ApiModelProperty
     private String country;
 
     @AgeRatingConstraint
     @ApiModelProperty(required = true)
     private Integer ageRating;
 
-    @ApiModelProperty
-    private List<Long> categoryIds;
+    private List<@NotNull Long> categoryIds;
 
     @StatusConstraint
     @ApiModelProperty(required = true)

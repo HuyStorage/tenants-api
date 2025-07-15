@@ -1,7 +1,6 @@
 package com.tenant.api.form.category;
 
 import com.tenant.api.validation.StatusConstraint;
-import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -18,7 +17,6 @@ public class UpdateCategoryForm {
     @ApiModelProperty(required = true)
     private Long id;
 
-//    @UsernameConstraint
     @NotBlank(message = "name cannot be empty")
     @ApiModelProperty(required = true)
     private String name;

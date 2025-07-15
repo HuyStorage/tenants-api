@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
@@ -14,17 +15,22 @@ import com.tenant.api.form.video.CreateVideoLibraryForm;
 import com.tenant.api.form.video.UpdateVideoLibraryForm;
 import com.tenant.api.mapper.CategoryMapper;
 import com.tenant.api.mapper.VideoLibraryMapper;
+import com.tenant.api.service.rabbit.RabbitService;
 import com.tenant.api.storage.tenant.criteria.CategoryCriteria;
 import com.tenant.api.storage.tenant.criteria.VideoLibraryCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
 import com.tenant.api.storage.tenant.repository.CategoryRepository;
+import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
 import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +50,21 @@ public class VideoLibraryController extends ABasicController {
     @Autowired
     private VideoLibraryMapper videoLibraryMapper;
 
+    @Autowired
+    private MovieItemRepository movieItemRepository;
+
+    @Value("${rabbitmq.app}")
+    private String appName;
+
+    @Value("${rabbitmq.convert.video.queue}")
+    private String convertVideoQueue;
+
+    @Value("${rabbitmq.media.queue}")
+    private String mediaQueue;
+
+    @Autowired
+    private RabbitService rabbitService;
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('VID_L_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateVideoLibraryForm form) {
@@ -54,6 +75,19 @@ public class VideoLibraryController extends ABasicController {
         videoLibrary = videoLibraryMapper.fromCreateVideoLibraryFormToEntity(form);
         videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
         videoLibraryRepository.save(videoLibrary);
+        VideoLibraryDto data = new VideoLibraryDto();
+        data.setId(videoLibrary.getId());
+        data.setContent(videoLibrary.getContent());
+        rabbitService.handleSendMsg(
+                appName,
+                convertVideoQueue,
+                data,
+                BaseConstant.CMD_CONVERT_VIDEO,
+                null,
+                null,
+                null,
+                TenantDBContext.getCurrentTenant()
+        );
         return makeSuccessResponse("Create videoLibrary success");
     }
 
@@ -68,8 +102,8 @@ public class VideoLibraryController extends ABasicController {
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('VID_L_L')")
     public ApiMessageDto<ResponseListDto<List<VideoLibraryDto>>> list(VideoLibraryCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdDate").descending());
         Page<VideoLibrary> videoLibraries = videoLibraryRepository.findAll(criteria.getSpecification(), pageable);
-
         List<VideoLibraryDto> videoLibraryDtoList = videoLibraryMapper.fromEntityToVideoLibraryDtoList(videoLibraries.getContent());
 
         ResponseListDto<List<VideoLibraryDto>> responseListObj = new ResponseListDto<>();
@@ -97,7 +131,23 @@ public class VideoLibraryController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         VideoLibrary videoLibrary = videoLibraryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Video Library] Not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
+        if (movieItemRepository.existsByVideoId(videoLibrary.getId())) {
+            throw new BadRequestException("[Video Library] Movie item existed", ErrorCode.VIDEO_LIBRARY_ERROR_MOVIE_ITEM_EXISTED);
+        }
+        VideoLibraryDto data = new VideoLibraryDto();
+        data.setId(id);
+        rabbitService.handleSendMsg(
+                appName,
+                mediaQueue,
+                data,
+                BaseConstant.CMD_DELETE_VIDEO,
+                null,
+                null,
+                null,
+                TenantDBContext.getCurrentTenant()
+        );
         videoLibraryRepository.delete(videoLibrary);
+        // send message to delete folder
         return makeSuccessResponse("Delete video library success");
     }
 }

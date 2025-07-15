@@ -1,5 +1,8 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <changeSet author="Tenant" id="1695826472697-1">
         <createTable tableName="db_category">
             <column name="id" type="BIGINT">
@@ -85,7 +88,10 @@
         <addUniqueConstraint columnNames="name" constraintName="UC_DB_GROUPNAME_COL" tableName="db_group"/>
     </changeSet>
     <changeSet author="Tenant" id="1750048484604-6">
-        <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_group_permission" constraintName="FKgnq1pmgr63kue15pnw3901ioy" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_group_permission"
+                                 constraintName="FKgnq1pmgr63kue15pnw3901ioy" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group"
+                                 validate="true"/>
     </changeSet>
 
     <changeSet author="Tenant" id="1750222928222-1">
@@ -160,10 +166,16 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750239035726-3">
-        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="db_movie_category" constraintName="FKnwoqvjbydwqilv6cbw6guh839" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_category" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="db_movie_category"
+                                 constraintName="FKnwoqvjbydwqilv6cbw6guh839" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_category"
+                                 validate="true"/>
     </changeSet>
     <changeSet author="Tenant" id="1750239035726-4">
-        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_category" constraintName="FKotcsg8vx36iyex2s0s5t3c928" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_category"
+                                 constraintName="FKotcsg8vx36iyex2s0s5t3c928" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie"
+                                 validate="true"/>
     </changeSet>
 
     <changeSet author="Tenant" id="1750265225963-1">
@@ -196,13 +208,22 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750265225963-2">
-        <addForeignKeyConstraint baseColumnNames="video_id" baseTableName="db_movie_item" constraintName="FK1wut5rjsmmef7b6tmtn753mv0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_video_library" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="video_id" baseTableName="db_movie_item"
+                                 constraintName="FK1wut5rjsmmef7b6tmtn753mv0" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="db_video_library" validate="true"/>
     </changeSet>
     <changeSet author="Tenant" id="1750265225963-3">
-        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_item" constraintName="FK9lsyj96bpy3yw289qovi5c6lt" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_item"
+                                 constraintName="FK9lsyj96bpy3yw289qovi5c6lt" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie"
+                                 validate="true"/>
     </changeSet>
     <changeSet author="Tenant" id="1750265225963-4">
-        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="db_movie_item" constraintName="FKqlmqpfgvxl14djnndsgylpxy9" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie_item" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="db_movie_item"
+                                 constraintName="FKqlmqpfgvxl14djnndsgylpxy9" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="db_movie_item" validate="true"/>
     </changeSet>
     <changeSet author="Tenant" id="1750304352118-1">
         <addColumn tableName="db_video_library">
@@ -265,10 +286,16 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750314790465-3">
-        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_person" constraintName="FK5ppeusol4pm8fa0v94dgyafdi" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_movie_person"
+                                 constraintName="FK5ppeusol4pm8fa0v94dgyafdi" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie"
+                                 validate="true"/>
     </changeSet>
     <changeSet author="Tenant" id="1750314790465-4">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="db_movie_person" constraintName="FKs2h3vns3rp5rtm6foqg4glp3p" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="db_movie_person"
+                                 constraintName="FKs2h3vns3rp5rtm6foqg4glp3p" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_person"
+                                 validate="true"/>
     </changeSet>
 
     <changeSet author="Tenant" id="1750320716848-1">
@@ -280,10 +307,13 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750320716848-2">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="db_person_kind" constraintName="FKfxesqkuq46nj867b95wc5ttci" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="db_person_kind"
+                                 constraintName="FKfxesqkuq46nj867b95wc5ttci" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_person"
+                                 validate="true"/>
     </changeSet>
 
-<!--    modified employee, account, group-->
+    <!--    modified employee, account, group-->
     <changeSet author="Tenant" id="1750412324997-3">
         <createTable tableName="db_account">
             <column name="id" type="BIGINT">
@@ -317,7 +347,10 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750412324997-6">
-        <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_account" constraintName="FK64k7ycl6abb79kuylmbilxplq" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="group_id" baseTableName="db_account"
+                                 constraintName="FK64k7ycl6abb79kuylmbilxplq" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_group"
+                                 validate="true"/>
     </changeSet>
     <changeSet author="Tenant" id="1750429854508-1">
         <createTable tableName="db_employee">
@@ -342,7 +375,10 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750429854508-2">
-        <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="db_employee" constraintName="FK91tc1y4ts6vfw9ux1xw1b8hob" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_account" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="db_employee"
+                                 constraintName="FK91tc1y4ts6vfw9ux1xw1b8hob" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_account"
+                                 validate="true"/>
     </changeSet>
 
     <changeSet author="Tenant" id="1750479070891-1">
@@ -368,7 +404,10 @@
         </createTable>
     </changeSet>
     <changeSet author="Tenant" id="1750479070891-2">
-        <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="db_user" constraintName="FKelwy3xhlg66g6qctshfc0edcm" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_account" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="db_user"
+                                 constraintName="FKelwy3xhlg66g6qctshfc0edcm" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_account"
+                                 validate="true"/>
     </changeSet>
 
     <changeSet author="Tenant" id="1750479070891-3">
@@ -399,7 +438,7 @@
         </update>
     </changeSet>
 
-<!--    update video library-->
+    <!--    update video library-->
     <changeSet author="Tenant" id="1750689656231-1">
         <addColumn tableName="db_video_library">
             <column name="short_description" type="TEXT" afterColumn="name"/>
@@ -430,6 +469,84 @@
     <changeSet author="Tenant" id="1750689656231-6">
         <addColumn tableName="db_video_library">
             <column name="state" type="integer" afterColumn="duration"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1750905041848-1">
+        <addColumn tableName="db_user">
+            <column name="gender" type="integer" afterColumn="account_id"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1750905041848-2">
+        <delete tableName="db_group">
+            <where>id = 8564510827970560</where>
+        </delete>
+    </changeSet>
+    <changeSet author="Tenant" id="1751897536748-1">
+        <createTable tableName="db_side_bar">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_side_barPK"/>
+            </column>
+            <column name="movie_item_id" type="BIGINT"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="web_thumbnail_url" type="VARCHAR(255)"/>
+            <column name="mobile_thumbnail_url" type="VARCHAR(255)"/>
+            <column name="main_color" type="VARCHAR(255)"/>
+            <column name="ordering" type="INT"/>
+            <column name="start_date" type="datetime"/>
+            <column name="end_date" type="datetime"/>
+            <column name="active" type="BIT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1751897536748-2">
+        <addColumn tableName="db_person">
+            <column name="country" type="varchar(255)" afterColumn="date_of_birth"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1751897536748-3">
+        <addForeignKeyConstraint baseColumnNames="movie_item_id" baseTableName="db_side_bar"
+                                 constraintName="FKelhyknqetn5q2jwxxanapcb3g" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="db_movie_item" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1751949113262-1">
+        <dropColumn columnName="end_date" tableName="db_side_bar"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1751949113262-2">
+        <dropColumn columnName="start_date" tableName="db_side_bar"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1751967725079-1">
+        <addColumn tableName="db_video_library">
+            <column name="intro_start" type="bigint" afterColumn="duration"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1751967725079-2">
+        <addColumn tableName="db_video_library">
+            <column name="intro_end" type="bigint" afterColumn="intro_start"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1751967725079-3">
+        <addColumn tableName="db_video_library">
+            <column name="outro_start" type="bigint" afterColumn="intro_end"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1752120342913-1">
+        <addColumn tableName="db_movie_item">
+            <column name="release_date" type="datetime" afterColumn="video_id"/>
         </addColumn>
     </changeSet>
 </databaseChangeLog>

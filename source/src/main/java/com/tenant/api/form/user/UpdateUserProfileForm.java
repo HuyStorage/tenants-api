@@ -1,5 +1,6 @@
 package com.tenant.api.form.user;
 
+import com.tenant.api.validation.GenderConstraint;
 import com.tenant.api.validation.PhoneConstraint;
 import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;
@@ -8,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -18,17 +18,9 @@ public class UpdateUserProfileForm {
     @ApiModelProperty(required = true)
     private String username;
 
-    @PhoneConstraint
-    @ApiModelProperty(name = "phone", required = true)
+    @PhoneConstraint(allowNull = true)
+    @ApiModelProperty(name = "phone")
     private String phone;
-
-    @Size(min = 6, message = "oldPassword must be at least 6 characters")
-    @ApiModelProperty(name = "oldPassword")
-    private String oldPassword;
-
-    @Size(min = 6, message = "newPassword must be at least 6 characters")
-    @ApiModelProperty(name = "newPassword")
-    private String newPassword;
 
     @NotEmpty(message = "fullName cant not be empty")
     @ApiModelProperty(name = "fullName", required = true)
@@ -36,4 +28,8 @@ public class UpdateUserProfileForm {
 
     @ApiModelProperty(name = "avatarPath")
     private String avatarPath;
+
+    @GenderConstraint
+    @ApiModelProperty(name = "gender")
+    private Integer gender;
 }

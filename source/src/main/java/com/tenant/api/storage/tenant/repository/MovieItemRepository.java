@@ -13,10 +13,14 @@ import java.util.Optional;
 
 public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, JpaSpecificationExecutor<MovieItem> {
 
+    Optional<MovieItem> findByIdAndStatus(Long id, Integer status);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM MovieItem mi WHERE mi.parent.id = :parentId")
     void deleteByParentId(@Param("parentId") Long parentId);
 
     boolean existsByMovieId(Long movieId);
+
+    boolean existsByVideoId(Long videoId);
 }

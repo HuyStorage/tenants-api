@@ -35,6 +35,8 @@ public class CreatePersonForm {
     @ApiModelProperty
     private Date dateOfBirth;
 
+    private String country;
+
     @PersonKindConstraint
     @ApiModelProperty(required = true)
     private List<Integer> kinds;

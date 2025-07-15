@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -48,8 +49,16 @@ public class PersonController extends ABasicController {
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<PersonDto> get(@PathVariable("id") Long id) {
+        Person person = personRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Person] Not found", ErrorCode.PERSON_ERROR_NOT_FOUND));
+
+        return makeSuccessResponse(personMapper.entityToPersonDto(person), "Get person success");
+    }
+
+    @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PSN_V')")
-    public ApiMessageDto<PersonDto> getById(@PathVariable("id") Long id) {
+    public ApiMessageDto<PersonDto> getForAdmin(@PathVariable("id") Long id) {
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Person] Not found", ErrorCode.PERSON_ERROR_NOT_FOUND));
 
@@ -57,8 +66,17 @@ public class PersonController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('PSN_L')")
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> list(PersonCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList);
+        return makeSuccessResponse(responseListDto, "List person success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('PSN_L')")
+    public ApiMessageDto<ResponseListDto<List<PersonDto>>> listForAdmin(PersonCriteria criteria, Pageable pageable) {
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList);
@@ -66,8 +84,17 @@ public class PersonController extends ABasicController {
     }
 
     @GetMapping(value = "/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('PSN_L')")
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> autoComplete(PersonCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
+
+        ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonAutoCompleteDtoList);
+        return makeSuccessResponse(responseListDto, "List auto complete person success");
+    }
+
+    @GetMapping(value = "/admin/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('PSN_L')")
+    public ApiMessageDto<ResponseListDto<List<PersonDto>>> autoCompleteForAdmin(PersonCriteria criteria, Pageable pageable) {
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
         ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonAutoCompleteDtoList);

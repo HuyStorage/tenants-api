@@ -41,5 +41,14 @@ public class VideoLibrary extends Auditable<String> {
 
     private Long duration;
 
+    @Column(name = "intro_start")
+    private Long introStart;
+
+    @Column(name = "intro_end")
+    private Long introEnd;
+
+    @Column(name = "outro_start")
+    private Long outroStart;
+
     private Integer state; // 0: PROCESSING, 1: READY
 }

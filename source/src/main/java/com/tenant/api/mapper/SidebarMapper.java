@@ -1,0 +1,50 @@
+package com.tenant.api.mapper;
+
+import com.tenant.api.dto.sidebar.SidebarDto;
+import com.tenant.api.form.sidebar.CreateSidebarForm;
+import com.tenant.api.form.sidebar.UpdateSidebarForm;
+import com.tenant.api.storage.tenant.model.Sidebar;
+import org.mapstruct.*;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = {MovieItemMapper.class})
+public interface SidebarMapper {
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "movieItem", target = "movieItem", qualifiedByName = "entityToMovieItemShortDto")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "mainColor", target = "mainColor")
+    @Mapping(source = "ordering", target = "ordering")
+    @Mapping(source = "active", target = "active")
+    @Mapping(source = "modifiedDate", target = "modifiedDate")
+    @Mapping(source = "createdDate", target = "createdDate")
+    @Mapping(source = "status", target = "status")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToSidebarDto")
+    SidebarDto entityToSidebarDto(Sidebar sidebar);
+
+    @IterableMapping(elementTargetType = SidebarDto.class, qualifiedByName = "entityToSidebarDto")
+    List<SidebarDto> fromEntityToSidebarDtoList(List<Sidebar> Sidebars);
+
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "mainColor", target = "mainColor")
+    @Mapping(source = "active", target = "active")
+    @BeanMapping(ignoreByDefault = true)
+    Sidebar fromCreateSidebarFormToEntity(CreateSidebarForm form);
+
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "mainColor", target = "mainColor")
+    @Mapping(source = "active", target = "active")
+    @BeanMapping(ignoreByDefault = true)
+    void fromUpdateSidebarFormToEntity(UpdateSidebarForm form, @MappingTarget Sidebar sidebar);
+
+}

@@ -5,6 +5,7 @@ import com.tenant.api.dto.user.UserDto;
 import com.tenant.api.form.employee.CreateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.form.user.UpdateUserForm;
+import com.tenant.api.form.user.UpdateUserProfileForm;
 import com.tenant.api.storage.tenant.model.Employee;
 import com.tenant.api.storage.tenant.model.User;
 import org.mapstruct.*;
@@ -23,6 +24,7 @@ public interface UserMapper {
     @Mapping(source = "account.fullName", target = "fullName")
     @Mapping(source = "account.avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "status", target = "status")
+    @Mapping(source = "gender", target = "gender")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToUserDto")
     UserDto entityToUserDto(User user);
@@ -37,15 +39,17 @@ public interface UserMapper {
     @Mapping(source = "account.email", target = "email")
     @Mapping(source = "account.fullName", target = "fullName")
     @Mapping(source = "account.avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "gender", target = "gender")
     @BeanMapping(ignoreByDefault = true)
     @Named("fromEntityToEmployeeDtoProfile")
     UserDto fromEntityToUserDtoProfile(User user);
 
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
-    Employee fromCreateEmployeeFormToEntity(CreateEmployeeForm form);
-
-    @Mapping(source = "status", target = "status")
-    @BeanMapping(ignoreByDefault = true)
     void fromUpdateUserFormToEntity(UpdateUserForm form, @MappingTarget User user);
+
+    @Mapping(source = "gender", target = "gender")
+    @BeanMapping(ignoreByDefault = true)
+    void fromUpdateUserProfileFormToEntity(UpdateUserProfileForm form, @MappingTarget User user);
+
 }

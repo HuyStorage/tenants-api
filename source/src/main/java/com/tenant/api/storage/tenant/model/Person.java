@@ -45,4 +45,6 @@ public class Person extends Auditable<String> {
 
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
+
+    private String country;
 }

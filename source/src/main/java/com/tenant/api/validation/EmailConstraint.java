@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface EmailConstraint {
     boolean allowNull() default false;
-    String message() default "Email must be a well-formed email address";
+    String message() default "Email invalid format";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

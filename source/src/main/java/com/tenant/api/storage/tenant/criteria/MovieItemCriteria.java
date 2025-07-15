@@ -19,6 +19,7 @@ public class MovieItemCriteria {
     private Integer kind;
     private Integer status;
     private Long movieId;
+    private Long parentId;
 
     public Specification<MovieItem> getSpecification() {
         return new Specification<MovieItem>() {
@@ -45,6 +46,10 @@ public class MovieItemCriteria {
 
                 if (getMovieId() != null) {
                     predicates.add(cb.equal(root.get("movie").get("id"), getMovieId()));
+                }
+
+                if (getParentId() != null) {
+                    predicates.add(cb.equal(root.get("parent").get("id"), getParentId()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

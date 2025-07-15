@@ -1,5 +1,6 @@
-package com.tenant.api.form.moviePerson;
+package com.tenant.api.dto.user;
 
+import com.tenant.api.validation.PlatformConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -10,13 +11,12 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ApiModel
-public class OrderingMoviePersonForm {
-
-    @NotNull(message = "id cannot be null")
+public class GoogleMobileCallback {
+    @NotNull(message = "idToken cannot be null")
     @ApiModelProperty(required = true)
-    private Long id;
+    private String idToken;
 
-    @NotNull(message = "ordering cannot be null")
+    @PlatformConstraint
     @ApiModelProperty(required = true)
-    private Integer ordering;
+    private Integer platform;
 }

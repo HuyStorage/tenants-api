@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor<Category> {
     Optional<Category> findFirstBySlug(String slug);
 
+    Optional<Category> findByIdAndStatus(Long id, Integer status);
+
     boolean existsBySlug(String slug);
 
     List<Category> findAllByIdIn(List<Long> ids);

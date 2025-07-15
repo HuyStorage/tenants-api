@@ -2,7 +2,7 @@ package com.tenant.api.cfg.tenants;
 
 public class TenantDBContext {
 
-    private static ThreadLocal<String> currentTenant = new InheritableThreadLocal<>();
+    private static final ThreadLocal<String> currentTenant = new InheritableThreadLocal<>();
 
     public static String getCurrentTenant() {
         return currentTenant.get();
@@ -13,6 +13,6 @@ public class TenantDBContext {
     }
 
     public static void clear() {
-        currentTenant.set(null);
+        currentTenant.remove();
     }
 }

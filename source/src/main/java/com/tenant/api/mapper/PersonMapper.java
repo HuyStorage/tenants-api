@@ -23,6 +23,7 @@ public interface PersonMapper {
     @Mapping(source = "gender", target = "gender")
     @Mapping(source = "kinds", target = "kinds")
     @Mapping(source = "dateOfBirth", target = "dateOfBirth")
+    @Mapping(source = "country", target = "country")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "status", target = "status")
@@ -38,6 +39,7 @@ public interface PersonMapper {
     @Mapping(source = "otherName", target = "otherName")
     @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "kinds", target = "kinds")
+    @Mapping(source = "country", target = "country")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToPersonAutoCompleteDto")
     PersonDto entityToPersonAutoCompleteDto(Person person);
@@ -51,6 +53,7 @@ public interface PersonMapper {
     @Mapping(source = "bio", target = "bio")
     @Mapping(source = "gender", target = "gender")
     @Mapping(source = "dateOfBirth", target = "dateOfBirth")
+    @Mapping(source = "country", target = "country")
     @Mapping(source = "kinds", target = "kinds")
     @BeanMapping(ignoreByDefault = true)
     Person fromCreatePersonFormToEntity(CreatePersonForm form);
@@ -61,6 +64,7 @@ public interface PersonMapper {
     @Mapping(source = "bio", target = "bio")
     @Mapping(source = "gender", target = "gender")
     @Mapping(source = "dateOfBirth", target = "dateOfBirth")
+    @Mapping(source = "country", target = "country")
     @Mapping(source = "kinds", target = "kinds")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdatePersonFormToEntity(UpdatePersonForm form, @MappingTarget Person person);

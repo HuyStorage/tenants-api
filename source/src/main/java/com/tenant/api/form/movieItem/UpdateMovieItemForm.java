@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -29,6 +30,9 @@ public class UpdateMovieItemForm {
     @ApiModelProperty(required = true)
     private Integer status;
 
-    @ApiModelProperty
     private Long videoId;
+
+    @NotNull(message = "releaseDate cannot be null")
+    @ApiModelProperty(required = true)
+    private Date releaseDate;
 }

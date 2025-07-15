@@ -18,5 +18,6 @@ public class PersonDto extends ABasicAdminDto {
     private String bio;
     private Integer gender;
     private Date dateOfBirth;
+    private String country;
     private List<Integer> kinds;
 }

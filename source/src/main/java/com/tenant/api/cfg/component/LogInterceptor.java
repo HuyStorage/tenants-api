@@ -43,10 +43,25 @@ public class LogInterceptor implements HandlerInterceptor {
             SecurityConstant.USER_KIND_ADMIN,
             SecurityConstant.USER_KIND_USER
     );
-    final static List<String> BYPASS_TENANT = List.of(
+    final static List<String> BYPASS_JWT = List.of(
             "/v1/employee/login",
             "/v1/user/register",
-            "/v1/user/login"
+            "/v1/user/login",
+            "/v1/user/auth/social-login",
+            "/v1/user/auth/web-callback",
+            "/v1/user/auth/mobile-callback",
+            "/v1/category/get/**",
+            "/v1/category/list",
+            "/v1/movie/get/slug/**",
+            "/v1/movie/list",
+            "/v1/movie-item/get/**",
+            "/v1/movie-item/list",
+            "/v1/movie-person/list",
+            "/v1/person/get/**",
+            "/v1/person/list",
+            "/v1/person/auto-complete",
+            "/v1/sidebar/get/**",
+            "/v1/sidebar/list"
     );
 
     @Override
@@ -62,7 +77,7 @@ public class LogInterceptor implements HandlerInterceptor {
         log.error("Starting call url: [" + getUrl(request) + "]");
 
         String tenantName = request.getHeader("X-tenant");
-        if (isAllowed(request, BYPASS_TENANT) && tenantName != null) {
+        if (isAllowed(request, BYPASS_JWT) && tenantName != null) {
             TenantDBContext.setCurrentTenant(tenantName);
             return true;
         }
@@ -83,13 +98,13 @@ public class LogInterceptor implements HandlerInterceptor {
             // employee
             if (jwt != null) {
                 List<String> tenantContextList = Arrays.asList(jwt.getTenantId().split(":"));
-                for (String tenantContext : tenantContextList){
-                    if(tenantContext.split("&")[0].equals(tenantName)){
+                for (String tenantContext : tenantContextList) {
+                    if (tenantContext.split("&")[0].equals(tenantName)) {
                         TenantDBContext.setCurrentTenant(tenantName);
                         return true;
                     }
                 }
-            } else{
+            } else {
                 TenantDBContext.setCurrentTenant(tenantName);
                 return true;
             }

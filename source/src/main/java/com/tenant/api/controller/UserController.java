@@ -1,40 +1,29 @@
 package com.tenant.api.controller;
 
-import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.account.LoginAuthDto;
-import com.tenant.api.dto.employee.EmployeeDto;
+import com.tenant.api.dto.user.GoogleMobileCallback;
+import com.tenant.api.dto.user.GoogleWebCallback;
 import com.tenant.api.dto.user.UserDto;
+import com.tenant.api.dto.user.UserGoogleInfo;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
-import com.tenant.api.exception.UnauthorizationException;
-import com.tenant.api.form.employee.CreateEmployeeForm;
-import com.tenant.api.form.employee.LoginEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
-import com.tenant.api.form.person.LoginUserForm;
-import com.tenant.api.form.user.RegisterUserForm;
-import com.tenant.api.form.user.UpdateUserForm;
-import com.tenant.api.form.user.UpdateUserProfileForm;
+import com.tenant.api.form.user.*;
 import com.tenant.api.mapper.AccountMapper;
-import com.tenant.api.mapper.EmployeeMapper;
 import com.tenant.api.mapper.UserMapper;
-import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
-import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
+import com.tenant.api.service.GoogleService;
+import com.tenant.api.service.LoginService;
 import com.tenant.api.storage.tenant.criteria.UserCriteria;
-import com.tenant.api.storage.tenant.model.*;
+import com.tenant.api.storage.tenant.model.Account;
+import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
-import com.tenant.api.storage.tenant.repository.EmployeeRepository;
-import com.tenant.api.storage.tenant.repository.GroupRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -42,15 +31,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/user")
@@ -70,20 +57,13 @@ public class UserController extends ABasicController {
     private UserMapper userMapper;
 
     @Autowired
-    private GroupRepository groupRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private FeignAccountAuthService accountAuthService;
+    private LoginService loginService;
 
-    @Value("${auth.internal.user.username}")
-    private String username;
-
-    @Value("${auth.internal.user.password}")
-    private String password;
-
+    @Autowired
+    private GoogleService googleService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,12 +76,8 @@ public class UserController extends ABasicController {
             throw new BadRequestException("[Account] Email is existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
         }
 
-        Group group = groupRepository.findFirstByKindAndStatus(BaseConstant.USER_KIND_USER, BaseConstant.STATUS_ACTIVE)
-                .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
-
         account = accountMapper.fromRegisterUserFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
-        account.setGroup(group);
         account.setKind(BaseConstant.USER_KIND_USER);
         accountRepository.save(account);
 
@@ -174,27 +150,16 @@ public class UserController extends ABasicController {
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public LoginAuthDto login(@Valid @RequestBody LoginUserForm form) {
-        User user = userRepository.findFirstByAccountUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE).orElse(null);
+        User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
         if (user == null) {
-            log.error("Invalid username or password.");
+            log.error("Invalid email or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
         if (!passwordEncoder.matches(form.getPassword(), user.getAccount().getPassword())) {
             log.error("Invalid username or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
-        if (user.getStatus() != 1) {
-            log.error("User had been locked");
-            throw new BadRequestException("Account is locked", ErrorCode.ACCOUNT_ERROR_LOOKED);
-        }
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("grant_type", "user");
-        request.add("username", username);
-        request.add("password", password);
-        request.add("tenantId", TenantDBContext.getCurrentTenant());
-        request.add("userId", user.getId().toString());
-        request.add("userKind", String.valueOf(user.getAccount().getKind()));
-        LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        LoginAuthDto result = loginService.getToken(user.getAccount(), BaseConstant.LOGIN_ROLE_USER);
         log.info(result.toString());
         return result;
     }
@@ -213,16 +178,6 @@ public class UserController extends ABasicController {
         User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
-        if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
-            if (!passwordEncoder.matches(form.getOldPassword(), user.getAccount().getPassword())) {
-                throw new BadRequestException("[User] Wrong password", ErrorCode.USER_ERROR_WRONG_PASSWORD);
-            }
-            if (form.getNewPassword().equals(form.getOldPassword())) {
-                throw new BadRequestException("[User] New password must be different from old password", ErrorCode.USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD);
-            }
-            user.getAccount().setPassword(passwordEncoder.encode(form.getNewPassword()));
-        }
-
         if (StringUtils.isNotBlank(form.getPhone()) && !Objects.equals(user.getAccount().getPhone(), form.getPhone())
                 && userRepository.existsByAccountPhoneAndStatusNot(form.getPhone(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[User] Phone existed", ErrorCode.USER_ERROR_PHONE_EXISTED);
@@ -238,11 +193,61 @@ public class UserController extends ABasicController {
             String avatarPath = user.getAccount().getAvatarPath();
             deleteFiles.add(avatarPath);
         }
+
         accountMapper.fromUpdateUserProfileFormToEntity(form, user.getAccount());
         accountRepository.save(user.getAccount());
+
+        userMapper.fromUpdateUserProfileFormToEntity(form, user);
+        userRepository.save(user);
         if (!deleteFiles.isEmpty()) {
 //            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
         }
         return makeSuccessResponse("Update user profile success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PutMapping(value = "/change-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> changePassword(@Valid @RequestBody ChangePasswordForm form) {
+        User user = userRepository.findById(getCurrentUser())
+                .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
+        if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
+            if (!passwordEncoder.matches(form.getOldPassword(), user.getAccount().getPassword())) {
+                throw new BadRequestException("[User] Wrong password", ErrorCode.USER_ERROR_WRONG_PASSWORD);
+            }
+            if (form.getNewPassword().equals(form.getOldPassword())) {
+                throw new BadRequestException("[User] New password must be different from old password", ErrorCode.USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD);
+            }
+            user.getAccount().setPassword(passwordEncoder.encode(form.getNewPassword()));
+        }
+
+        accountRepository.save(user.getAccount());
+        return makeSuccessResponse("Update user profile success");
+    }
+
+    @GetMapping(value = "/auth/social-login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<String> socialLogin(@RequestParam Integer loginType) {
+        String redirectUri = googleService.generateAuthUrl();
+        return makeSuccessResponse(redirectUri, "Success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/auth/web-callback", produces = MediaType.APPLICATION_JSON_VALUE)
+    public LoginAuthDto socialWebCallback(@Valid @RequestBody GoogleWebCallback googleCallback) throws IOException {
+        UserGoogleInfo userInfo = googleService.getUserInfo(googleCallback.getCode());
+        LoginAuthDto result = loginService.handleSocialLogin(userInfo);
+        log.info(result.toString());
+
+        return result;
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/auth/mobile-callback", produces = MediaType.APPLICATION_JSON_VALUE)
+    public LoginAuthDto socialMobileCallback(@Valid @RequestBody GoogleMobileCallback callback) throws IOException {
+        UserGoogleInfo userInfo = googleService.verifyIdToken(callback.getIdToken(), callback.getPlatform());
+        LoginAuthDto result = loginService.handleSocialLogin(userInfo);
+        log.info(result.toString());
+
+        return result;
     }
 }
