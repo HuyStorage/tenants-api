@@ -23,4 +23,27 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
     boolean existsByMovieId(Long movieId);
 
     boolean existsByVideoId(Long videoId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MovieItem mi SET mi.totalEpisode = COALESCE(mi.totalEpisode, 0) + 1 WHERE mi.id = :id")
+    void increaseTotalEpisode(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MovieItem mi SET mi.totalEpisode = mi.totalEpisode - 1 WHERE mi.id = :id AND mi.totalEpisode > 0")
+    void decreaseTotalEpisode(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE db_movie_item season " +
+            "LEFT JOIN ( " +
+            "   SELECT parent_id, COUNT(*) AS total " +
+            "   FROM db_movie_item " +
+            "   WHERE kind = 2 " +
+            "   GROUP BY parent_id " +
+            ") AS episode_count ON season.id = episode_count.parent_id " +
+            "SET season.total_episode = IFNULL(episode_count.total, 0) " +
+            "WHERE season.kind = 1", nativeQuery = true)
+    void syncTotalEpisode();
 }

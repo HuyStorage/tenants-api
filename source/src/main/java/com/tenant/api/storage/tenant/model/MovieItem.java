@@ -51,4 +51,7 @@ public class MovieItem extends Auditable<String> {
 
     @Column(name = "release_date")
     private Date releaseDate;
+
+    @Column(name = "total_episode")
+    private Integer totalEpisode = 0;
 }

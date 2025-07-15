@@ -549,4 +549,9 @@
             <column name="release_date" type="datetime" afterColumn="video_id"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1752594731536-1">
+        <addColumn tableName="db_movie_item">
+            <column name="total_episode" type="integer" afterColumn="release_date"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
