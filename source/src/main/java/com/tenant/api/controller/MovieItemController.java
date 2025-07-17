@@ -15,10 +15,7 @@ import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
-import com.tenant.api.storage.tenant.repository.MovieItemRepository;
-import com.tenant.api.storage.tenant.repository.MovieRepository;
-import com.tenant.api.storage.tenant.repository.SidebarRepository;
-import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
+import com.tenant.api.storage.tenant.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,6 +55,9 @@ public class MovieItemController extends ABasicController {
 
     @Autowired
     private SidebarRepository sidebarRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -178,8 +178,8 @@ public class MovieItemController extends ABasicController {
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
             movieItemRepository.decreaseTotalEpisode(movieItem.getParent().getId());
         }
-        sidebarRepository.deleteByMovieItemParentId(id);
         sidebarRepository.deleteByMovieItemId(id);
+        commentRepository.deleteByMovieItemId(id);
         movieItemRepository.deleteByParentId(movieItem.getId());
         movieItemRepository.delete(movieItem);
         return makeSuccessResponse("Delete movie item success");

@@ -99,4 +99,10 @@ public class ErrorCode {
      */
     public static final String SIDEBAR_ERROR_NOT_FOUND = "ERROR-SIDEBAR-ERROR-0000";
     public static final String SIDEBAR_ERROR_MOVIE_EXISTED = "ERROR-SIDEBAR-ERROR-0001";
+
+    /**
+     * Starting error code Comment
+     */
+    public static final String COMMENT_ERROR_NOT_FOUND = "ERROR-COMMENT-ERROR-0000";
+    public static final String COMMENT_ERROR_PARENT_INVALID = "ERROR-COMMENT-ERROR-0001";
 }

@@ -42,7 +42,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/person/list",
             "/v1/person/auto-complete",
             "/v1/sidebar/get/**",
-            "/v1/sidebar/list"
+            "/v1/sidebar/list",
+            "/v1/comment/list",
+            "/v1/comment/update",
     };
 
     @Override

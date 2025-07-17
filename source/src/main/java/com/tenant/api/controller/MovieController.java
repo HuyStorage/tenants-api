@@ -13,10 +13,7 @@ import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
-import com.tenant.api.storage.tenant.repository.CategoryRepository;
-import com.tenant.api.storage.tenant.repository.MovieItemRepository;
-import com.tenant.api.storage.tenant.repository.MoviePersonRepository;
-import com.tenant.api.storage.tenant.repository.MovieRepository;
+import com.tenant.api.storage.tenant.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,9 +43,12 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private MovieItemRepository movieItemRepository;
+
     @Autowired
     private MoviePersonRepository moviePersonRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -133,6 +133,8 @@ public class MovieController extends ABasicController {
         if (movieItemRepository.existsByMovieId(movie.getId())) {
             throw new BadRequestException("[Movie] Cannot delete, movie still has items", ErrorCode.MOVIE_ERROR_HAS_ITEM);
         }
+
+        commentRepository.deleteByMovieId(movie.getId());
 
         // delete movie person
         moviePersonRepository.deleteByMovieId(movie.getId());

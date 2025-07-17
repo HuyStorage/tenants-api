@@ -1,0 +1,60 @@
+package com.tenant.api.storage.tenant.repository;
+
+import com.tenant.api.storage.tenant.model.Comment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.totalChildren = c.totalChildren + 1 WHERE c.id = :id")
+    void increaseTotalChild(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.totalChildren = c.totalChildren - 1 WHERE c.id = :id AND c.totalChildren > 0")
+    void decreaseTotalChild(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.totalLike = c.totalLike + 1 WHERE c.id = :id")
+    void increaseTotalLike(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.totalLike = c.totalLike - 1 WHERE c.id = :id AND c.totalLike > 0")
+    void decreaseTotalLike(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.totalDislike = c.totalDislike + 1 WHERE c.id = :id")
+    void increaseTotalDislike(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.totalDislike = c.totalDislike - 1 WHERE c.id = :id AND c.totalDislike > 0")
+    void decreaseTotalDislike(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Comment c WHERE c.parent.id = :parentId")
+    void deleteByParentId(@Param("parentId") Long parentId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE c FROM db_comment c " +
+            "JOIN db_movie_item mi ON c.movie_item_id = mi.id " +
+            "WHERE mi.id = :movieItemId OR mi.parent_id = :movieItemId",
+            nativeQuery = true)
+    void deleteByMovieItemId(@Param("movieItemId") Long movieItemId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Comment c WHERE c.movieId = :movieId")
+    void deleteByMovieId(@Param("movieId") Long movieId);
+}

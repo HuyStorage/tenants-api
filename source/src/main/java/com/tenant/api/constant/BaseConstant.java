@@ -62,6 +62,9 @@ public class BaseConstant {
     public static final Boolean SIDEBAR_ACTIVE_TRUE = true;
     public static final boolean SIDEBAR_ACTIVE_FALSE = false;
 
+    public static final Integer REACTION_TYPE_LIKE = 1;
+    public static final Integer REACTION_TYPE_DISLIKE = 2;
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

@@ -37,6 +37,7 @@ public interface MovieItemMapper {
     @Mapping(source = "title", target = "title")
     @Mapping(source = "kind", target = "kind")
     @Mapping(source = "ordering", target = "ordering")
+    @Mapping(source = "parent", target = "parent", qualifiedByName = "entityToMovieItemAutoCompleteDto")
     @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
     @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "status", target = "status")
