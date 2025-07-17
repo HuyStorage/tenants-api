@@ -1,12 +1,8 @@
 package com.tenant.api.mapper;
 
-import com.tenant.api.dto.employee.EmployeeDto;
 import com.tenant.api.dto.user.UserDto;
-import com.tenant.api.form.employee.CreateEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.form.user.UpdateUserForm;
 import com.tenant.api.form.user.UpdateUserProfileForm;
-import com.tenant.api.storage.tenant.model.Employee;
 import com.tenant.api.storage.tenant.model.User;
 import org.mapstruct.*;
 

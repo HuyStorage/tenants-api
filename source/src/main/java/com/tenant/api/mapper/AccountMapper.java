@@ -1,5 +1,6 @@
 package com.tenant.api.mapper;
 
+import com.tenant.api.dto.account.AccountDto;
 import com.tenant.api.form.employee.CreateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
@@ -10,9 +11,16 @@ import com.tenant.api.storage.tenant.model.Account;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        uses = {GroupMapper.class})
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AccountMapper {
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "fullName", target = "fullName")
+    @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "kind", target = "kind")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToAccountDto")
+    AccountDto entityToAccountDto(Account account);
 
     @Mapping(source = "username", target = "username")
     @Mapping(source = "phone", target = "phone")

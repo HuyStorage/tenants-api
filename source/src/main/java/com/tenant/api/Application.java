@@ -1,6 +1,5 @@
 package com.tenant.api;
 
-import com.tenant.api.dto.account.LoginAuthDto;
 import com.tenant.api.service.feign.FeignAccountAuthService;
 import com.tenant.api.service.feign.FeignConst;
 import com.tenant.api.service.impl.UserServiceImpl;
@@ -14,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -50,11 +50,11 @@ public class Application {
         request.add("grant_type", "password");
         request.add("username", username);
         request.add("password", password);
-        LoginAuthDto result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
-        if (result == null || result.getAccessToken() == null) {
+        OAuth2AccessToken result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        if (result == null || result.getValue() == null) {
             throw new RuntimeException("APPLICATION FAILED TO START: CAN NOT GET KEY ");
         }
-        userService.AUTH_SERVER_TOKEN = result.getAccessToken();
+        userService.AUTH_SERVER_TOKEN = result.getValue();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 }

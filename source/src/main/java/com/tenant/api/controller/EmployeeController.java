@@ -4,7 +4,6 @@ import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
-import com.tenant.api.dto.account.LoginAuthDto;
 import com.tenant.api.dto.employee.EmployeeDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
@@ -32,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,7 +90,7 @@ public class EmployeeController extends ABasicController {
         account = accountMapper.fromCreateEmployeeFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
         account.setGroup(group);
-        account.setKind(group.getKind());
+        account.setKind(BaseConstant.USER_KIND_EMPLOYEE);
         accountRepository.save(account);
 
         Employee employee = employeeMapper.fromCreateEmployeeFormToEntity(form);
@@ -173,7 +173,6 @@ public class EmployeeController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
         if (employee.getAccount().getGroup() != null && !Objects.equals(group.getId(), employee.getAccount().getGroup().getId())) {
             employee.getAccount().setGroup(group);
-            employee.getAccount().setKind(group.getKind());
         }
 
         List<String> deleteFiles = new ArrayList<>();
@@ -208,7 +207,7 @@ public class EmployeeController extends ABasicController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public LoginAuthDto login(@Valid @RequestBody LoginEmployeeForm form) {
+    public OAuth2AccessToken login(@Valid @RequestBody LoginEmployeeForm form) {
         Employee employee = employeeRepository.findFirstByAccountUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE).orElse(null);
         if (employee == null) {
             log.error("Invalid username or password.");
@@ -222,7 +221,7 @@ public class EmployeeController extends ABasicController {
             log.error("User had been locked");
             throw new BadRequestException("Account is locked", ErrorCode.ACCOUNT_ERROR_LOOKED);
         }
-        LoginAuthDto result = loginService.getToken(employee.getAccount(), BaseConstant.LOGIN_ROLE_EMPLOYEE);
+        OAuth2AccessToken result = loginService.getToken(employee.getAccount(), BaseConstant.LOGIN_ROLE_EMPLOYEE);
         log.info(result.toString());
         return result;
     }

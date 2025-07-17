@@ -4,7 +4,6 @@ import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
-import com.tenant.api.dto.account.LoginAuthDto;
 import com.tenant.api.dto.user.GoogleMobileCallback;
 import com.tenant.api.dto.user.GoogleWebCallback;
 import com.tenant.api.dto.user.UserDto;
@@ -30,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -149,7 +149,7 @@ public class UserController extends ABasicController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public LoginAuthDto login(@Valid @RequestBody LoginUserForm form) {
+    public OAuth2AccessToken login(@Valid @RequestBody LoginUserForm form) {
         User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
         if (user == null) {
             log.error("Invalid email or password.");
@@ -159,7 +159,7 @@ public class UserController extends ABasicController {
             log.error("Invalid username or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
-        LoginAuthDto result = loginService.getToken(user.getAccount(), BaseConstant.LOGIN_ROLE_USER);
+        OAuth2AccessToken result = loginService.getToken(user.getAccount(), BaseConstant.LOGIN_ROLE_USER);
         log.info(result.toString());
         return result;
     }
@@ -233,9 +233,9 @@ public class UserController extends ABasicController {
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/auth/web-callback", produces = MediaType.APPLICATION_JSON_VALUE)
-    public LoginAuthDto socialWebCallback(@Valid @RequestBody GoogleWebCallback googleCallback) throws IOException {
+    public OAuth2AccessToken socialWebCallback(@Valid @RequestBody GoogleWebCallback googleCallback) throws IOException {
         UserGoogleInfo userInfo = googleService.getUserInfo(googleCallback.getCode());
-        LoginAuthDto result = loginService.handleSocialLogin(userInfo);
+        OAuth2AccessToken result = loginService.handleSocialLogin(userInfo);
         log.info(result.toString());
 
         return result;
@@ -243,9 +243,9 @@ public class UserController extends ABasicController {
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/auth/mobile-callback", produces = MediaType.APPLICATION_JSON_VALUE)
-    public LoginAuthDto socialMobileCallback(@Valid @RequestBody GoogleMobileCallback callback) throws IOException {
+    public OAuth2AccessToken socialMobileCallback(@Valid @RequestBody GoogleMobileCallback callback) throws IOException {
         UserGoogleInfo userInfo = googleService.verifyIdToken(callback.getIdToken(), callback.getPlatform());
-        LoginAuthDto result = loginService.handleSocialLogin(userInfo);
+        OAuth2AccessToken result = loginService.handleSocialLogin(userInfo);
         log.info(result.toString());
 
         return result;
