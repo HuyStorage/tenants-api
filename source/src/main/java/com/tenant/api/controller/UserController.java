@@ -68,14 +68,10 @@ public class UserController extends ABasicController {
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<Void> create(@Valid @RequestBody RegisterUserForm form) {
-        Account account = accountRepository.findFirstByUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE).orElse(null);
+        Account account = accountRepository.findFirstByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
         if (account != null) {
             throw new BadRequestException("[Account] Username existed", ErrorCode.ACCOUNT_ERROR_USERNAME_EXISTED);
         }
-        if (StringUtils.isNoneBlank(form.getEmail()) && accountRepository.existsByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE)) {
-            throw new BadRequestException("[Account] Email is existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
-        }
-
         account = accountMapper.fromRegisterUserFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
         account.setKind(BaseConstant.USER_KIND_USER);

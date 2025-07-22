@@ -23,6 +23,7 @@ public class ErrorCode {
     public static final String ACCOUNT_ERROR_WRONG_PASSWORD = "ERROR-ACCOUNT-ERROR-0005";
     public static final String ACCOUNT_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-ACCOUNT-ERROR-0006";
     public static final String ACCOUNT_ERROR_LOOKED = "ERROR-ACCOUNT-ERROR-0007";
+    public static final String ACCOUNT_ERROR_SOCIAL_LOGIN_FAIL = "ERROR-ACCOUNT-ERROR-0008";
 
     /**
      * Starting error code Employee

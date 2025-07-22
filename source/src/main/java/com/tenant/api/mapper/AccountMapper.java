@@ -48,8 +48,8 @@ public interface AccountMapper {
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateEmployeeProfileFormToEntity(UpdateEmployeeProfileForm form, @MappingTarget Account account);
 
-    @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
+    @Mapping(source = "fullName", target = "fullName")
     @BeanMapping(ignoreByDefault = true)
     Account fromRegisterUserFormToEntity(RegisterUserForm form);
 
