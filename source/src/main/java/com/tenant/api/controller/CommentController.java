@@ -118,6 +118,7 @@ public class CommentController extends ABasicController {
     }
 
     @PatchMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('CMT_U')")
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateCommentForm form) {
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
@@ -132,6 +133,9 @@ public class CommentController extends ABasicController {
     @PatchMapping(value = "/pin", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_U')")
     public ApiMessageDto<Void> pin(@Valid @RequestBody PinnedCommentForm form) {
+        if (isUser()) {
+            throw new UnauthorizationException("Not allow");
+        }
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
         comment.setIsPinned(form.getIsPinned());

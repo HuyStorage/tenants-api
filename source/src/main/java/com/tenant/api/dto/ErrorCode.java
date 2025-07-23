@@ -106,4 +106,9 @@ public class ErrorCode {
      */
     public static final String COMMENT_ERROR_NOT_FOUND = "ERROR-COMMENT-ERROR-0000";
     public static final String COMMENT_ERROR_PARENT_INVALID = "ERROR-COMMENT-ERROR-0001";
+
+    /**
+     * Starting error code Review
+     */
+    public static final String REVIEW_ERROR_NOT_FOUND = "ERROR-REVIEW-ERROR-0000";
 }

@@ -2,6 +2,7 @@ package com.tenant.api.mapper;
 
 import com.tenant.api.dto.comment.CommentDto;
 import com.tenant.api.form.comment.CreateCommentForm;
+import com.tenant.api.form.comment.UpdateCommentForm;
 import com.tenant.api.form.employee.CreateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.storage.tenant.model.Comment;
@@ -39,7 +40,7 @@ public interface CommentMapper {
     @BeanMapping(ignoreByDefault = true)
     Comment fromCreateCommentFormToEntity(CreateCommentForm form);
 
-    @Mapping(source = "status", target = "status")
+    @Mapping(source = "content", target = "content")
     @BeanMapping(ignoreByDefault = true)
-    void fromUpdateEmployeeFormToEntity(UpdateEmployeeForm form, @MappingTarget Employee employee);
+    void fromUpdateCommentFormToEntity(UpdateCommentForm form, @MappingTarget Comment comment);
 }

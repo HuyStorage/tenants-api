@@ -13,8 +13,15 @@ import java.util.Optional;
 public interface ReactionRepository extends JpaRepository<Reaction, Long>, JpaSpecificationExecutor<Reaction> {
     Optional<Reaction> findFirstByCommentIdAndUserId(Long commentId, Long userId);
 
+    Optional<Reaction> findFirstByReviewIdAndUserId(Long reviewId, Long userId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Reaction r WHERE r.commentId = :commentId")
     void deleteByCommentId(@Param("commentId") Long commentId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Reaction r WHERE r.reviewId = :reviewId")
+    void deleteByReviewId(@Param("reviewId") Long reviewId);
 }

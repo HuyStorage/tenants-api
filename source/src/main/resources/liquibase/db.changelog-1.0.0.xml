@@ -629,4 +629,43 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet author="Tenant" id="1753169738484-1">
+        <addColumn tableName="db_movie_item">
+            <column name="no" type="integer" afterColumn="title"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1753171387238-1">
+        <dropColumn columnName="no" tableName="db_movie_item"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1753285613666-1">
+        <createTable tableName="db_review">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_reviewPK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="rate" type="INT"/>
+            <column name="content" type="TEXT"/>
+            <column name="total_like" type="INT"/>
+            <column name="total_dislike" type="INT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1753285613666-2">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_review" constraintName="FK5abas2br9fow10lmok7v7h0pb" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
+    </changeSet>
 </databaseChangeLog>
