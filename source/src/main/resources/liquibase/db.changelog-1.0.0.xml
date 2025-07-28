@@ -668,4 +668,14 @@
     <changeSet author="Tenant" id="1753285613666-2">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_review" constraintName="FK5abas2br9fow10lmok7v7h0pb" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
     </changeSet>
+    <changeSet author="Tenant" id="1753594941212-1">
+        <addColumn tableName="db_video_library">
+            <column name="sprite_url" type="varchar(255)" afterColumn="relative_content_path"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1753594941212-2">
+        <addColumn tableName="db_video_library">
+            <column name="vtt_url" type="varchar(255)" afterColumn="sprite_url"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

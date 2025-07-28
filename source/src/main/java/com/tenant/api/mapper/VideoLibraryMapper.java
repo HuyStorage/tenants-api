@@ -2,6 +2,7 @@ package com.tenant.api.mapper;
 
 import com.tenant.api.dto.video.VideoLibraryDto;
 import com.tenant.api.form.video.CreateVideoLibraryForm;
+import com.tenant.api.form.video.UpdateVideoForm;
 import com.tenant.api.form.video.UpdateVideoLibraryForm;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
 import org.mapstruct.*;
@@ -18,6 +19,8 @@ public interface VideoLibraryMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "content", target = "content", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "relativeContentPath", target = "relativeContentPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "spriteUrl", target = "spriteUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "vttUrl", target = "vttUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "introStart", target = "introStart")
     @Mapping(source = "introEnd", target = "introEnd")
@@ -40,6 +43,8 @@ public interface VideoLibraryMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "content", target = "content", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "relativeContentPath", target = "relativeContentPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "spriteUrl", target = "spriteUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "vttUrl", target = "vttUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "duration", target = "duration")
     @Mapping(source = "introStart", target = "introStart")
@@ -76,4 +81,13 @@ public interface VideoLibraryMapper {
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateVideoLibraryFormToEntity(UpdateVideoLibraryForm form, @MappingTarget VideoLibrary videoLibrary);
+
+    @Mapping(source = "content", target = "content", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "relativeContentPath", target = "relativeContentPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "spriteUrl", target = "spriteUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "vttUrl", target = "vttUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "state", target = "state")
+    @Mapping(source = "duration", target = "duration")
+    @BeanMapping(ignoreByDefault = true)
+    void fromUpdateVideoFormToEntity(UpdateVideoForm form, @MappingTarget VideoLibrary videoLibrary);
 }

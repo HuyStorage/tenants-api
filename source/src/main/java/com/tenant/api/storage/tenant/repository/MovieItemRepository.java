@@ -46,4 +46,9 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
             "SET season.total_episode = IFNULL(episode_count.total, 0) " +
             "WHERE season.kind = 1", nativeQuery = true)
     void syncTotalEpisode();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MovieItem mi SET mi.video = null WHERE mi.video.id = :videoId")
+    void detachVideoFromMovieItem(@Param("videoId") Long videoId);
 }

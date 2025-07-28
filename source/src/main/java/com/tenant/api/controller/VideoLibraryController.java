@@ -131,9 +131,11 @@ public class VideoLibraryController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         VideoLibrary videoLibrary = videoLibraryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Video Library] Not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
-        if (movieItemRepository.existsByVideoId(videoLibrary.getId())) {
-            throw new BadRequestException("[Video Library] Movie item existed", ErrorCode.VIDEO_LIBRARY_ERROR_MOVIE_ITEM_EXISTED);
-        }
+
+        // set video_id = null
+        movieItemRepository.detachVideoFromMovieItem(videoLibrary.getId());
+
+        // send message to delete video
         VideoLibraryDto data = new VideoLibraryDto();
         data.setId(id);
         rabbitService.handleSendMsg(
@@ -146,8 +148,8 @@ public class VideoLibraryController extends ABasicController {
                 null,
                 TenantDBContext.getCurrentTenant()
         );
+
         videoLibraryRepository.delete(videoLibrary);
-        // send message to delete folder
         return makeSuccessResponse("Delete video library success");
     }
 }

@@ -36,6 +36,12 @@ public class VideoLibrary extends Auditable<String> {
     @Column(name = "relative_content_path")
     private String relativeContentPath;
 
+    @Column(name = "sprite_url")
+    private String spriteUrl;
+
+    @Column(name = "vtt_url")
+    private String vttUrl;
+
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
