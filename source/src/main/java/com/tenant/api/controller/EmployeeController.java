@@ -8,6 +8,7 @@ import com.tenant.api.dto.employee.EmployeeDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.exception.UnauthorizationException;
+import com.tenant.api.form.ChangeStatusForm;
 import com.tenant.api.form.employee.CreateEmployeeForm;
 import com.tenant.api.form.employee.LoginEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeForm;
@@ -19,6 +20,7 @@ import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.Employee;
 import com.tenant.api.storage.tenant.model.Group;
+import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
 import com.tenant.api.storage.tenant.repository.EmployeeRepository;
 import com.tenant.api.storage.tenant.repository.GroupRepository;
@@ -190,6 +192,19 @@ public class EmployeeController extends ABasicController {
 //            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
         }
         return makeSuccessResponse("Update employee success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PutMapping(value = "/change-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('EM_U')")
+    public ApiMessageDto<Void> changeStatus(@Valid @RequestBody ChangeStatusForm form) {
+        Employee employee = employeeRepository.findById(form.getId())
+                .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
+        employee.getAccount().setStatus(form.getStatus());
+        accountRepository.save(employee.getAccount());
+        employee.setStatus(form.getStatus());
+        employeeRepository.save(employee);
+        return makeSuccessResponse("Change status success");
     }
 
     @Transactional("tenantTransactionManager")

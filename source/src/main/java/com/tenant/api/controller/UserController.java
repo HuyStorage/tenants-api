@@ -10,6 +10,7 @@ import com.tenant.api.dto.user.UserDto;
 import com.tenant.api.dto.user.UserGoogleInfo;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.form.ChangeStatusForm;
 import com.tenant.api.form.user.*;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.UserMapper;
@@ -70,7 +71,7 @@ public class UserController extends ABasicController {
     public ApiMessageDto<Void> create(@Valid @RequestBody RegisterUserForm form) {
         Account account = accountRepository.findFirstByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
         if (account != null) {
-            throw new BadRequestException("[Account] Username existed", ErrorCode.ACCOUNT_ERROR_USERNAME_EXISTED);
+            throw new BadRequestException("[Account] Email existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
         }
         account = accountMapper.fromRegisterUserFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
@@ -120,6 +121,19 @@ public class UserController extends ABasicController {
         userMapper.fromUpdateUserFormToEntity(form, user);
         userRepository.save(user);
         return makeSuccessResponse("Update user success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PutMapping(value = "/change-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('USR_U')")
+    public ApiMessageDto<Void> changeStatus(@Valid @RequestBody ChangeStatusForm form) {
+        User user = userRepository.findById(form.getId())
+                .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
+        user.getAccount().setStatus(form.getStatus());
+        accountRepository.save(user.getAccount());
+        user.setStatus(form.getStatus());
+        userRepository.save(user);
+        return makeSuccessResponse("Change status success");
     }
 
     @Transactional("tenantTransactionManager")
