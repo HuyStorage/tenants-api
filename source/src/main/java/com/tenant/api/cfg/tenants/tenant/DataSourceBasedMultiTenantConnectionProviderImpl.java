@@ -6,7 +6,9 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.tenant.api.cfg.tenants.TenantConstant;
 import com.tenant.api.dto.ApiMessageDto;
+import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.dbConfig.DbConfigDto;
+import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.service.feign.FeignDbConfigAuthService;
 import com.zaxxer.hikari.HikariDataSource;
 import liquibase.exception.LiquibaseException;
@@ -73,16 +75,16 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
                     public DataSource load(String key) {
                         log.info("====> load tenant has key: " + key);
                         ApiMessageDto<DbConfigDto> tenant = dbConfigAuthService.authGetByName(key);
-                        if(tenant == null || !tenant.getResult() || tenant.getData() == null){
-                            throw new RuntimeException("No such tenant: " + key);
+                        if (tenant == null || !tenant.getResult() || tenant.getData() == null) {
+                            throw new NotFoundException("[Db Config]No such tenant: " + key, ErrorCode.DB_CONFIG_ERROR_NOT_FOUND);
                         }
-                        return createAndConfigureDataSource(tenant.getData(),false);
+                        return createAndConfigureDataSource(tenant.getData(), false);
                     }
                 });
     }
 
     @Override
-    protected DataSource selectAnyDataSource() { //đoạn mã này có nhiệm vụ chọn một nguồn dữ liệu (DataSource) từ danh sách các tenants. Nếu danh sách rỗng, nó sẽ tạo một nguồn dữ liệu mặc định và sau đó trả về nguồn dữ liệu đầu tiên từ danh sách (nếu có).
+    protected DataSource selectAnyDataSource() { // đoạn mã này có nhiệm vụ chọn một nguồn dữ liệu (DataSource) từ danh sách các tenants. Nếu danh sách rỗng, nó sẽ tạo một nguồn dữ liệu mặc định và sau đó trả về nguồn dữ liệu đầu tiên từ danh sách (nếu có).
         if (dataSourcesMtApp.asMap().isEmpty()) {
             DbConfigDto tenant = new DbConfigDto();
             tenant.setUsername(configProperties.getUsername());
@@ -90,7 +92,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
             tenant.setDriverClassName(configProperties.getDriverClassName());
             tenant.setUrl(configProperties.getUrl());
             tenant.setName(TenantConstant.DEFAULT_TENANT_ID);
-            dataSourcesMtApp.asMap().put(tenant.getName(), createAndConfigureDataSource(tenant,true));
+            dataSourcesMtApp.asMap().put(tenant.getName(), createAndConfigureDataSource(tenant, true));
         }
         log.info("selectAnyDataSource() method call...Total tenants:" + dataSourcesMtApp.asMap().size());
         return dataSourcesMtApp.asMap().values().iterator().next();
@@ -100,7 +102,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
     protected DataSource selectDataSource(String tenantIdentifier) {
         // load tenant in cache first
         // if not found in cache will load from database then put to cache through function createCache()
-        System.out.println("get datasource by tenant: "+tenantIdentifier);
+        System.out.println("get datasource by tenant: " + tenantIdentifier);
         log.info("Total cached tenants: " + dataSourcesMtApp.asMap().size());
         try {
             return this.dataSourcesMtApp.get(tenantIdentifier);
@@ -114,7 +116,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
         return false;
     }
 
-    private DataSource createAndConfigureDataSource(DbConfigDto dbConfig, boolean isBootstrap){
+    private DataSource createAndConfigureDataSource(DbConfigDto dbConfig, boolean isBootstrap) {
         HikariDataSource ds = new HikariDataSource();
         ds.setUsername(dbConfig.getUsername());
         ds.setPassword(dbConfig.getPassword());
@@ -135,8 +137,8 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
         String tenantConnectionPoolName = dbConfig.getName() + "-connection-pool";
         ds.setPoolName(tenantConnectionPoolName);
         log.info("Configured datasource:" + dbConfig.getName() + ". Connection pool name:" + tenantConnectionPoolName);
-        if(!isBootstrap){
-            runLiquibase(ds,parseDatabaseNameFromConnectionString(dbConfig.getUrl()));
+        if (!isBootstrap) {
+            runLiquibase(ds, parseDatabaseNameFromConnectionString(dbConfig.getUrl()));
         }
         return ds;
     }

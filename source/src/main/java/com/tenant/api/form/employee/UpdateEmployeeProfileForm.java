@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -34,7 +34,7 @@ public class UpdateEmployeeProfileForm {
     @ApiModelProperty(required = true)
     private String newPassword;
 
-    @NotEmpty(message = "fullName cant not be empty")
+    @NotBlank(message = "fullName cant not be empty")
     @ApiModelProperty(required = true)
     private String fullName;
 

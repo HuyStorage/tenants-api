@@ -20,7 +20,6 @@ import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.Employee;
 import com.tenant.api.storage.tenant.model.Group;
-import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
 import com.tenant.api.storage.tenant.repository.EmployeeRepository;
 import com.tenant.api.storage.tenant.repository.GroupRepository;
@@ -75,13 +74,16 @@ public class EmployeeController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed get");
         }
+
         Account account = accountRepository.findFirstByUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE).orElse(null);
         if (account != null) {
             throw new BadRequestException("[Account] Username existed", ErrorCode.ACCOUNT_ERROR_USERNAME_EXISTED);
         }
+
         if (StringUtils.isNoneBlank(form.getEmail()) && accountRepository.existsByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Account] Email is existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
         }
+
         if (StringUtils.isNoneBlank(form.getPhone()) && accountRepository.existsByPhoneAndStatusNot(form.getPhone(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Account] Phone is existed", ErrorCode.ACCOUNT_ERROR_PHONE_EXISTED);
         }
@@ -108,14 +110,11 @@ public class EmployeeController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed get");
         }
-        ApiMessageDto<EmployeeDto> apiMessageDto = new ApiMessageDto<>();
+
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
 
-        apiMessageDto.setData(employeeMapper.entityToEmployeeDto(employee));
-        apiMessageDto.setResult(true);
-        apiMessageDto.setMessage("Get employee success.");
-        return apiMessageDto;
+        return makeSuccessResponse(employeeMapper.entityToEmployeeDto(employee), "Get employee success.");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -124,15 +123,9 @@ public class EmployeeController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed get");
         }
+
         Page<Employee> employees = employeeRepository.findAll(criteria.getSpecification(), pageable);
-
-        List<EmployeeDto> employeeDtoList = employeeMapper.fromEntityToEmployeeDtoList(employees.getContent());
-
-        ResponseListDto<List<EmployeeDto>> responseListObj = new ResponseListDto<>();
-        responseListObj.setContent(employeeDtoList);
-        responseListObj.setTotalPages(employees.getTotalPages());
-        responseListObj.setTotalElements(employees.getTotalElements());
-        return makeSuccessResponse(responseListObj, "List employee success");
+        return makeSuccessResponse(makeResponseListDto(employees, employeeMapper::fromEntityToEmployeeDtoList), "List employee success");
     }
 
     @Transactional("tenantTransactionManager")
@@ -146,6 +139,7 @@ public class EmployeeController extends ABasicController {
         Employee employee = employeeRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
 
+        // check password
         if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
             if (!passwordEncoder.matches(form.getOldPassword(), employee.getAccount().getPassword())) {
                 throw new BadRequestException("[Employee] Wrong password", ErrorCode.EMPLOYEE_ERROR_WRONG_PASSWORD);
@@ -156,16 +150,19 @@ public class EmployeeController extends ABasicController {
             employee.getAccount().setPassword(passwordEncoder.encode(form.getNewPassword()));
         }
 
+        // check phone
         if (StringUtils.isNotBlank(form.getPhone()) && !Objects.equals(employee.getAccount().getPhone(), form.getPhone())
                 && employeeRepository.existsByAccountPhoneAndStatusNot(form.getPhone(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Employee] Phone existed", ErrorCode.EMPLOYEE_ERROR_PHONE_EXISTED);
         }
 
+        // check email
         if (StringUtils.isNotBlank(form.getEmail()) && !Objects.equals(employee.getAccount().getEmail(), form.getEmail())
                 && employeeRepository.existsByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Employee] Email existed", ErrorCode.EMPLOYEE_ERROR_EMAIL_EXISTED);
         }
 
+        // check username
         if (StringUtils.isNotBlank(form.getUsername()) && !Objects.equals(employee.getAccount().getUsername(), form.getUsername())
                 && employeeRepository.existsByAccountUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE)) {
             throw new BadRequestException("[Employee] Username existed", ErrorCode.EMPLOYEE_ERROR_USERNAME_EXISTED);
@@ -173,6 +170,7 @@ public class EmployeeController extends ABasicController {
 
         Group group = groupRepository.findByIdAndStatus(form.getGroupId(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
+
         if (employee.getAccount().getGroup() != null && !Objects.equals(group.getId(), employee.getAccount().getGroup().getId())) {
             employee.getAccount().setGroup(group);
         }
@@ -188,9 +186,11 @@ public class EmployeeController extends ABasicController {
 
         employeeMapper.fromUpdateEmployeeFormToEntity(form, employee);
         employeeRepository.save(employee);
+
         if (!deleteFiles.isEmpty()) {
 //            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
         }
+
         return makeSuccessResponse("Update employee success");
     }
 
@@ -214,10 +214,13 @@ public class EmployeeController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed get");
         }
+
         employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
+
         employeeRepository.deleteById(id);
         accountRepository.deleteById(id);
+
         return makeSuccessResponse("Delete employee success");
     }
 
@@ -228,23 +231,27 @@ public class EmployeeController extends ABasicController {
             log.error("Invalid username or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+
         if (!passwordEncoder.matches(form.getPassword(), employee.getAccount().getPassword())) {
             log.error("Invalid username or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+
         if (employee.getStatus() != 1) {
             log.error("User had been locked");
             throw new BadRequestException("Account is locked", ErrorCode.ACCOUNT_ERROR_LOOKED);
         }
+
         OAuth2AccessToken result = loginService.getToken(employee.getAccount(), BaseConstant.LOGIN_ROLE_EMPLOYEE);
-        log.info(result.toString());
+        if (result == null) {
+            log.error("Get token failed");
+        }
         return result;
     }
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<EmployeeDto> profile() {
-        long id = getCurrentUser();
-        Employee employee = employeeRepository.findById(id)
+        Employee employee = employeeRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
         return makeSuccessResponse(employeeMapper.fromEntityToEmployeeDtoProfile(employee), "Get profile success");
     }
@@ -285,8 +292,10 @@ public class EmployeeController extends ABasicController {
             String avatarPath = employee.getAccount().getAvatarPath();
             deleteFiles.add(avatarPath);
         }
+
         accountMapper.fromUpdateEmployeeProfileFormToEntity(form, employee.getAccount());
         accountRepository.save(employee.getAccount());
+
         if (!deleteFiles.isEmpty()) {
 //            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
         }

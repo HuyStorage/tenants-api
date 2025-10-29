@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, JpaSpecificationExecutor<MovieItem> {
@@ -21,8 +20,6 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
     void deleteByParentId(@Param("parentId") Long parentId);
 
     boolean existsByMovieId(Long movieId);
-
-    boolean existsByVideoId(Long videoId);
 
     @Modifying
     @Transactional

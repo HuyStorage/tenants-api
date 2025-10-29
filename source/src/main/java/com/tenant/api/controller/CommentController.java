@@ -61,10 +61,12 @@ public class CommentController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateCommentForm form) {
-        Comment comment = commentMapper.fromCreateCommentFormToEntity(form);
         Account account = accountRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[Account] not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+
+        Comment comment = commentMapper.fromCreateCommentFormToEntity(form);
         comment.setAuthor(account);
+
         if (form.getMovieItemId() != null) {
             MovieItem movieItem = movieItemRepository.findById(form.getMovieItemId())
                     .orElseThrow(() -> new NotFoundException("[MovieItem] not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
@@ -73,6 +75,7 @@ public class CommentController extends ABasicController {
         } else {
             comment.setMovieId(form.getMovieId());
         }
+
         if (form.getParentId() != null) {
             Comment parent = commentRepository.findById(form.getParentId())
                     .orElseThrow(() -> new NotFoundException("[Comment] not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
@@ -82,8 +85,8 @@ public class CommentController extends ABasicController {
             commentRepository.increaseTotalChild(parent.getId());
             comment.setParent(parent);
         }
-        commentRepository.save(comment);
 
+        commentRepository.save(comment);
         return makeSuccessResponse("Create employee success");
     }
 
@@ -102,8 +105,7 @@ public class CommentController extends ABasicController {
                 Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
-        ResponseListDto<List<CommentDto>> responseListDto = makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList);
-        return makeSuccessResponse(responseListDto, "Get list comment success");
+        return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -113,8 +115,7 @@ public class CommentController extends ABasicController {
                 pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
-        ResponseListDto<List<CommentDto>> responseListDto = makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList);
-        return makeSuccessResponse(responseListDto, "Get list comment success");
+        return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
     }
 
     @PatchMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -122,9 +123,11 @@ public class CommentController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateCommentForm form) {
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+
         if (comment.getAuthor().getId() != getCurrentUser()) {
             throw new UnauthorizationException("Not allow");
         }
+
         comment.setContent(form.getContent());
         commentRepository.save(comment);
         return makeSuccessResponse("Update comment success");
@@ -136,8 +139,10 @@ public class CommentController extends ABasicController {
         if (isUser()) {
             throw new UnauthorizationException("Not allow");
         }
+
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+
         comment.setIsPinned(form.getIsPinned());
         commentRepository.save(comment);
         return makeSuccessResponse("Pin comment success");
@@ -150,7 +155,9 @@ public class CommentController extends ABasicController {
         Long userId = getCurrentUser();
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+
         Reaction reaction = reactionRepository.findFirstByCommentIdAndUserId(comment.getId(), userId).orElse(null);
+
         if (reaction == null) {
             reaction = new Reaction();
             reaction.setCommentId(comment.getId());
@@ -192,11 +199,13 @@ public class CommentController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+
         if (comment.getParent() != null) {
             commentRepository.decreaseTotalChild(comment.getParent().getId());
         } else {
             commentRepository.deleteByParentId(comment.getId());
         }
+
         reactionRepository.deleteByCommentId(comment.getId());
         commentRepository.delete(comment);
         return makeSuccessResponse("Delete comment success");

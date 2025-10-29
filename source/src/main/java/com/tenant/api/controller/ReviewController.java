@@ -62,8 +62,10 @@ public class ReviewController extends ABasicController {
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateReviewForm form) {
         Movie movie = movieRepository.findById(form.getMovieId())
                 .orElseThrow(() -> new BadRequestException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
         User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
         Review review = reviewMapper.fromCreateReviewFormToEntity(form);
         review.setAuthor(user);
         review.setMovieId(movie.getId());
@@ -85,10 +87,10 @@ public class ReviewController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("rate"), Sort.Order.desc("createdDate")));
+
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Review> reviews = reviewRepository.findAll(criteria.getSpecification(), pageable);
-        ResponseListDto<List<ReviewDto>> responseListDto = makeResponseListDto(reviews, reviewMapper::fromEntityToReviewDtoList);
-        return makeSuccessResponse(responseListDto, "Get list review success");
+        return makeSuccessResponse(makeResponseListDto(reviews, reviewMapper::fromEntityToReviewDtoList), "Get list review success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,9 +99,9 @@ public class ReviewController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("rate"), Sort.Order.desc("createdDate")));
+
         Page<Review> reviews = reviewRepository.findAll(criteria.getSpecification(), pageable);
-        ResponseListDto<List<ReviewDto>> responseListDto = makeResponseListDto(reviews, reviewMapper::fromEntityToReviewDtoList);
-        return makeSuccessResponse(responseListDto, "Get list review success");
+        return makeSuccessResponse(makeResponseListDto(reviews, reviewMapper::fromEntityToReviewDtoList), "Get list review success");
     }
 
     @PatchMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -107,9 +109,11 @@ public class ReviewController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateReviewForm form) {
         Review review = reviewRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
+
         if (review.getAuthor().getId() != getCurrentUser()) {
             throw new UnauthorizationException("Not allow");
         }
+
         reviewMapper.fromUpdateReviewFormToEntity(form, review);
         reviewRepository.save(review);
         return makeSuccessResponse("Update review success");
@@ -119,10 +123,12 @@ public class ReviewController extends ABasicController {
     @PatchMapping(value = "/vote", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('REV_VOTE')")
     public ApiMessageDto<Void> vote(@Valid @RequestBody CreateReactionForm form) {
-        Long userId = getCurrentUser();
         Review review = reviewRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
+
+        Long userId = getCurrentUser();
         Reaction reaction = reactionRepository.findFirstByReviewIdAndUserId(review.getId(), userId).orElse(null);
+
         if (reaction == null) {
             reaction = new Reaction();
             reaction.setReviewId(review.getId());

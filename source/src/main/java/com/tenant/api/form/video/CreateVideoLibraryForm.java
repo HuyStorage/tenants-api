@@ -12,7 +12,6 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ApiModel
 public class CreateVideoLibraryForm {
-
     @NotBlank(message = "name cannot be empty")
     @ApiModelProperty(required = true)
     private String name;

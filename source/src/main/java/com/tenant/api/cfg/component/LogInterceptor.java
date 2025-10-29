@@ -52,7 +52,7 @@ public class LogInterceptor implements HandlerInterceptor {
             "/v1/user/auth/mobile-callback",
             "/v1/category/get/**",
             "/v1/category/list",
-            "/v1/movie/get/slug/**",
+            "/v1/movie/get/**",
             "/v1/movie/list",
             "/v1/movie-item/get/**",
             "/v1/movie-item/list",

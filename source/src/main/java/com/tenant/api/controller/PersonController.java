@@ -12,6 +12,7 @@ import com.tenant.api.form.person.UpdatePersonForm;
 import com.tenant.api.mapper.PersonMapper;
 import com.tenant.api.storage.tenant.criteria.PersonCriteria;
 import com.tenant.api.storage.tenant.model.Person;
+import com.tenant.api.storage.tenant.repository.FavouriteRepository;
 import com.tenant.api.storage.tenant.repository.MoviePersonRepository;
 import com.tenant.api.storage.tenant.repository.PersonRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -39,6 +41,9 @@ public class PersonController extends ABasicController {
 
     @Autowired
     private MoviePersonRepository moviePersonRepository;
+
+    @Autowired
+    private FavouriteRepository favouriteRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PSN_C')")
@@ -70,8 +75,7 @@ public class PersonController extends ABasicController {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList);
-        return makeSuccessResponse(responseListDto, "List person success");
+        return makeSuccessResponse(makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList), "List person success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,8 +83,7 @@ public class PersonController extends ABasicController {
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> listForAdmin(PersonCriteria criteria, Pageable pageable) {
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList);
-        return makeSuccessResponse(responseListDto, "List person success");
+        return makeSuccessResponse(makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList), "List person success");
     }
 
     @GetMapping(value = "/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -88,8 +91,7 @@ public class PersonController extends ABasicController {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonAutoCompleteDtoList);
-        return makeSuccessResponse(responseListDto, "List auto complete person success");
+        return makeSuccessResponse(makeResponseListDto(movies, personMapper::fromEntityToPersonAutoCompleteDtoList), "List auto complete person success");
     }
 
     @GetMapping(value = "/admin/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,14 +116,18 @@ public class PersonController extends ABasicController {
         return makeSuccessResponse("Update person success");
     }
 
+    @Transactional("tenantTransactionManager")
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PSN_D')")
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Person] Not found", ErrorCode.PERSON_ERROR_NOT_FOUND));
+
         if (moviePersonRepository.existsByPersonId(person.getId())) {
             throw new BadRequestException("[Person] Cannot delete with relationship with Movie Person", ErrorCode.PERSON_ERROR_MOVIE_PERSON_EXISTED);
         }
+
+        favouriteRepository.deleteByPersonId(person.getId());
         person.getKinds().clear();
         personRepository.delete(person);
         return makeSuccessResponse("Delete person success");

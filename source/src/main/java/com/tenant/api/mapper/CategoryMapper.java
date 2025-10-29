@@ -1,10 +1,10 @@
 package com.tenant.api.mapper;
 
 
+import com.tenant.api.dto.category.CategoryDto;
 import com.tenant.api.form.category.CreateCategoryForm;
 import com.tenant.api.form.category.UpdateCategoryForm;
 import com.tenant.api.storage.tenant.model.Category;
-import com.tenant.api.dto.category.CategoryDto;
 import org.mapstruct.*;
 
 import java.util.List;

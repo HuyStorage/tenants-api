@@ -20,6 +20,7 @@ import com.tenant.api.storage.tenant.criteria.UserCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
+import com.tenant.api.storage.tenant.repository.FavouriteRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +59,9 @@ public class UserController extends ABasicController {
     private UserMapper userMapper;
 
     @Autowired
+    private FavouriteRepository favouriteRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -69,10 +73,11 @@ public class UserController extends ABasicController {
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<Void> create(@Valid @RequestBody RegisterUserForm form) {
-        Account account = accountRepository.findFirstByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
+        Account account = accountRepository.findFirstByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElseThrow(null);
         if (account != null) {
             throw new BadRequestException("[Account] Email existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
         }
+
         account = accountMapper.fromRegisterUserFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
         account.setKind(BaseConstant.USER_KIND_USER);
@@ -98,14 +103,7 @@ public class UserController extends ABasicController {
     @PreAuthorize("hasRole('USR_L')")
     public ApiMessageDto<ResponseListDto<List<UserDto>>> list(UserCriteria criteria, Pageable pageable) {
         Page<User> users = userRepository.findAll(criteria.getSpecification(), pageable);
-
-        List<UserDto> userDtoList = userMapper.fromEntityToUserDtoList(users.getContent());
-
-        ResponseListDto<List<UserDto>> responseListObj = new ResponseListDto<>();
-        responseListObj.setContent(userDtoList);
-        responseListObj.setTotalPages(users.getTotalPages());
-        responseListObj.setTotalElements(users.getTotalElements());
-        return makeSuccessResponse(responseListObj, "Get list user success");
+        return makeSuccessResponse(makeResponseListDto(users, userMapper::fromEntityToUserDtoList), "Get list user success");
     }
 
     @Transactional("tenantTransactionManager")
@@ -129,10 +127,12 @@ public class UserController extends ABasicController {
     public ApiMessageDto<Void> changeStatus(@Valid @RequestBody ChangeStatusForm form) {
         User user = userRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
         user.getAccount().setStatus(form.getStatus());
         accountRepository.save(user.getAccount());
         user.setStatus(form.getStatus());
         userRepository.save(user);
+
         return makeSuccessResponse("Change status success");
     }
 
@@ -141,6 +141,7 @@ public class UserController extends ABasicController {
     public ApiMessageDto<Void> activeVIP() {
         User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
         user.getAccount().setKind(BaseConstant.USER_KIND_USER_VIP);
         accountRepository.save(user.getAccount());
 
@@ -153,31 +154,38 @@ public class UserController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
+        favouriteRepository.deleteByUserId(id);
         userRepository.deleteById(id);
         accountRepository.deleteById(id);
+
         return makeSuccessResponse("Delete user success");
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public OAuth2AccessToken login(@Valid @RequestBody LoginUserForm form) {
         User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
+
         if (user == null) {
             log.error("Invalid email or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+
         if (!passwordEncoder.matches(form.getPassword(), user.getAccount().getPassword())) {
             log.error("Invalid username or password.");
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+
         OAuth2AccessToken result = loginService.getToken(user.getAccount(), BaseConstant.LOGIN_ROLE_USER);
-        log.info(result.toString());
+        if (result == null) {
+            log.error("Get token failed.");
+        }
         return result;
     }
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<UserDto> profile() {
-        long id = getCurrentUser();
-        User user = userRepository.findById(id)
+        User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
         return makeSuccessResponse(userMapper.fromEntityToUserDtoProfile(user), "Get profile success");
     }

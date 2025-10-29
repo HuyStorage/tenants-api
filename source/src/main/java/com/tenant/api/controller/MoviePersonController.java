@@ -56,22 +56,23 @@ public class MoviePersonController extends ABasicController {
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMoviePersonForm form) {
         Movie movie = movieRepository.findById(form.getMovieId())
                 .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
         Person person = personRepository.findById(form.getPersonId())
                 .orElseThrow(() -> new NotFoundException("[Person] not found", ErrorCode.PERSON_ERROR_NOT_FOUND));
+
         if (!person.getKinds().contains(form.getKind())) {
             throw new BadRequestException("[Person] not have kind", ErrorCode.PERSON_ERROR_NOT_HAVE_KIND);
         }
 
-        MoviePerson moviePerson = new MoviePerson();
+        MoviePerson moviePerson = moviePersonMapper.fromCreateMoviePersonFormToEntity(form);
         moviePerson.setMovie(movie);
         moviePerson.setPerson(person);
-        moviePerson.setKind(form.getKind());
-        moviePerson.setOrdering(form.getOrdering());
         moviePerson.setCharacterName(
                 form.getCharacterName() != null && form.getKind().equals(BaseConstant.PERSON_KIND_ACTOR)
                         ? form.getCharacterName()
                         : null
         );
+
         moviePersonRepository.save(moviePerson);
         return makeSuccessResponse("Create movie person successfully");
     }
@@ -85,12 +86,14 @@ public class MoviePersonController extends ABasicController {
         if (form.getKind().equals(BaseConstant.PERSON_KIND_DIRECTOR) && form.getCharacterName() != null) {
             throw new BadRequestException("[Movie Person] Kind invalid", ErrorCode.MOVIE_PERSON_ERROR_KIND_INVALID);
         }
+
         moviePerson.setKind(form.getKind());
         moviePerson.setCharacterName(
                 form.getCharacterName() != null && form.getKind().equals(BaseConstant.PERSON_KIND_ACTOR)
                         ? form.getCharacterName()
                         : null
         );
+
         moviePersonRepository.save(moviePerson);
         return makeSuccessResponse("Update movie persons success");
     }
@@ -101,6 +104,7 @@ public class MoviePersonController extends ABasicController {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_PERSON_ERROR_INVALID_REQUEST);
         }
+
         List<Long> ids = form.stream()
                 .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());
@@ -116,8 +120,8 @@ public class MoviePersonController extends ABasicController {
         for (MoviePerson item : moviePersonList) {
             item.setOrdering(orderingMap.get(item.getId()));
         }
-        moviePersonRepository.saveAll(moviePersonList);
 
+        moviePersonRepository.saveAll(moviePersonList);
         return makeSuccessResponse("Update movie person success");
     }
 
@@ -126,8 +130,7 @@ public class MoviePersonController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MoviePerson> moviePersonPage = moviePersonRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MoviePersonDto>> responseListDto = makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList);
-        return makeSuccessResponse(responseListDto, "List movie person success");
+        return makeSuccessResponse(makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList), "List movie person success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -136,8 +139,7 @@ public class MoviePersonController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MoviePerson> moviePersonPage = moviePersonRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MoviePersonDto>> responseListDto = makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList);
-        return makeSuccessResponse(responseListDto, "List movie person success");
+        return makeSuccessResponse(makeResponseListDto(moviePersonPage, moviePersonMapper::fromEntityToMoviePersonDtoList), "List movie person success");
     }
 
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -145,6 +147,7 @@ public class MoviePersonController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable Long id) {
         MoviePerson moviePerson = moviePersonRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Person] Not found]", ErrorCode.MOVIE_PERSON_ERROR_NOT_FOUND));
+
         moviePersonRepository.delete(moviePerson);
         return makeSuccessResponse("Delete movie person success");
     }

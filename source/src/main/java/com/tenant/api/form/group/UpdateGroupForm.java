@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class UpdateGroupForm {
     @ApiModelProperty(required = true)
     private Long id;
 
-    @NotNull(message = "name cant not be null")
+    @NotBlank(message = "name cant not be null")
     @ApiModelProperty(required = true)
     private String name;
 

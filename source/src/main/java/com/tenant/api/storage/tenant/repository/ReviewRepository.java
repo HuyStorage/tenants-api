@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
     @Modifying
     @Transactional
@@ -30,9 +28,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     @Transactional
     @Query("UPDATE Review r SET r.totalDislike = r.totalDislike - 1 WHERE r.id = :id AND r.totalDislike > 0")
     void decreaseTotalDislike(@Param("id") Long id);
-
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Review r WHERE r.movieId = :movieId")
-    void deleteByMovieId(@Param("movieId") Long movieId);
 }

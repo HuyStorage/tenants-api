@@ -5,6 +5,10 @@ import lombok.Data;
 
 @Data
 public class ErrorCode {
+    /**
+     * Starting error code Service Category
+     */
+    public static final String DB_CONFIG_ERROR_NOT_FOUND = "ERROR-DB-CONFIG-ERROR-0000";
 
     /**
      * Starting error code Service Category
@@ -111,4 +115,9 @@ public class ErrorCode {
      * Starting error code Review
      */
     public static final String REVIEW_ERROR_NOT_FOUND = "ERROR-REVIEW-ERROR-0000";
+
+    /**
+     * Starting error code Favourite
+     */
+    public static final String FAVOURITE_ERROR_NOT_FOUND = "ERROR-FAVOURITE-ERROR-0000";
 }

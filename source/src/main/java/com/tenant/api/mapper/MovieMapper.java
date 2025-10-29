@@ -43,6 +43,8 @@ public interface MovieMapper {
     @Mapping(source = "originalTitle", target = "originalTitle")
     @Mapping(source = "slug", target = "slug")
     @Mapping(source = "type", target = "type")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "releaseDate", target = "releaseDate")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieAutoCompleteDto")
     MovieDto entityToMovieAutoCompleteDto(Movie movie);
@@ -57,6 +59,9 @@ public interface MovieMapper {
     @Mapping(source = "language", target = "language")
     @Mapping(source = "country", target = "country")
     @Mapping(source = "ageRating", target = "ageRating")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "categories", target = "categories", qualifiedByName = "fromEntityToCategoryAutoCompleteDtoList")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieShortDto")
@@ -64,7 +69,6 @@ public interface MovieMapper {
 
     @Mapping(source = "title", target = "title")
     @Mapping(source = "originalTitle", target = "originalTitle")
-    @Mapping(source = "slug", target = "slug")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
@@ -80,7 +84,6 @@ public interface MovieMapper {
 
     @Mapping(source = "title", target = "title")
     @Mapping(source = "originalTitle", target = "originalTitle")
-    @Mapping(source = "slug", target = "slug")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)

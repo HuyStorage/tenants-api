@@ -17,7 +17,6 @@ import com.tenant.api.storage.tenant.criteria.GroupCriteria;
 import com.tenant.api.storage.tenant.model.Group;
 import com.tenant.api.storage.tenant.model.GroupPermission;
 import com.tenant.api.storage.tenant.repository.GroupRepository;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/group")
@@ -40,11 +38,11 @@ import java.util.Objects;
 @Slf4j
 public class GroupController extends ABasicController {
     @Autowired
-    GroupRepository groupRepository;
+    private GroupRepository groupRepository;
     @Autowired
-    GroupMapper groupMapper;
+    private GroupMapper groupMapper;
     @Autowired
-    FeignPermissionAuthService feignPermissionAuthService;
+    private FeignPermissionAuthService feignPermissionAuthService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('GR_C')")
@@ -52,12 +50,13 @@ public class GroupController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed create.");
         }
-        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-        Group group = groupRepository.findFirstByName(createGroupForm.getName());
-        if (group != null) {
+
+        if (groupRepository.existsByName(createGroupForm.getName())) {
             throw new BadRequestException("[Group] Group name is existed", ErrorCode.GROUP_ERROR_NAME_EXISTED);
         }
-        group = groupMapper.fromCreateGroupFormToEntity(createGroupForm);
+
+        Group group = groupMapper.fromCreateGroupFormToEntity(createGroupForm);
+
         List<GroupPermission> permissions = new ArrayList<>();
         if (!createGroupForm.getPermissions().isEmpty()) {
             ApiMessageDto<List<GroupPermissionDto>> groupPermissionList = feignPermissionAuthService.getPermissionByIds(createGroupForm.getPermissions());
@@ -72,11 +71,11 @@ public class GroupController extends ABasicController {
             }
         }
         group.setPermissions(permissions);
+
         int kind = createGroupForm.getKind() != null ? createGroupForm.getKind() : groupRepository.getNextKind();
         group.setKind(kind);
         groupRepository.save(group);
-        apiMessageDto.setMessage("Create group success");
-        return apiMessageDto;
+        return makeSuccessResponse("Create group success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -85,16 +84,15 @@ public class GroupController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed update.");
         }
+
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
         Group group = groupRepository.findById(updateGroupForm.getId())
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
+
         // Check if the new name already exists
-        Group otherGroup = groupRepository.findFirstByName(updateGroupForm.getName());
-        if (otherGroup != null && !Objects.equals(updateGroupForm.getId(), otherGroup.getId())) {
+        if (groupRepository.existsByName(updateGroupForm.getName())) {
             throw new BadRequestException("[Group] Cant update this group name because it is exist!", ErrorCode.GROUP_ERROR_NAME_EXISTED);
         }
-        group.setName(updateGroupForm.getName());
-        group.setDescription(updateGroupForm.getDescription());
 
         List<GroupPermission> permissions = new ArrayList<>();
         if (!updateGroupForm.getPermissions().isEmpty()) {
@@ -109,9 +107,10 @@ public class GroupController extends ABasicController {
                 }
             }
         }
-
         group.getPermissions().clear();
         group.getPermissions().addAll(permissions);
+
+        groupMapper.fromUpdateGroupFormToEntity(updateGroupForm, group);
         groupRepository.save(group);
 
         apiMessageDto.setMessage("Update group success");
@@ -124,12 +123,10 @@ public class GroupController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");
         }
-        ApiMessageDto<GroupDto> apiMessageDto = new ApiMessageDto<>();
+
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found!", ErrorCode.GROUP_ERROR_NOT_FOUND));
-        apiMessageDto.setData(groupMapper.fromEntityToGroupDto(group));
-        apiMessageDto.setMessage("Get group success");
-        return apiMessageDto;
+        return makeSuccessResponse(groupMapper.fromEntityToGroupDto(group), "Get group success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -138,13 +135,14 @@ public class GroupController extends ABasicController {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");
         }
+
         List<Integer> excludeKinds = new ArrayList<>();
         excludeKinds.add(BaseConstant.USER_KIND_USER);
         excludeKinds.add(BaseConstant.USER_KIND_USER_VIP);
         groupCriteria.setExcludeKinds(excludeKinds);
+
         Page<Group> groups = groupRepository
                 .findAll(groupCriteria.getSpecification(), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.DESC, "createdDate"))));
-        ResponseListDto<List<GroupDto>> responseListDto = makeResponseListDto(groups, groupMapper::fromEntityToGroupDtoList);
-        return makeSuccessResponse(responseListDto, "List group success.");
+        return makeSuccessResponse(makeResponseListDto(groups, groupMapper::fromEntityToGroupDtoList), "List group success.");
     }
 }

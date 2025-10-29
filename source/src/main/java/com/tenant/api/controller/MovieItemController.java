@@ -31,7 +31,6 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -126,8 +125,7 @@ public class MovieItemController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
-        return makeSuccessResponse(responseListDto, "List movie item success");
+        return makeSuccessResponse(makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList), "List movie item success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -136,8 +134,7 @@ public class MovieItemController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
-        return makeSuccessResponse(responseListDto, "List movie item success");
+        return makeSuccessResponse(makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList), "List movie item success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -145,6 +142,7 @@ public class MovieItemController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateMovieItemForm form) {
         MovieItem movieItem = movieItemRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
         boolean isRequiredVideo = false;
         VideoLibrary video = null;
 
@@ -163,6 +161,7 @@ public class MovieItemController extends ABasicController {
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
+
         movieItemMapper.fromUpdateMovieItemFormToEntity(form, movieItem);
         movieItem.setVideo(video);
         movieItemRepository.save(movieItem);
@@ -175,13 +174,16 @@ public class MovieItemController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         MovieItem movieItem = movieItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
             movieItemRepository.decreaseTotalEpisode(movieItem.getParent().getId());
         }
+
         sidebarRepository.deleteByMovieItemId(id);
         commentRepository.deleteByMovieItemId(id);
         movieItemRepository.deleteByParentId(movieItem.getId());
         movieItemRepository.delete(movieItem);
+
         return makeSuccessResponse("Delete movie item success");
     }
 
@@ -191,6 +193,7 @@ public class MovieItemController extends ABasicController {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
         }
+
         List<Long> ids = form.stream()
                 .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());
@@ -205,6 +208,7 @@ public class MovieItemController extends ABasicController {
             movieItem.setOrdering(f.getOrdering());
             movieItem.setParent(f.getParentId() != null ? itemMap.get(f.getParentId()) : null);
         }
+
         movieItemRepository.saveAll(itemMap.values());
         // sync data
         movieItemRepository.syncTotalEpisode();

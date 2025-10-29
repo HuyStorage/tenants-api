@@ -53,12 +53,15 @@ public class SidebarController extends ABasicController {
         if (sidebarRepository.existsByMovieItemIdAndActive(form.getMovieItemId(), BaseConstant.SIDEBAR_ACTIVE_TRUE)) {
             throw new BadRequestException("[Sidebar] Movie already exists", ErrorCode.SIDEBAR_ERROR_MOVIE_EXISTED);
         }
+
         MovieItem movieItem = movieItemRepository.findById(form.getMovieItemId())
                 .orElseThrow(() -> new NotFoundException("[Movie Item] not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
         Sidebar sidebar = sidebarMapper.fromCreateSidebarFormToEntity(form);
         sidebar.setMovieItem(movieItem);
         int ordering = sidebarRepository.findMaxOrdering().map(o -> o + 1).orElse(0);
         sidebar.setOrdering(ordering);
+
         sidebarRepository.save(sidebar);
         return makeSuccessResponse("Create sidebar success");
     }
@@ -86,8 +89,7 @@ public class SidebarController extends ABasicController {
         criteria.setActive(BaseConstant.SIDEBAR_ACTIVE_TRUE);
         Page<Sidebar> sidebars = sidebarRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<SidebarDto>> responseListDto = makeResponseListDto(sidebars, sidebarMapper::fromEntityToSidebarDtoList);
-        return makeSuccessResponse(responseListDto, "List sidebar success");
+        return makeSuccessResponse(makeResponseListDto(sidebars, sidebarMapper::fromEntityToSidebarDtoList), "List sidebar success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,8 +98,7 @@ public class SidebarController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<Sidebar> sidebars = sidebarRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<SidebarDto>> responseListDto = makeResponseListDto(sidebars, sidebarMapper::fromEntityToSidebarDtoList);
-        return makeSuccessResponse(responseListDto, "List sidebar success");
+        return makeSuccessResponse(makeResponseListDto(sidebars, sidebarMapper::fromEntityToSidebarDtoList), "List sidebar success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -105,6 +106,7 @@ public class SidebarController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateSidebarForm form) {
         Sidebar sidebar = sidebarRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Sidebar] Not found", ErrorCode.SIDEBAR_ERROR_NOT_FOUND));
+
         if (!Objects.equals(sidebar.getMovieItem().getId(), form.getMovieItemId())) {
             if (sidebarRepository.existsByMovieItemIdAndActive(form.getMovieItemId(), BaseConstant.SIDEBAR_ACTIVE_TRUE)) {
                 throw new BadRequestException("[Sidebar] Movie already exists", ErrorCode.SIDEBAR_ERROR_MOVIE_EXISTED);
@@ -135,6 +137,7 @@ public class SidebarController extends ABasicController {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
         }
+
         List<Long> ids = form.stream()
                 .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());

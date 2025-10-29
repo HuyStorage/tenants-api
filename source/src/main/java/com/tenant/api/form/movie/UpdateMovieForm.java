@@ -30,10 +30,6 @@ public class UpdateMovieForm {
     @ApiModelProperty(required = true)
     private String originalTitle;
 
-    @NotBlank(message = "slug cannot be empty")
-    @ApiModelProperty(required = true)
-    private String slug;
-
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
     private String description;

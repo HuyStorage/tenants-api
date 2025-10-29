@@ -678,4 +678,39 @@
             <column name="vtt_url" type="varchar(255)" afterColumn="sprite_url"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1754317519395-1">
+        <createTable tableName="db_favourite">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_favouritePK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="type" type="INT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="person_id" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-2">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="db_favourite" constraintName="FK3o2oxprtlwrdcgogky84kx2wp" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_person" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-3">
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_favourite" constraintName="FKc4yy4226avrkdyowk82kjgg9a" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-4">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_favourite" constraintName="FKnq2e70b5msiv9ovbngvu4oasr" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
+    </changeSet>
 </databaseChangeLog>

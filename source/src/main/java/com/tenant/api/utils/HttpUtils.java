@@ -5,9 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Created by chuyennm on 5/3/2019.
- */
 @Slf4j
 public class HttpUtils {
 	final ObjectMapper mapper = new ObjectMapper();
