@@ -3,7 +3,6 @@ package com.tenant.api.service;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ErrorCode;
-import com.tenant.api.dto.account.LoginAuthDto;
 import com.tenant.api.dto.user.UserGoogleInfo;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.service.feign.FeignAccountAuthService;
@@ -19,6 +18,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -54,7 +54,7 @@ public class LoginService {
     @Value("${auth.internal.user.password}")
     private String password;
 
-    public LoginAuthDto getToken(Account account, Integer role) {
+    public OAuth2AccessToken getToken(Account account, Integer role) {
         String username = "";
         String grantType = "";
         MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
@@ -83,7 +83,7 @@ public class LoginService {
         return accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
     }
 
-    public LoginAuthDto handleSocialLogin(UserGoogleInfo userInfo) throws IOException {
+    public OAuth2AccessToken handleSocialLogin(UserGoogleInfo userInfo) throws IOException {
         String email = userInfo.getEmail();
         String name = userInfo.getName();
         String picture = userInfo.getPicture();

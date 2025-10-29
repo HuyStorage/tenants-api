@@ -21,6 +21,7 @@ public interface EmployeeMapper {
     @Mapping(source = "account.email", target = "email")
     @Mapping(source = "account.fullName", target = "fullName")
     @Mapping(source = "account.avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "account.group", target = "group", qualifiedByName = "fromEntityToGroupDtoAutoComplete")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToEmployeeDto")

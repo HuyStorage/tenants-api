@@ -1,0 +1,178 @@
+package com.tenant.api.controller;
+
+import com.tenant.api.constant.BaseConstant;
+import com.tenant.api.dto.ApiMessageDto;
+import com.tenant.api.dto.ErrorCode;
+import com.tenant.api.dto.ResponseListDto;
+import com.tenant.api.dto.review.ReviewDto;
+import com.tenant.api.exception.BadRequestException;
+import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.exception.UnauthorizationException;
+import com.tenant.api.form.reaction.CreateReactionForm;
+import com.tenant.api.form.review.CreateReviewForm;
+import com.tenant.api.form.review.UpdateReviewForm;
+import com.tenant.api.mapper.ReviewMapper;
+import com.tenant.api.storage.tenant.criteria.ReviewCriteria;
+import com.tenant.api.storage.tenant.model.Movie;
+import com.tenant.api.storage.tenant.model.Reaction;
+import com.tenant.api.storage.tenant.model.Review;
+import com.tenant.api.storage.tenant.model.User;
+import com.tenant.api.storage.tenant.repository.MovieRepository;
+import com.tenant.api.storage.tenant.repository.ReactionRepository;
+import com.tenant.api.storage.tenant.repository.ReviewRepository;
+import com.tenant.api.storage.tenant.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Objects;
+
+@RestController
+@RequestMapping("/v1/review")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
+@Slf4j
+public class ReviewController extends ABasicController {
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewMapper reviewMapper;
+
+    @Autowired
+    private MovieRepository movieRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ReactionRepository reactionRepository;
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REV_C')")
+    public ApiMessageDto<Void> create(@Valid @RequestBody CreateReviewForm form) {
+        Movie movie = movieRepository.findById(form.getMovieId())
+                .orElseThrow(() -> new BadRequestException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
+        User user = userRepository.findById(getCurrentUser())
+                .orElseThrow(() -> new NotFoundException("[User] not found", ErrorCode.USER_ERROR_NOT_FOUND));
+
+        Review review = reviewMapper.fromCreateReviewFormToEntity(form);
+        review.setAuthor(user);
+        review.setMovieId(movie.getId());
+        reviewRepository.save(review);
+
+        return makeSuccessResponse("Create review success");
+    }
+
+    @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REV_C')")
+    public ApiMessageDto<ReviewDto> get(@PathVariable("id") Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
+        return makeSuccessResponse(reviewMapper.entityToReviewDto(review), "Get review success");
+    }
+
+    @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<ReviewDto>>> list(ReviewCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Order.desc("rate"), Sort.Order.desc("createdDate")));
+
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Review> reviews = reviewRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(reviews, reviewMapper::fromEntityToReviewDtoList), "Get list review success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REV_L')")
+    public ApiMessageDto<ResponseListDto<List<ReviewDto>>> listAdmin(ReviewCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Order.desc("rate"), Sort.Order.desc("createdDate")));
+
+        Page<Review> reviews = reviewRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(reviews, reviewMapper::fromEntityToReviewDtoList), "Get list review success");
+    }
+
+    @PatchMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REV_U')")
+    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateReviewForm form) {
+        Review review = reviewRepository.findById(form.getId())
+                .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
+
+        if (review.getAuthor().getId() != getCurrentUser()) {
+            throw new UnauthorizationException("Not allow");
+        }
+
+        reviewMapper.fromUpdateReviewFormToEntity(form, review);
+        reviewRepository.save(review);
+        return makeSuccessResponse("Update review success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PatchMapping(value = "/vote", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REV_VOTE')")
+    public ApiMessageDto<Void> vote(@Valid @RequestBody CreateReactionForm form) {
+        Review review = reviewRepository.findById(form.getId())
+                .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
+
+        Long userId = getCurrentUser();
+        Reaction reaction = reactionRepository.findFirstByReviewIdAndUserId(review.getId(), userId).orElse(null);
+
+        if (reaction == null) {
+            reaction = new Reaction();
+            reaction.setReviewId(review.getId());
+            reaction.setUserId(userId);
+            reaction.setType(form.getType());
+            reactionRepository.save(reaction);
+            increaseCounter(review.getId(), form.getType());
+        } else if (reaction.getType().equals(form.getType())) {
+            reactionRepository.delete(reaction);
+            decreaseCounter(review.getId(), form.getType());
+        } else {
+            increaseCounter(review.getId(), form.getType());
+            decreaseCounter(review.getId(), reaction.getType());
+            reaction.setType(form.getType());
+            reactionRepository.save(reaction);
+        }
+        return makeSuccessResponse("Vote success");
+    }
+
+    private void increaseCounter(Long reviewId, Integer type) {
+        if (Objects.equals(type, BaseConstant.REACTION_TYPE_LIKE)) {
+            reviewRepository.increaseTotalLike(reviewId);
+        } else {
+            reviewRepository.increaseTotalDislike(reviewId);
+        }
+    }
+
+    private void decreaseCounter(Long reviewId, Integer type) {
+        if (Objects.equals(type, BaseConstant.REACTION_TYPE_LIKE)) {
+            reviewRepository.decreaseTotalLike(reviewId);
+        } else {
+            reviewRepository.decreaseTotalDislike(reviewId);
+        }
+    }
+
+    @Transactional("tenantTransactionManager")
+    @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REV_D')")
+    public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
+
+        reactionRepository.deleteByReviewId(review.getId());
+        reviewRepository.delete(review);
+        return makeSuccessResponse("Delete review success");
+    }
+}

@@ -1,0 +1,25 @@
+services:
+  tenant-api-service:
+    container_name: tenant-api-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      PORT: 7878
+      # Database config
+      DB_HOST: movie-app-mysql-server-huyphuocbinh204-7b42.f.aivencloud.com
+      DB_PORT: 21133
+      DB_MASTER_NAME: db_master
+      DB_TENANT_NAME: db_tenant
+      DB_USERNAME: avnadmin
+      DB_PASSWORD: AVNS_1pT7mJNdM7OvU-XjNxz
+    ports:
+      - "7878:7878"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

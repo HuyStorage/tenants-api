@@ -549,4 +549,168 @@
             <column name="release_date" type="datetime" afterColumn="video_id"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1752594731536-1">
+        <addColumn tableName="db_movie_item">
+            <column name="total_episode" type="integer" afterColumn="release_date"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1752683955909-1">
+        <createTable tableName="db_comment">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_commentPK"/>
+            </column>
+            <column name="content" type="TEXT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="movie_item_id" type="BIGINT"/>
+            <column name="account_id" type="BIGINT"/>
+            <column name="parent_id" type="BIGINT"/>
+            <column name="is_pinned" type="BIT"/>
+            <column name="total_children" type="INT"/>
+            <column name="total_like" type="INT"/>
+            <column name="total_dislike" type="INT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1752683955909-2">
+        <addForeignKeyConstraint baseColumnNames="movie_item_id" baseTableName="db_comment"
+                                 constraintName="FKhjn76ifljdndda7pij2qos0lc" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="db_movie_item" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1752683955909-3">
+        <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="db_comment"
+                                 constraintName="FKktcg7wyjg6a35rpmjudjdotv7" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_account"
+                                 validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1752683955909-4">
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="db_comment"
+                                 constraintName="FKpleyflkw31x80138vf2a6n75d" deferrable="false"
+                                 initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_comment"
+                                 validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1752766045142-1">
+        <createTable tableName="db_reaction">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_reactionPK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="type" type="INT"/>
+            <column name="comment_id" type="BIGINT"/>
+            <column name="review_id" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1753169738484-1">
+        <addColumn tableName="db_movie_item">
+            <column name="no" type="integer" afterColumn="title"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1753171387238-1">
+        <dropColumn columnName="no" tableName="db_movie_item"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1753285613666-1">
+        <createTable tableName="db_review">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_reviewPK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="rate" type="INT"/>
+            <column name="content" type="TEXT"/>
+            <column name="total_like" type="INT"/>
+            <column name="total_dislike" type="INT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1753285613666-2">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_review" constraintName="FK5abas2br9fow10lmok7v7h0pb" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1753594941212-1">
+        <addColumn tableName="db_video_library">
+            <column name="sprite_url" type="varchar(255)" afterColumn="relative_content_path"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1753594941212-2">
+        <addColumn tableName="db_video_library">
+            <column name="vtt_url" type="varchar(255)" afterColumn="sprite_url"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-1">
+        <createTable tableName="db_favourite">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_favouritePK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="type" type="INT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="person_id" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-2">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="db_favourite" constraintName="FK3o2oxprtlwrdcgogky84kx2wp" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_person" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-3">
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_favourite" constraintName="FKc4yy4226avrkdyowk82kjgg9a" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1754317519395-4">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_favourite" constraintName="FKnq2e70b5msiv9ovbngvu4oasr" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
+    </changeSet>
 </databaseChangeLog>

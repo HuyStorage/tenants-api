@@ -19,4 +19,6 @@ public class UpdateOrderingForm {
     @NotNull(message = "ordering cannot be null")
     @ApiModelProperty(required = true)
     private Integer ordering;
+
+    private Long parentId;
 }

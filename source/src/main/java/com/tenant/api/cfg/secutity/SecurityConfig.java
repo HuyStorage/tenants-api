@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // Public GET APIs
             "/v1/category/get/**",
             "/v1/category/list",
-            "/v1/movie/get/slug/**",
+            "/v1/movie/get/**",
             "/v1/movie/list",
             "/v1/movie-item/get/**",
             "/v1/movie-item/list",
@@ -42,7 +42,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/person/list",
             "/v1/person/auto-complete",
             "/v1/sidebar/get/**",
-            "/v1/sidebar/list"
+            "/v1/sidebar/list",
+            "/v1/comment/list",
+            "/v1/comment/update",
     };
 
     @Override

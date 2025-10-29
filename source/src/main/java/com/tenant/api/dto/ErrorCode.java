@@ -5,6 +5,10 @@ import lombok.Data;
 
 @Data
 public class ErrorCode {
+    /**
+     * Starting error code Service Category
+     */
+    public static final String DB_CONFIG_ERROR_NOT_FOUND = "ERROR-DB-CONFIG-ERROR-0000";
 
     /**
      * Starting error code Service Category
@@ -23,6 +27,7 @@ public class ErrorCode {
     public static final String ACCOUNT_ERROR_WRONG_PASSWORD = "ERROR-ACCOUNT-ERROR-0005";
     public static final String ACCOUNT_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-ACCOUNT-ERROR-0006";
     public static final String ACCOUNT_ERROR_LOOKED = "ERROR-ACCOUNT-ERROR-0007";
+    public static final String ACCOUNT_ERROR_SOCIAL_LOGIN_FAIL = "ERROR-ACCOUNT-ERROR-0008";
 
     /**
      * Starting error code Employee
@@ -99,4 +104,20 @@ public class ErrorCode {
      */
     public static final String SIDEBAR_ERROR_NOT_FOUND = "ERROR-SIDEBAR-ERROR-0000";
     public static final String SIDEBAR_ERROR_MOVIE_EXISTED = "ERROR-SIDEBAR-ERROR-0001";
+
+    /**
+     * Starting error code Comment
+     */
+    public static final String COMMENT_ERROR_NOT_FOUND = "ERROR-COMMENT-ERROR-0000";
+    public static final String COMMENT_ERROR_PARENT_INVALID = "ERROR-COMMENT-ERROR-0001";
+
+    /**
+     * Starting error code Review
+     */
+    public static final String REVIEW_ERROR_NOT_FOUND = "ERROR-REVIEW-ERROR-0000";
+
+    /**
+     * Starting error code Favourite
+     */
+    public static final String FAVOURITE_ERROR_NOT_FOUND = "ERROR-FAVOURITE-ERROR-0000";
 }

@@ -22,10 +22,6 @@ public class CreateMovieForm {
     @ApiModelProperty(required = true)
     private String title;
 
-    @NotBlank(message = "slug cannot be empty")
-    @ApiModelProperty(required = true)
-    private String slug;
-
     @NotBlank(message = "originalTitle cannot be empty")
     @ApiModelProperty(required = true)
     private String originalTitle;

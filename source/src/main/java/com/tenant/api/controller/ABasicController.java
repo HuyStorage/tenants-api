@@ -74,4 +74,12 @@ public class ABasicController {
         }
         return false;
     }
+
+    public boolean isUser() {
+        TenantJwt tenantJwt = userService.getAddInfoFromToken();
+        if (tenantJwt != null) {
+            return Objects.equals(tenantJwt.getUserKind(), BaseConstant.USER_KIND_USER);
+        }
+        return false;
+    }
 }

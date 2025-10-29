@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
-
 
 @Service
 @Slf4j
@@ -23,13 +21,6 @@ public class CommonAsyncService {
 
     @Autowired
     RestTemplate restTemplate;
-
-    @Value("${app.one.signal.rest.api.key}")
-    private String oneSignalRestApiKey;
-    @Value("${app.one.signal.app.id}")
-    private String oneSignalAppId;
-    @Value("${app.one.signal.end.point.api}")
-    private String oneSignalAppEndPointApi;
 
     @Autowired
     @Qualifier("threadPoolExecutor")

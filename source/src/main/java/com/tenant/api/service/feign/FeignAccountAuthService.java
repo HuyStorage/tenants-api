@@ -3,8 +3,8 @@ package com.tenant.api.service.feign;
 
 import com.tenant.api.cfg.CustomFeignConfig;
 import com.tenant.api.dto.ApiResponse;
-import com.tenant.api.dto.account.LoginAuthDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ public interface FeignAccountAuthService {
     public static final String LOGIN_TYPE = "BASIC_LOGIN_AUTH";
 
     @PostMapping(value = "/api/token")
-    LoginAuthDto authLogin(@RequestHeader(LOGIN_TYPE) String type, @RequestParam MultiValueMap<String,String> request);
+    OAuth2AccessToken authLogin(@RequestHeader(LOGIN_TYPE) String type, @RequestParam MultiValueMap<String,String> request);
 
     @GetMapping(value = "/v1/account/get/{id}")
     ApiResponse<Object> authGetAccountById(@PathVariable("id") Long id);

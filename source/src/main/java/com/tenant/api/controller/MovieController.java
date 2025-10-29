@@ -13,10 +13,8 @@ import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
-import com.tenant.api.storage.tenant.repository.CategoryRepository;
-import com.tenant.api.storage.tenant.repository.MovieItemRepository;
-import com.tenant.api.storage.tenant.repository.MoviePersonRepository;
-import com.tenant.api.storage.tenant.repository.MovieRepository;
+import com.tenant.api.storage.tenant.repository.*;
+import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,41 +44,42 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private MovieItemRepository movieItemRepository;
+
     @Autowired
     private MoviePersonRepository moviePersonRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private FavouriteRepository favouriteRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMovieForm form) {
-        Movie movie = movieRepository.findFirstBySlugAndStatus(form.getSlug(), BaseConstant.STATUS_ACTIVE).orElse(null);
-        if (movie != null) {
-            throw new BadRequestException("[Movie] Slug existed", ErrorCode.MOVIE_ERROR_SLUG_EXISTED);
-        }
+        Movie movie = movieMapper.fromCreateMovieFormToEntity(form);
 
-        movie = movieMapper.fromCreateMovieFormToEntity(form);
-        movie.getCategories().clear();
         if (form.getCategoryIds() != null && !form.getCategoryIds().isEmpty()) {
             List<Category> categories = categoryRepository.findAllById(form.getCategoryIds());
             movie.setCategories(categories);
         }
-        movieRepository.save(movie);
 
+        movieRepository.save(movie);
         return makeSuccessResponse("Create movie success");
     }
 
-    @GetMapping(value = "/get/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_V')")
-    public ApiMessageDto<MovieDto> getById(@PathVariable("id") Long id) {
+    public ApiMessageDto<MovieDto> adminGet(@PathVariable("id") Long id) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
 
         return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get movie success");
     }
 
-    @GetMapping(value = "/get/slug/{slug}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<MovieDto> getBySlug(@PathVariable("slug") String slug) {
-        Movie movie = movieRepository.findFirstBySlugAndStatus(slug, BaseConstant.STATUS_ACTIVE)
+    @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<MovieDto> get(@PathVariable("id") Long id) {
+        Movie movie = movieRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
 
         return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get movie success");
@@ -91,8 +90,7 @@ public class MovieController extends ABasicController {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MovieDto>> responseListDto = makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList);
-        return makeSuccessResponse(responseListDto, "List movie success");
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -100,8 +98,7 @@ public class MovieController extends ABasicController {
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> listForAdmin(MovieCriteria criteria, Pageable pageable) {
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MovieDto>> responseListDto = makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList);
-        return makeSuccessResponse(responseListDto, "List movie success");
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,10 +106,10 @@ public class MovieController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateMovieForm form) {
         Movie movie = movieRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
-        if (!Objects.equals(movie.getSlug(), form.getSlug()) && movieRepository.existsBySlug(form.getSlug())) {
-            throw new BadRequestException("[Movie] Slug existed", ErrorCode.MOVIE_ERROR_SLUG_EXISTED);
+
+        if (!Objects.equals(movie.getTitle(), form.getTitle())) {
+            movie.setSlug(StringUtils.slugify(form.getTitle()));
         }
-        movieMapper.fromUpdateMovieFormToEntity(form, movie);
 
         if (form.getCategoryIds() != null && !form.getCategoryIds().isEmpty()) {
             movie.getCategories().clear();
@@ -120,6 +117,7 @@ public class MovieController extends ABasicController {
             movie.setCategories(categories);
         }
 
+        movieMapper.fromUpdateMovieFormToEntity(form, movie);
         movieRepository.save(movie);
         return makeSuccessResponse("Update movie success");
     }
@@ -133,6 +131,10 @@ public class MovieController extends ABasicController {
         if (movieItemRepository.existsByMovieId(movie.getId())) {
             throw new BadRequestException("[Movie] Cannot delete, movie still has items", ErrorCode.MOVIE_ERROR_HAS_ITEM);
         }
+
+        commentRepository.deleteByMovieId(movie.getId());
+
+        favouriteRepository.deleteByMovieId(movie.getId());
 
         // delete movie person
         moviePersonRepository.deleteByMovieId(movie.getId());

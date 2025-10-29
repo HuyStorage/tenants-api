@@ -8,6 +8,7 @@ import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.user.UserGoogleInfo;
 import com.tenant.api.exception.BadRequestException;
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,8 +97,12 @@ public class GoogleService {
                 break;
             case BaseConstant.PLATFORM_ANDROID:
                 clientId = androidClientId;
+                break;
             default:
                 break;
+        }
+        if (StringUtils.isBlank(clientId)) {
+            throw new BadRequestException("Client ID is not configured", ErrorCode.ACCOUNT_ERROR_SOCIAL_LOGIN_FAIL);
         }
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 .setAudience(Collections.singletonList(clientId))
@@ -105,7 +110,7 @@ public class GoogleService {
         try {
             GoogleIdToken idToken = verifier.verify(idTokenStr);
             if (idToken == null) {
-                throw new BadRequestException("Invalid ID Token", ErrorCode.ACCOUNT_ERROR_NOT_FOUND);
+                throw new BadRequestException("Invalid ID Token", ErrorCode.ACCOUNT_ERROR_SOCIAL_LOGIN_FAIL);
             }
             GoogleIdToken.Payload payload = idToken.getPayload();
 
@@ -115,7 +120,7 @@ public class GoogleService {
                     payload.getEmail()
             );
         } catch (Exception e) {
-            throw new BadRequestException("Token verification failed", ErrorCode.ACCOUNT_ERROR_NOT_FOUND);
+            throw new BadRequestException("Token verification failed", ErrorCode.ACCOUNT_ERROR_SOCIAL_LOGIN_FAIL);
         }
     }
 

@@ -19,15 +19,10 @@ public interface SidebarRepository extends JpaRepository<Sidebar, Long>, JpaSpec
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Sidebar s WHERE s.movieItem.id = :movieItemId")
-    void deleteByMovieItemId(@Param("movieItemId") Long movieItemId);
-
-    @Modifying
-    @Transactional
     @Query(value = "DELETE s FROM db_side_bar s " +
             "JOIN db_movie_item mi ON s.movie_item_id = mi.id " +
-            "WHERE mi.parent_id = :movieItemId", nativeQuery = true)
-    void deleteByMovieItemParentId(@Param("movieItemId") Long movieItemId);
+            "WHERE mi.id = :movieItemId OR mi.parent_id = :movieItemId", nativeQuery = true)
+    void deleteByMovieItemId(@Param("movieItemId") Long movieItemId);
 
     @Query("SELECT MAX(s.ordering) FROM Sidebar s")
     Optional<Integer> findMaxOrdering();

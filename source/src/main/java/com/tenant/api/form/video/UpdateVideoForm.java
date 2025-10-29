@@ -13,6 +13,8 @@ public class UpdateVideoForm {
     private Long id;
     private String content;
     private String relativeContentPath;
+    private String spriteUrl;
+    private String vttUrl;
     private Integer state;
     private Long duration;
 }

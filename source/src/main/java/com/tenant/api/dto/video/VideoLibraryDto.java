@@ -14,6 +14,8 @@ public class VideoLibraryDto extends ABasicAdminDto {
     private String description;
     private String content;
     private String relativeContentPath;
+    private String spriteUrl;
+    private String vttUrl;
     private String thumbnailUrl;
     private Long duration;
     private Long introStart;

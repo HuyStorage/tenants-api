@@ -15,10 +15,7 @@ import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
-import com.tenant.api.storage.tenant.repository.MovieItemRepository;
-import com.tenant.api.storage.tenant.repository.MovieRepository;
-import com.tenant.api.storage.tenant.repository.SidebarRepository;
-import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
+import com.tenant.api.storage.tenant.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +31,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -57,6 +55,10 @@ public class MovieItemController extends ABasicController {
     @Autowired
     private SidebarRepository sidebarRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMovieItemForm form) {
@@ -76,6 +78,9 @@ public class MovieItemController extends ABasicController {
             }
             parent = movieItemRepository.findById(form.getParentId())
                     .orElseThrow(() -> new NotFoundException("[Movie Item] Parent not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+            if (form.getKind().equals(BaseConstant.MOVIE_ITEM_KIND_EPISODE) && Objects.equals(parent.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+                movieItemRepository.increaseTotalEpisode(parent.getId());
+            }
             isRequiredVideo = true;
         }
 
@@ -120,8 +125,7 @@ public class MovieItemController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
-        return makeSuccessResponse(responseListDto, "List movie item success");
+        return makeSuccessResponse(makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList), "List movie item success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -130,8 +134,7 @@ public class MovieItemController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
         Page<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification(), pageable);
 
-        ResponseListDto<List<MovieItemDto>> responseListDto = makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList);
-        return makeSuccessResponse(responseListDto, "List movie item success");
+        return makeSuccessResponse(makeResponseListDto(movieItems, movieItemMapper::fromEntityToMovieItemAutoCompleteDtoList), "List movie item success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -139,6 +142,7 @@ public class MovieItemController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateMovieItemForm form) {
         MovieItem movieItem = movieItemRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
         boolean isRequiredVideo = false;
         VideoLibrary video = null;
 
@@ -157,6 +161,7 @@ public class MovieItemController extends ABasicController {
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
+
         movieItemMapper.fromUpdateMovieItemFormToEntity(form, movieItem);
         movieItem.setVideo(video);
         movieItemRepository.save(movieItem);
@@ -169,10 +174,16 @@ public class MovieItemController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         MovieItem movieItem = movieItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
-        sidebarRepository.deleteByMovieItemParentId(id);
+
+        if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
+            movieItemRepository.decreaseTotalEpisode(movieItem.getParent().getId());
+        }
+
         sidebarRepository.deleteByMovieItemId(id);
+        commentRepository.deleteByMovieItemId(id);
         movieItemRepository.deleteByParentId(movieItem.getId());
         movieItemRepository.delete(movieItem);
+
         return makeSuccessResponse("Delete movie item success");
     }
 
@@ -182,23 +193,25 @@ public class MovieItemController extends ABasicController {
         if (form == null || form.isEmpty()) {
             throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
         }
+
         List<Long> ids = form.stream()
                 .map(UpdateOrderingForm::getId)
                 .collect(Collectors.toList());
-        List<MovieItem> movieItems = movieItemRepository.findAllById(ids);
 
-        if (movieItems.size() != ids.size()) {
+        Map<Long, MovieItem> itemMap = movieItemRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(MovieItem::getId, Function.identity()));
+        if (itemMap.size() != form.size()) {
             throw new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND);
         }
-
-        Map<Long, Integer> orderingMap = form.stream()
-                .collect(Collectors.toMap(UpdateOrderingForm::getId, UpdateOrderingForm::getOrdering));
-
-        for (MovieItem item : movieItems) {
-            item.setOrdering(orderingMap.get(item.getId()));
+        for (UpdateOrderingForm f : form) {
+            MovieItem movieItem = itemMap.get(f.getId());
+            movieItem.setOrdering(f.getOrdering());
+            movieItem.setParent(f.getParentId() != null ? itemMap.get(f.getParentId()) : null);
         }
-        movieItemRepository.saveAll(movieItems);
 
+        movieItemRepository.saveAll(itemMap.values());
+        // sync data
+        movieItemRepository.syncTotalEpisode();
         return makeSuccessResponse("Update movie item success");
     }
 }

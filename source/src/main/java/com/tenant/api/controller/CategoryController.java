@@ -44,67 +44,39 @@ public class CategoryController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CA_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateCategoryForm form) {
-        String slug = StringUtils.slugify(form.getName());
-        Category category = categoryRepository.findFirstBySlug(slug).orElse(null);
-        if (category != null) {
-            throw new BadRequestException("[Category] Name existed", ErrorCode.CATEGORY_ERROR_NAME_EXISTED);
-        }
-        category = categoryMapper.fromCreateCategoryFormToEntity(form);
-        category.setSlug(slug);
+        Category category = categoryMapper.fromCreateCategoryFormToEntity(form);
+        category.setSlug(StringUtils.slugify(form.getName()));
         categoryRepository.save(category);
         return makeSuccessResponse("Create category success");
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<CategoryDto> get(@PathVariable("id") Long id) {
-        ApiMessageDto<CategoryDto> apiMessageDto = new ApiMessageDto<>();
-        Category serviceCategory = categoryRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+        Category category = categoryRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
-        apiMessageDto.setData(categoryMapper.entityToCategoryDto(serviceCategory));
-        apiMessageDto.setResult(true);
-        apiMessageDto.setMessage("Get service category success.");
-        return apiMessageDto;
+        return makeSuccessResponse(categoryMapper.entityToCategoryDto(category), "Get category success.");
     }
 
     @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CA_V')")
     public ApiMessageDto<CategoryDto> getForAdmin(@PathVariable("id") Long id) {
-        ApiMessageDto<CategoryDto> apiMessageDto = new ApiMessageDto<>();
-        Category serviceCategory = categoryRepository.findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
-
-        apiMessageDto.setData(categoryMapper.entityToCategoryDto(serviceCategory));
-        apiMessageDto.setResult(true);
-        apiMessageDto.setMessage("Get service category success.");
-        return apiMessageDto;
+        return makeSuccessResponse(categoryMapper.entityToCategoryDto(category), "Get category success.");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListDto<List<CategoryDto>>> list(CategoryCriteria criteria, Pageable pageable) {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Category> categories = categoryRepository.findAll(criteria.getSpecification(), pageable);
-
-        List<CategoryDto> categoryDtoList = categoryMapper.fromEntityToCategoryDtoList(categories.getContent());
-
-        ResponseListDto<List<CategoryDto>> responseListObj = new ResponseListDto<>();
-        responseListObj.setContent(categoryDtoList);
-        responseListObj.setTotalPages(categories.getTotalPages());
-        responseListObj.setTotalElements(categories.getTotalElements());
-        return makeSuccessResponse(responseListObj, "List category success");
+        return makeSuccessResponse(makeResponseListDto(categories, categoryMapper::fromEntityToCategoryDtoList), "List category success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CA_L')")
     public ApiMessageDto<ResponseListDto<List<CategoryDto>>> listForAdmin(CategoryCriteria criteria, Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(criteria.getSpecification(), pageable);
-
-        List<CategoryDto> categoryDtoList = categoryMapper.fromEntityToCategoryDtoList(categories.getContent());
-
-        ResponseListDto<List<CategoryDto>> responseListObj = new ResponseListDto<>();
-        responseListObj.setContent(categoryDtoList);
-        responseListObj.setTotalPages(categories.getTotalPages());
-        responseListObj.setTotalElements(categories.getTotalElements());
-        return makeSuccessResponse(responseListObj, "List category success");
+        return makeSuccessResponse(makeResponseListDto(categories, categoryMapper::fromEntityToCategoryDtoList), "List category success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -112,13 +84,14 @@ public class CategoryController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateCategoryForm form) {
         Category category = categoryRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
-        String slug = StringUtils.slugify(form.getName());
-        if (!Objects.equals(category.getSlug(), slug) && categoryRepository.existsBySlug(slug)) {
-            throw new BadRequestException("[Category] Name existed", ErrorCode.CATEGORY_ERROR_NAME_EXISTED);
+
+        if (!Objects.equals(category.getName(), form.getName())) {
+            category.setSlug(StringUtils.slugify(form.getName()));
         }
+
         categoryMapper.fromUpdateCategoryFormToEntity(form, category);
-        category.setSlug(slug);
         categoryRepository.save(category);
+
         return makeSuccessResponse("Update category success");
     }
 

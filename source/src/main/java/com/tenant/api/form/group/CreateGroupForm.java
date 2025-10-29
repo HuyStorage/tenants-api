@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -13,11 +13,11 @@ import java.util.List;
 @Setter
 @ApiModel
 public class CreateGroupForm {
-    @NotEmpty(message = "name cant not be null")
+    @NotBlank(message = "name cant not be null")
     @ApiModelProperty(required = true)
     private String name;
 
-    @NotEmpty(message = "description cant not be null")
+    @NotBlank(message = "description cant not be null")
     @ApiModelProperty(required = true)
     private String description;
 

@@ -1,7 +1,10 @@
 package com.tenant.api.mapper;
 
 import com.tenant.api.dto.group.GroupDto;
+import com.tenant.api.form.category.UpdateCategoryForm;
 import com.tenant.api.form.group.CreateGroupForm;
+import com.tenant.api.form.group.UpdateGroupForm;
+import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Group;
 import org.mapstruct.*;
 
@@ -16,6 +19,11 @@ public interface GroupMapper {
     @Mapping(source = "description", target = "description")
     @BeanMapping(ignoreByDefault = true)
     Group fromCreateGroupFormToEntity(CreateGroupForm createGroupForm);
+
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "description", target = "description")
+    @BeanMapping(ignoreByDefault = true)
+    void fromUpdateGroupFormToEntity(UpdateGroupForm form, @MappingTarget Group group);
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")

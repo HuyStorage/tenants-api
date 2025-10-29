@@ -7,19 +7,19 @@ public class HashService {
 
     private Hashids hashids;
 
-    private HashService(){
-        hashids = new Hashids("NAILS_SERVICE", 6);
+    private HashService() {
+        hashids = new Hashids("MOVIE_SERVICE", 6);
     }
 
     public static final HashService getInstance() {
-        if(instance==null){
+        if (instance == null) {
             instance = new HashService();
         }
         return instance;
     }
 
 
-    public String generateHash(long number){
+    public String generateHash(long number) {
         return hashids.encode(number);
     }
 }

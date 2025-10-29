@@ -21,13 +21,13 @@ import java.util.zip.InflaterInputStream;
 public class AESUtils {
     private static final String SECRET_KEY = "cututusethayema1";
 
-    public static  String encrypt(String input, boolean zipEnable) {
+    public static String encrypt(String input, boolean zipEnable) {
         return encrypt(SECRET_KEY, input, zipEnable);
     }
 
 
     public static String decrypt(String input, boolean zipEnable) {
-        return decrypt(SECRET_KEY,input,zipEnable);
+        return decrypt(SECRET_KEY, input, zipEnable);
     }
 
     private static String encrypt(String encodekey, String inputStr, boolean zipEnable) {
@@ -40,7 +40,7 @@ public class AESUtils {
             byte[] inputBytes = inputStr.getBytes(StandardCharsets.UTF_8);
             byte[] outputBytes = cipher.doFinal(inputBytes);
 
-            if(zipEnable){
+            if (zipEnable) {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 Deflater deflater = new Deflater();
                 DeflaterOutputStream zip = new DeflaterOutputStream(stream, deflater);
@@ -49,12 +49,12 @@ public class AESUtils {
                 deflater.end();
                 byte[] outDeflater = stream.toByteArray();
                 return Base64.getEncoder().encodeToString(outDeflater);
-            }else{
+            } else {
                 return Base64.getEncoder().encodeToString(outputBytes);
             }
 
-        } catch (Exception  ex) {
-            log.error(ex.getMessage(),ex);
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
         }
         return null;
     }
@@ -68,14 +68,14 @@ public class AESUtils {
 
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
 
-            if(zipEnable){
+            if (zipEnable) {
                 byte[] dec = Base64.getDecoder().decode(encrptedStr.getBytes(StandardCharsets.UTF_8));
                 ByteArrayInputStream var2 = new ByteArrayInputStream(dec);
                 InflaterInputStream var3 = new InflaterInputStream(var2, new Inflater());
                 byte[] utf8 = cipher.doFinal(var3.readAllBytes());
 
                 return new String(utf8, StandardCharsets.UTF_8);
-            }else{
+            } else {
                 byte[] dec = Base64.getDecoder().decode(encrptedStr.getBytes(StandardCharsets.UTF_8));
                 byte[] utf8 = cipher.doFinal(dec);
 
@@ -84,15 +84,14 @@ public class AESUtils {
             }
 
 
-
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
         }
         return null;
     }
 
 
-    public  SecretKey generateAESKey(int keysize) {
+    public SecretKey generateAESKey(int keysize) {
         try {
             if (Cipher.getMaxAllowedKeyLength("AES") < keysize) {
                 // this may be an issue if unlimited crypto is not installed
@@ -105,12 +104,12 @@ public class AESUtils {
             return keyGen.generateKey();
         } catch (final NoSuchAlgorithmException e) {
             // AES functionality is a requirement for any Java SE runtime
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             return null;
         }
     }
 
-    public  SecretKey decodeBase64ToAESKey(final String encodedKey){
+    public SecretKey decodeBase64ToAESKey(final String encodedKey) {
         try {
             // throws IllegalArgumentException - if src is not in valid Base64
             // scheme
@@ -134,15 +133,15 @@ public class AESUtils {
             }
 
             // throws IllegalArgumentException - if key is empty
-            return  new SecretKeySpec(keyData, "AES");
+            return new SecretKeySpec(keyData, "AES");
         } catch (final NoSuchAlgorithmException e) {
             // AES functionality is a requirement for any Java SE runtime
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             return null;
         }
     }
 
-    public  String encodeAESKeyToBase64(final SecretKey aesKey){
+    public String encodeAESKeyToBase64(final SecretKey aesKey) {
         if (!aesKey.getAlgorithm().equalsIgnoreCase("AES")) {
             throw new IllegalArgumentException("Not an AES key");
         }

@@ -1,0 +1,46 @@
+package com.tenant.api.mapper;
+
+import com.tenant.api.dto.comment.CommentDto;
+import com.tenant.api.form.comment.CreateCommentForm;
+import com.tenant.api.form.comment.UpdateCommentForm;
+import com.tenant.api.form.employee.CreateEmployeeForm;
+import com.tenant.api.form.employee.UpdateEmployeeForm;
+import com.tenant.api.storage.tenant.model.Comment;
+import com.tenant.api.storage.tenant.model.Employee;
+import org.mapstruct.*;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = {MovieItemMapper.class, AccountMapper.class})
+public interface CommentMapper {
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "movieItem", target = "movieItem", qualifiedByName = "entityToMovieItemAutoCompleteDto")
+    @Mapping(source = "movieId", target = "movieId")
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "totalLike", target = "totalLike")
+    @Mapping(source = "totalDislike", target = "totalDislike")
+    @Mapping(source = "totalChildren", target = "totalChildren")
+    @Mapping(source = "isPinned", target = "isPinned")
+    @Mapping(source = "author", target = "author", qualifiedByName = "entityToAccountDto")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "modifiedDate", target = "modifiedDate")
+    @Mapping(source = "createdDate", target = "createdDate")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToCommentDto")
+    CommentDto entityToCommentDto(Comment comment);
+
+    @IterableMapping(elementTargetType = CommentDto.class, qualifiedByName = "entityToCommentDto")
+    List<CommentDto> fromEntityToCommentDtoList(List<Comment> comments);
+
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "isPinned", target = "isPinned")
+    @BeanMapping(ignoreByDefault = true)
+    Comment fromCreateCommentFormToEntity(CreateCommentForm form);
+
+    @Mapping(source = "content", target = "content")
+    @BeanMapping(ignoreByDefault = true)
+    void fromUpdateCommentFormToEntity(UpdateCommentForm form, @MappingTarget Comment comment);
+}

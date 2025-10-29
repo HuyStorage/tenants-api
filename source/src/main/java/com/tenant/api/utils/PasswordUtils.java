@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 @Log4j2
 public class PasswordUtils {
-
     private static final int LENGTH = 12;
     private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
