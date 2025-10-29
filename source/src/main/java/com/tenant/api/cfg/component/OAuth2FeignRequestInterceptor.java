@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-
 @Slf4j
 @Component
 public class OAuth2FeignRequestInterceptor implements RequestInterceptor { // cấu hình cho các cuộc gọi đến các service khác
@@ -45,7 +44,7 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor { // c�
             template.removeHeader(FeignAccountAuthService.LOGIN_TYPE);
         } else {
             log.error("-----------> Constructing Header {} for Token {}, token {}", AUTHORIZATION_HEADER, BEARER_TOKEN_TYPE, String.format("%s %s", BEARER_TOKEN_TYPE, userService.AUTH_SERVER_TOKEN));
-            template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, userService.AUTH_SERVER_TOKEN));
+            template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, userService.getToken()));
         }
     }
 }

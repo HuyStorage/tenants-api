@@ -18,6 +18,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.TimeZone;
 
 @SpringBootApplication
@@ -55,6 +56,8 @@ public class Application {
             throw new RuntimeException("APPLICATION FAILED TO START: CAN NOT GET KEY ");
         }
         userService.AUTH_SERVER_TOKEN = result.getValue();
+        userService.AUTH_SERVER_REFRESH_TOKEN = result.getRefreshToken().getValue();
+        userService.AUTH_SERVER_TOKEN_EXPIRES = result.getExpiration();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 }
