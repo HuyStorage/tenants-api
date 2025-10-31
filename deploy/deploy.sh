@@ -1,10 +1,10 @@
 #!/bin/bash
 SERVER_DEPLOY=192.168.155.10
-TARGET_DIR=/deploy/tenant
-APP_ID=tenant-api
-PACKAGE_NAME=com.tenant.api
-PROJECT_DIR="../source"
-JAR_NAME="tenant-api.jar"
+TARGET_DIR=/deploy/media
+APP_ID=media-api
+PACKAGE_NAME=com.media.api
+PROJECT_DIR="../source/media-api"
+JAR_NAME="media-api.jar"
 
 echo "Build source..."
 cd "$PROJECT_DIR" || { echo "Folder not found: $PROJECT_DIR"; exit 1; }
@@ -26,7 +26,3 @@ scp -r release/* root@"$SERVER_DEPLOY":"$TARGET_DIR" || { echo "SCP failed"; exi
 
 echo " ---> Restart service..."
 ssh root@"$SERVER_DEPLOY" "systemctl restart $APP_ID.service && echo 'Service restarted successfully' || echo 'Failed to restart service'"
-
-echo ""
-echo "Done. Press ENTER to close..."
-read -r
