@@ -1,7 +1,7 @@
 package com.tenant.api.cfg.component;
 
 import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
+import com.tenant.api.service.feign.FeignConstant;
 import com.tenant.api.service.impl.UserServiceImpl;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -33,7 +33,7 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor { // cá
     @Override
     public void apply(RequestTemplate template) {
         if (template.headers().containsKey(FeignAccountAuthService.LOGIN_TYPE)) {
-            if (Objects.equals(template.headers().get(FeignAccountAuthService.LOGIN_TYPE).toArray()[0], FeignConst.LOGIN_TYPE_INTERNAL)) {
+            if (Objects.equals(template.headers().get(FeignAccountAuthService.LOGIN_TYPE).toArray()[0], FeignConstant.LOGIN_TYPE_INTERNAL)) {
                 String auth = internalAuthUsername + ":" + internalAuthpassword;
                 log.error("-----------> internal = " + auth);
                 byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
@@ -43,8 +43,10 @@ public class OAuth2FeignRequestInterceptor implements RequestInterceptor { // cá
             }
             template.removeHeader(FeignAccountAuthService.LOGIN_TYPE);
         } else {
-            log.error("-----------> Constructing Header {} for Token {}, token {}", AUTHORIZATION_HEADER, BEARER_TOKEN_TYPE, String.format("%s %s", BEARER_TOKEN_TYPE, userService.AUTH_SERVER_TOKEN));
-            template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, userService.getToken()));
+            if (!template.headers().containsKey(AUTHORIZATION_HEADER)) {
+                log.error("-----------> Constructing Header {} for Token {}, token {}", AUTHORIZATION_HEADER, BEARER_TOKEN_TYPE, String.format("%s %s", BEARER_TOKEN_TYPE, userService.AUTH_SERVER_TOKEN));
+                template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, userService.getToken()));
+            }
         }
     }
 }

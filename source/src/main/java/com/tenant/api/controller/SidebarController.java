@@ -11,6 +11,7 @@ import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.sidebar.CreateSidebarForm;
 import com.tenant.api.form.sidebar.UpdateSidebarForm;
 import com.tenant.api.mapper.SidebarMapper;
+import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.SidebarCriteria;
 import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.model.Sidebar;
@@ -27,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +48,9 @@ public class SidebarController extends ABasicController {
 
     @Autowired
     private MovieItemRepository movieItemRepository;
+
+    @Autowired
+    private MediaService mediaService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('SDB_C')")
@@ -116,6 +121,15 @@ public class SidebarController extends ABasicController {
             sidebar.setMovieItem(movieItem);
         }
 
+        List<String> deletedFile = new ArrayList<>();
+        if (!Objects.equals(form.getWebThumbnailUrl(), sidebar.getWebThumbnailUrl())) {
+            deletedFile.add(sidebar.getWebThumbnailUrl());
+        }
+        if (!Objects.equals(form.getMobileThumbnailUrl(), sidebar.getMobileThumbnailUrl())) {
+            deletedFile.add(sidebar.getMobileThumbnailUrl());
+        }
+        mediaService.deleteFiles(deletedFile);
+
         sidebarMapper.fromUpdateSidebarFormToEntity(form, sidebar);
 
         sidebarRepository.save(sidebar);
@@ -127,6 +141,12 @@ public class SidebarController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Sidebar sidebar = sidebarRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Sidebar] Not found", ErrorCode.SIDEBAR_ERROR_NOT_FOUND));
+
+        List<String> deletedFile = new ArrayList<>();
+        deletedFile.add(sidebar.getWebThumbnailUrl());
+        deletedFile.add(sidebar.getMobileThumbnailUrl());
+        mediaService.deleteFiles(deletedFile);
+
         sidebarRepository.delete(sidebar);
         return makeSuccessResponse("Delete sidebar success");
     }

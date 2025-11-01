@@ -10,6 +10,7 @@ import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.mapper.MovieMapper;
+import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
@@ -24,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,6 +55,9 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private FavouriteRepository favouriteRepository;
+
+    @Autowired
+    private MediaService mediaService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -117,6 +122,15 @@ public class MovieController extends ABasicController {
             movie.setCategories(categories);
         }
 
+        List<String> deletedFiles = new ArrayList<>();
+        if (!Objects.equals(form.getThumbnailUrl(), movie.getThumbnailUrl())) {
+            deletedFiles.add(movie.getThumbnailUrl());
+        }
+        if (!Objects.equals(form.getPosterUrl(), movie.getPosterUrl())) {
+            deletedFiles.add(movie.getPosterUrl());
+        }
+        mediaService.deleteFiles(deletedFiles);
+
         movieMapper.fromUpdateMovieFormToEntity(form, movie);
         movieRepository.save(movie);
         return makeSuccessResponse("Update movie success");
@@ -131,6 +145,11 @@ public class MovieController extends ABasicController {
         if (movieItemRepository.existsByMovieId(movie.getId())) {
             throw new BadRequestException("[Movie] Cannot delete, movie still has items", ErrorCode.MOVIE_ERROR_HAS_ITEM);
         }
+
+        List<String> deletedFiles = new ArrayList<>();
+        deletedFiles.add(movie.getThumbnailUrl());
+        deletedFiles.add(movie.getPosterUrl());
+        mediaService.deleteFiles(deletedFiles);
 
         commentRepository.deleteByMovieId(movie.getId());
 

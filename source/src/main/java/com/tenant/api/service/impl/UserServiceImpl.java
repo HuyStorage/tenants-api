@@ -2,7 +2,7 @@ package com.tenant.api.service.impl;
 
 import com.tenant.api.jwt.TenantJwt;
 import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
+import com.tenant.api.service.feign.FeignConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -114,12 +114,16 @@ public class UserServiceImpl {
             request.add("grant_type", "refresh_token");
             request.add("refresh_token", AUTH_SERVER_REFRESH_TOKEN);
 
-            OAuth2AccessToken result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+            OAuth2AccessToken result = accountAuthService.authLogin(FeignConstant.LOGIN_TYPE_INTERNAL, request);
             AUTH_SERVER_TOKEN = result.getValue();
             AUTH_SERVER_REFRESH_TOKEN = result.getRefreshToken().getValue();
             AUTH_SERVER_TOKEN_EXPIRES = result.getExpiration();
         }
 
         return AUTH_SERVER_TOKEN;
+    }
+
+    public String getBearerTokenHeader() {
+        return FeignConstant.AUTH_BEARER_TOKEN + " " + getCurrentToken();
     }
 }

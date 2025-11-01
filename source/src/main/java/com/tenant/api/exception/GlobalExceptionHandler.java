@@ -28,7 +28,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error(ex.getMessage(), ex);
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
         apiMessageDto.setResult(false);
-        apiMessageDto.setCode(ex.getCode());
+        apiMessageDto.setCode(ex.getCode() != null ? ex.getCode() : "ERROR");
         apiMessageDto.setMessage(ex.getMessage());
         return new ResponseEntity<>(apiMessageDto, HttpStatus.OK);
     }
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiMessageDto<String>> badRequest(BadRequestException ex) {
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
         apiMessageDto.setResult(false);
-        apiMessageDto.setCode(ex.getCode());
+        apiMessageDto.setCode(ex.getCode() != null ? ex.getCode() : "ERROR");
         apiMessageDto.setMessage(ex.getMessage());
         return new ResponseEntity<>(apiMessageDto, HttpStatus.OK);
     }

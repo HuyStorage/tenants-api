@@ -16,6 +16,7 @@ import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.UserMapper;
 import com.tenant.api.service.GoogleService;
 import com.tenant.api.service.LoginService;
+import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.UserCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.User;
@@ -69,6 +70,9 @@ public class UserController extends ABasicController {
 
     @Autowired
     private GoogleService googleService;
+
+    @Autowired
+    private MediaService mediaService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)

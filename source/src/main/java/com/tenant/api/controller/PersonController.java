@@ -10,6 +10,7 @@ import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.person.CreatePersonForm;
 import com.tenant.api.form.person.UpdatePersonForm;
 import com.tenant.api.mapper.PersonMapper;
+import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.PersonCriteria;
 import com.tenant.api.storage.tenant.model.Person;
 import com.tenant.api.storage.tenant.repository.FavouriteRepository;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/person")
@@ -44,6 +46,9 @@ public class PersonController extends ABasicController {
 
     @Autowired
     private FavouriteRepository favouriteRepository;
+
+    @Autowired
+    private MediaService mediaService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PSN_C')")
@@ -109,6 +114,10 @@ public class PersonController extends ABasicController {
         Person person = personRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Person] Not found", ErrorCode.PERSON_ERROR_NOT_FOUND));
 
+        if (!Objects.equals(form.getAvatarPath(), person.getAvatarPath())) {
+            mediaService.deleteFile(person.getAvatarPath());
+        }
+
         person.getKinds().clear();
         personMapper.fromUpdatePersonFormToEntity(form, person);
 
@@ -126,6 +135,8 @@ public class PersonController extends ABasicController {
         if (moviePersonRepository.existsByPersonId(person.getId())) {
             throw new BadRequestException("[Person] Cannot delete with relationship with Movie Person", ErrorCode.PERSON_ERROR_MOVIE_PERSON_EXISTED);
         }
+
+        mediaService.deleteFile(person.getAvatarPath());
 
         favouriteRepository.deleteByPersonId(person.getId());
         person.getKinds().clear();

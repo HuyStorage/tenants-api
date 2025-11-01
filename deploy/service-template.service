@@ -1,6 +1,5 @@
 [Unit]
 Description=Tenant API Service
-Requires=master-api.service
 After=network.target
 
 [Service]
