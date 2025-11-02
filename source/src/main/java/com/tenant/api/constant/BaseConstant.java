@@ -65,6 +65,9 @@ public class BaseConstant {
     public static final Integer REACTION_TYPE_LIKE = 1;
     public static final Integer REACTION_TYPE_DISLIKE = 2;
 
+    public static final Integer FAVOURITE_TYPE_MOVIE = 1;
+    public static final Integer FAVOURITE_TYPE_PERSON = 2;
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

@@ -1,5 +1,6 @@
 package com.tenant.api.form.favourite;
 
+import com.tenant.api.validation.FavouriteTypeConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ApiModel
 public class CreateFavouriteForm {
-    @NotNull(message = "type cannot be null")
+    @FavouriteTypeConstraint
     @ApiModelProperty(required = true)
     private Integer type;
 
