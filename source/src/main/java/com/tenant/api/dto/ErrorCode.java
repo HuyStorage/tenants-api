@@ -120,4 +120,10 @@ public class ErrorCode {
      * Starting error code Favourite
      */
     public static final String FAVOURITE_ERROR_NOT_FOUND = "ERROR-FAVOURITE-ERROR-0000";
+
+    /**
+     * Sns error code
+     */
+    public static final String SNS_ERROR_APP_CONFIG = "ERROR-SNS-000";
+    public static final String SNS_ERROR_GET_CLIENT_TOKEN = "ERROR-SNS-001";
 }
