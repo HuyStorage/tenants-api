@@ -16,6 +16,7 @@ public class MovieItemDto extends ABasicAdminDto {
     private String title;
     private String description;
     private Integer kind;
+    private String label;
     private Integer ordering;
     private MovieItemDto parent;
     private MovieDto movie;

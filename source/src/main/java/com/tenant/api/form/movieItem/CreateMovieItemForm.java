@@ -27,6 +27,10 @@ public class CreateMovieItemForm {
     @ApiModelProperty(required = true)
     private Integer kind;
 
+    @NotBlank(message = "label cannot be empty")
+    @ApiModelProperty(required = true)
+    private String label;
+
     private Long parentId; // can be null
 
     @NotNull(message = "movieId cannot be null")

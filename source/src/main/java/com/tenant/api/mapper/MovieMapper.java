@@ -12,7 +12,6 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         uses = {CategoryMapper.class})
 public interface MovieMapper {
-
     @Mapping(source = "id", target = "id")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "originalTitle", target = "originalTitle")

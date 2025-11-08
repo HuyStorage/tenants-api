@@ -32,6 +32,8 @@ public class MovieItem extends Auditable<String> {
 
     private Integer kind; // 1: season, 2: episode, 3: trailer
 
+    private String label;
+
     private Integer ordering;
 
     // Season  → parent = null

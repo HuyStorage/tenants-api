@@ -22,6 +22,10 @@ public class UpdateMovieItemForm {
     @ApiModelProperty(required = true)
     private String title;
 
+    @NotBlank(message = "label cannot be empty")
+    @ApiModelProperty(required = true)
+    private String label;
+
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
     private String description;

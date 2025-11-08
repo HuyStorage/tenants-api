@@ -84,10 +84,10 @@ public class MovieItemController extends ABasicController {
             isRequiredVideo = true;
         }
 
-        if (isRequiredVideo) {
-            if (form.getVideoId() == null) {
-                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
-            }
+        if (isRequiredVideo && form.getVideoId() != null) {
+//            if (form.getVideoId() == null) {
+//                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
+//            }
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
@@ -154,10 +154,10 @@ public class MovieItemController extends ABasicController {
             isRequiredVideo = true;
         }
 
-        if (isRequiredVideo) {
-            if (form.getVideoId() == null) {
-                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
-            }
+        if (isRequiredVideo && form.getVideoId() != null) {
+//            if (form.getVideoId() == null) {
+//                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
+//            }
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }

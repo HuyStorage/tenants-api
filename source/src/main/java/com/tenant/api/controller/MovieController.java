@@ -9,11 +9,13 @@ import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
+import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
+import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.repository.*;
 import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +48,9 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private MovieItemRepository movieItemRepository;
+
+    @Autowired
+    private MovieItemMapper movieItemMapper;
 
     @Autowired
     private MoviePersonRepository moviePersonRepository;
@@ -86,8 +91,10 @@ public class MovieController extends ABasicController {
     public ApiMessageDto<MovieDto> get(@PathVariable("id") Long id) {
         Movie movie = movieRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
-
-        return makeSuccessResponse(movieMapper.entityToMovieDto(movie), "Get movie success");
+        List<MovieItem> seasons = movieItemRepository.findByMovieIdAndKindAndStatusOrderByOrderingAsc(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_SEASON, BaseConstant.STATUS_ACTIVE);
+        MovieDto movieDto = movieMapper.entityToMovieDto(movie);
+        movieDto.setSeasons(movieItemMapper.fromEntityToMovieItemAutoCompleteDtoList(seasons));
+        return makeSuccessResponse(movieDto, "Get movie success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
