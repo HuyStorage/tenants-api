@@ -17,6 +17,11 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
 
     List<MovieItem> findByMovieIdAndKindAndStatusOrderByOrderingAsc(Long movieId, Integer kind, Integer status);
 
+    List<MovieItem> findByMovieIdAndStatus(Long movieId, Integer status);
+
+    @Query("SELECT mi FROM MovieItem mi LEFT JOIN FETCH mi.parent WHERE mi.movie.id = :movieId AND mi.status = :status")
+    List<MovieItem> findByMovieIdAndStatusWithParent(@Param("movieId") Long movieId, @Param("status") Integer status);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM MovieItem mi WHERE mi.parent.id = :parentId")

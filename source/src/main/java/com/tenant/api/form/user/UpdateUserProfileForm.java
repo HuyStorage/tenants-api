@@ -1,6 +1,5 @@
 package com.tenant.api.form.user;
 
-import com.tenant.api.validation.EmailConstraint;
 import com.tenant.api.validation.GenderConstraint;
 import com.tenant.api.validation.PhoneConstraint;
 import com.tenant.api.validation.UsernameConstraint;
@@ -18,10 +17,6 @@ public class UpdateUserProfileForm {
     @UsernameConstraint(allowNull = true)
     @ApiModelProperty(name = "username")
     private String username;
-
-    @EmailConstraint
-    @ApiModelProperty(name = "email", required = true)
-    private String email;
 
     @PhoneConstraint(allowNull = true)
     @ApiModelProperty(name = "phone")

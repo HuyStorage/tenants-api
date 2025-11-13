@@ -40,7 +40,6 @@ public interface AccountMapper {
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateEmployeeFormToEntity(UpdateEmployeeForm form, @MappingTarget Account account);
 
-    @Mapping(source = "username", target = "username")
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")

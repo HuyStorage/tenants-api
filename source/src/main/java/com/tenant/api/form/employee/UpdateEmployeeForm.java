@@ -21,19 +21,16 @@ public class UpdateEmployeeForm {
     @ApiModelProperty(required = true)
     private String username;
 
-    @PhoneConstraint
-    @ApiModelProperty(required = true)
+    @PhoneConstraint(allowNull = true)
     private String phone;
 
     @EmailConstraint(allowNull = true)
     private String email;
 
-    @NotBlank(message = "oldPassword cannot be empty")
-    @ApiModelProperty(required = true)
+    @PasswordConstraint(message = "oldPassword invalid format", allowNull = true)
     private String oldPassword;
 
-    @PasswordConstraint(message = "newPassword invalid format")
-    @ApiModelProperty(required = true)
+    @PasswordConstraint(message = "newPassword invalid format", allowNull = true)
     private String newPassword;
 
     @NotBlank(message = "fullName cant not be empty")

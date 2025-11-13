@@ -282,11 +282,6 @@ public class EmployeeController extends ABasicController {
             throw new BadRequestException("[Employee] Email existed", ErrorCode.EMPLOYEE_ERROR_EMAIL_EXISTED);
         }
 
-        if (StringUtils.isNotBlank(form.getUsername()) && !Objects.equals(employee.getAccount().getUsername(), form.getUsername())
-                && employeeRepository.existsByAccountUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE)) {
-            throw new BadRequestException("[Employee] Username existed", ErrorCode.EMPLOYEE_ERROR_USERNAME_EXISTED);
-        }
-
         if (!Objects.equals(form.getAvatarPath(), employee.getAccount().getAvatarPath())) {
             String avatarPath = employee.getAccount().getAvatarPath();
             mediaService.deleteFile(avatarPath);

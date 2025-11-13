@@ -5,6 +5,7 @@ import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.movie.MovieDto;
+import com.tenant.api.dto.movieItem.MovieItemDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
@@ -27,9 +28,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/movie")
@@ -91,10 +92,70 @@ public class MovieController extends ABasicController {
     public ApiMessageDto<MovieDto> get(@PathVariable("id") Long id) {
         Movie movie = movieRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
-        List<MovieItem> seasons = movieItemRepository.findByMovieIdAndKindAndStatusOrderByOrderingAsc(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_SEASON, BaseConstant.STATUS_ACTIVE);
+
+        List<MovieItem> movieItems = movieItemRepository
+                .findByMovieIdAndStatusWithParent(movie.getId(), BaseConstant.STATUS_ACTIVE);
+
         MovieDto movieDto = movieMapper.entityToMovieDto(movie);
-        movieDto.setSeasons(movieItemMapper.fromEntityToMovieItemAutoCompleteDtoList(seasons));
+        movieDto.setSeasons(buildSeasonsWithEpisodes(movieItems));
+
         return makeSuccessResponse(movieDto, "Get movie success");
+    }
+
+    private List<MovieItemDto> buildSeasonsWithEpisodes(List<MovieItem> movieItems) {
+        // Group items by kind
+        Map<Integer, List<MovieItem>> itemsByKind = movieItems.stream()
+                .collect(Collectors.groupingBy(MovieItem::getKind));
+
+        // Create seasons map
+        Map<Long, MovieItemDto> seasonMap = itemsByKind
+                .getOrDefault(BaseConstant.MOVIE_ITEM_KIND_SEASON, Collections.emptyList())
+                .stream()
+                .sorted(Comparator.comparing(MovieItem::getOrdering))
+                .map(item -> {
+                    MovieItemDto dto = movieItemMapper.entityToMovieItemPublicDto(item);
+                    dto.setEpisodes(new ArrayList<>());
+                    return dto;
+                })
+                .collect(Collectors.toMap(
+                        MovieItemDto::getId,
+                        Function.identity(),
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+
+        // Add episodes
+        itemsByKind.getOrDefault(BaseConstant.MOVIE_ITEM_KIND_EPISODE, Collections.emptyList())
+                .stream()
+                .sorted(Comparator.comparing(MovieItem::getOrdering))
+                .forEach(item -> {
+                    if (item.getParent() != null) {
+                        MovieItemDto season = seasonMap.get(item.getParent().getId());
+                        if (season != null) {
+                            season.getEpisodes().add(
+                                    movieItemMapper.entityToMovieItemPublicDto(item)
+                            );
+                        }
+                    }
+                });
+
+        // Add trailers
+        Map<Long, MovieItem> maxTrailerBySeason = itemsByKind
+                .getOrDefault(BaseConstant.MOVIE_ITEM_KIND_TRAILER, Collections.emptyList())
+                .stream()
+                .filter(item -> item.getParent() != null && seasonMap.containsKey(item.getParent().getId()))
+                .collect(Collectors.toMap(
+                        item -> item.getParent().getId(),                   // key = seasonId
+                        Function.identity(),                                // value = trailer
+                        (t1, t2) -> t1.getOrdering() > t2.getOrdering() ? t1 : t2
+                ));
+
+        maxTrailerBySeason.forEach((seasonId, trailer) -> {
+            MovieItemDto season = seasonMap.get(seasonId);
+            season.setTrailer(movieItemMapper.entityToMovieItemPublicDto(trailer));
+        });
+
+        return new ArrayList<>(seasonMap.values());
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

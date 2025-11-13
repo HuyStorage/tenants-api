@@ -76,7 +76,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
                         log.info("====> load tenant has key: " + key);
                         ApiMessageDto<DbConfigDto> tenant = dbConfigAuthService.authGetByName(key);
                         if (tenant == null || !tenant.getResult() || tenant.getData() == null) {
-                            throw new NotFoundException("[Db Config]No such tenant: " + key, ErrorCode.DB_CONFIG_ERROR_NOT_FOUND);
+                            throw new NotFoundException("[Db Config] No such tenant: " + key, ErrorCode.DB_CONFIG_ERROR_NOT_FOUND);
                         }
                         return createAndConfigureDataSource(tenant.getData(), false);
                     }
