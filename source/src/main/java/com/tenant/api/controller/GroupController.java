@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/group")
@@ -89,8 +90,9 @@ public class GroupController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
 
         // Check if the new name already exists
-        if (groupRepository.existsByName(updateGroupForm.getName())) {
-            throw new BadRequestException("[Group] Cant update this group name because it is exist!", ErrorCode.GROUP_ERROR_NAME_EXISTED);
+        if (!Objects.equals(updateGroupForm.getName(), group.getName())
+                && groupRepository.existsByName(updateGroupForm.getName())) {
+            throw new BadRequestException("[Group] Name existed", ErrorCode.GROUP_ERROR_NAME_EXISTED);
         }
 
         List<GroupPermission> permissions = new ArrayList<>();
