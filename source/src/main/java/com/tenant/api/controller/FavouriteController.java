@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/favourite")
@@ -58,7 +60,7 @@ public class FavouriteController extends ABasicController {
         favourite.setUser(user);
         favourite.setType(form.getType());
 
-        if (form.getType() == 1) {
+        if (Objects.equals(form.getType(), BaseConstant.FAVOURITE_TYPE_MOVIE)) {
             Movie movie = movieRepository.findById(form.getTargetId())
                     .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
             favourite.setMovie(movie);

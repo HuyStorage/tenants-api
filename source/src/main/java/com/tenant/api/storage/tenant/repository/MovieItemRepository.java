@@ -8,11 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, JpaSpecificationExecutor<MovieItem> {
 
     Optional<MovieItem> findByIdAndStatus(Long id, Integer status);
+
+    @Query("SELECT mi FROM MovieItem mi LEFT JOIN FETCH mi.parent WHERE mi.movie.id = :movieId AND mi.status = :status")
+    List<MovieItem> findByMovieIdAndStatusWithParent(@Param("movieId") Long movieId, @Param("status") Integer status);
 
     @Modifying
     @Transactional
@@ -48,4 +52,14 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
     @Transactional
     @Query("UPDATE MovieItem mi SET mi.video = null WHERE mi.video.id = :videoId")
     void detachVideoFromMovieItem(@Param("videoId") Long videoId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE MovieItem mi WHERE mi.movie.id = :movieId AND mi.kind = :kind")
+    void deleteByMovieIdAndKind(@Param("movieId") Long movieId, @Param("kind") Integer kind);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE MovieItem mi WHERE mi.parent.id = :parentId AND mi.kind = :kind")
+    void deleteByParentIdAndKind(@Param("parentId") Long parentId, @Param("kind") Integer kind);
 }

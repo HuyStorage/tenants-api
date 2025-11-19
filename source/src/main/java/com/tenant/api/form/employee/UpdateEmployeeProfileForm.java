@@ -3,7 +3,6 @@ package com.tenant.api.form.employee;
 import com.tenant.api.validation.EmailConstraint;
 import com.tenant.api.validation.PasswordConstraint;
 import com.tenant.api.validation.PhoneConstraint;
-import com.tenant.api.validation.UsernameConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,23 +14,15 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ApiModel
 public class UpdateEmployeeProfileForm {
-    @UsernameConstraint
-    @ApiModelProperty(required = true)
-    private String username;
-
-    @PhoneConstraint
-    @ApiModelProperty(required = true)
+    @PhoneConstraint(allowNull = true)
     private String phone;
 
     @EmailConstraint(allowNull = true)
     private String email;
 
-    @PasswordConstraint(message = "oldPassword invalid format")
-    @ApiModelProperty(required = true)
     private String oldPassword;
 
-    @PasswordConstraint(message = "newPassword invalid format")
-    @ApiModelProperty(required = true)
+    @PasswordConstraint(message = "newPassword invalid format", allowNull = true)
     private String newPassword;
 
     @NotBlank(message = "fullName cant not be empty")

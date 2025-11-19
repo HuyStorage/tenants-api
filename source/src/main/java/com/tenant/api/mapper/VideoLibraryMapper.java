@@ -39,8 +39,6 @@ public interface VideoLibraryMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "shortDescription", target = "shortDescription")
-    @Mapping(source = "description", target = "description")
     @Mapping(source = "content", target = "content", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "relativeContentPath", target = "relativeContentPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "spriteUrl", target = "spriteUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
@@ -50,8 +48,6 @@ public interface VideoLibraryMapper {
     @Mapping(source = "introStart", target = "introStart")
     @Mapping(source = "introEnd", target = "introEnd")
     @Mapping(source = "outroStart", target = "outroStart")
-    @Mapping(source = "state", target = "state")
-    @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToVideoLibraryAutoCompleteDto")
     VideoLibraryDto entityToVideoLibraryAutoCompleteDto(VideoLibrary video);

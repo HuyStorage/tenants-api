@@ -713,4 +713,9 @@
     <changeSet author="Tenant" id="1754317519395-4">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_favourite" constraintName="FKnq2e70b5msiv9ovbngvu4oasr" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
     </changeSet>
+    <changeSet author="Tenant" id="1762445323706-1">
+        <addColumn tableName="db_movie_item">
+            <column name="label" type="varchar(255)" afterColumn="kind"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

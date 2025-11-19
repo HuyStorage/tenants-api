@@ -48,6 +48,9 @@ public class ErrorCode {
     public static final String USER_ERROR_EMAIL_EXISTED = "ERROR-USER-ERROR-0004";
     public static final String USER_ERROR_WRONG_PASSWORD = "ERROR-USER-ERROR-0005";
     public static final String USER_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD = "ERROR-USER-ERROR-0006";
+    public static final String USER_ERROR_OTP_INVALID = "ERROR-USER-ERROR-0007";
+    public static final String USER_ERROR_RESEND_OTP_LIMIT = "ERROR-USER-ERROR-0008";
+    public static final String USER_ERROR_CONFIRM_PASSWORD_INVALID = "ERROR-USER-ERROR-0009";
 
     /**
      * Starting error code Group
@@ -120,4 +123,15 @@ public class ErrorCode {
      * Starting error code Favourite
      */
     public static final String FAVOURITE_ERROR_NOT_FOUND = "ERROR-FAVOURITE-ERROR-0000";
+
+    /**
+     * Sns error code
+     */
+    public static final String SNS_ERROR_APP_CONFIG = "ERROR-SNS-0000";
+    public static final String SNS_ERROR_GET_CLIENT_TOKEN = "ERROR-SNS-0001";
+
+    /**
+     * Media error code
+     */
+    public static final String MEDIA_ERROR_DELETE_FILE = "ERROR-MEDIA-0000";
 }

@@ -25,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -46,7 +45,7 @@ public class GroupController extends ABasicController {
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('GR_C')")
-    public ApiMessageDto<String> create(@Valid @RequestBody CreateGroupForm createGroupForm, BindingResult bindingResult) {
+    public ApiMessageDto<String> create(@Valid @RequestBody CreateGroupForm createGroupForm) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed create.");
         }
@@ -80,7 +79,7 @@ public class GroupController extends ABasicController {
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('GR_U')")
-    public ApiMessageDto<String> update(@Valid @RequestBody UpdateGroupForm updateGroupForm, BindingResult bindingResult) {
+    public ApiMessageDto<String> update(@Valid @RequestBody UpdateGroupForm updateGroupForm) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed update.");
         }

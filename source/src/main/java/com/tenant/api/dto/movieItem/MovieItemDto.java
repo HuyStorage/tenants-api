@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,9 +17,13 @@ public class MovieItemDto extends ABasicAdminDto {
     private String title;
     private String description;
     private Integer kind;
+    private String label;
     private Integer ordering;
     private MovieItemDto parent;
     private MovieDto movie;
     private VideoLibraryDto video;
     private Date releaseDate;
+
+    private List<MovieItemDto> episodes;
+    private MovieItemDto trailer;
 }

@@ -1,7 +1,7 @@
 package com.tenant.api;
 
 import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
+import com.tenant.api.service.feign.FeignConstant;
 import com.tenant.api.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +50,13 @@ public class Application {
         request.add("grant_type", "password");
         request.add("username", username);
         request.add("password", password);
-        OAuth2AccessToken result = accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        OAuth2AccessToken result = accountAuthService.authLogin(FeignConstant.LOGIN_TYPE_INTERNAL, request);
         if (result == null || result.getValue() == null) {
             throw new RuntimeException("APPLICATION FAILED TO START: CAN NOT GET KEY ");
         }
         userService.AUTH_SERVER_TOKEN = result.getValue();
+        userService.AUTH_SERVER_REFRESH_TOKEN = result.getRefreshToken().getValue();
+        userService.AUTH_SERVER_TOKEN_EXPIRES = result.getExpiration();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 }

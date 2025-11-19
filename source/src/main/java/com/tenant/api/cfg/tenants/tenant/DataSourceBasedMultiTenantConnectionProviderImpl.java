@@ -76,7 +76,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
                         log.info("====> load tenant has key: " + key);
                         ApiMessageDto<DbConfigDto> tenant = dbConfigAuthService.authGetByName(key);
                         if (tenant == null || !tenant.getResult() || tenant.getData() == null) {
-                            throw new NotFoundException("[Db Config]No such tenant: " + key, ErrorCode.DB_CONFIG_ERROR_NOT_FOUND);
+                            throw new NotFoundException("[Db Config] No such tenant: " + key, ErrorCode.DB_CONFIG_ERROR_NOT_FOUND);
                         }
                         return createAndConfigureDataSource(tenant.getData(), false);
                     }
@@ -92,7 +92,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
             tenant.setDriverClassName(configProperties.getDriverClassName());
             tenant.setUrl(configProperties.getUrl());
             tenant.setName(TenantConstant.DEFAULT_TENANT_ID);
-            dataSourcesMtApp.asMap().put(tenant.getName(), createAndConfigureDataSource(tenant, true));
+            dataSourcesMtApp.asMap().put(tenant.getName(), createAndConfigureDataSource(tenant, false));
         }
         log.info("selectAnyDataSource() method call...Total tenants:" + dataSourcesMtApp.asMap().size());
         return dataSourcesMtApp.asMap().values().iterator().next();

@@ -6,7 +6,7 @@ import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.user.UserGoogleInfo;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.service.feign.FeignAccountAuthService;
-import com.tenant.api.service.feign.FeignConst;
+import com.tenant.api.service.feign.FeignConstant;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.GroupPermission;
 import com.tenant.api.storage.tenant.model.User;
@@ -80,7 +80,7 @@ public class LoginService {
         request.add("tenantId", TenantDBContext.getCurrentTenant());
         request.add("userId", account.getId().toString());
         request.add("userKind", String.valueOf(account.getKind()));
-        return accountAuthService.authLogin(FeignConst.LOGIN_TYPE_INTERNAL, request);
+        return accountAuthService.authLogin(FeignConstant.LOGIN_TYPE_INTERNAL, request);
     }
 
     public OAuth2AccessToken handleSocialLogin(UserGoogleInfo userInfo) throws IOException {

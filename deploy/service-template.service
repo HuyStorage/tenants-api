@@ -1,0 +1,18 @@
+[Unit]
+Description=Tenant API Service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory={CONFIG_LOCATION}
+
+ExecStartPre=/bin/bash -c 'until docker inspect -f "{{.State.Running}}" rabbitmq | grep true; do sleep 2; done'
+
+ExecStart=/opt/jdk11/bin/java -Dspring.profiles.active={ENV} -cp "app.jar:lib/*" com.tenant.api.Application --server.address=0.0.0.0
+SuccessExitStatus=143
+SyslogIdentifier={APP_ID}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

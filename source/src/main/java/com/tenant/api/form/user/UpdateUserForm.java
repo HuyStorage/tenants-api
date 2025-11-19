@@ -19,5 +19,4 @@ public class UpdateUserForm {
     @StatusConstraint
     @ApiModelProperty(name = "status", required = true)
     private Integer status;
-
 }

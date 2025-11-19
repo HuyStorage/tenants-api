@@ -55,7 +55,7 @@ public class BaseConstant {
     public static final Integer VIDEO_LIBRARY_STATE_READY = 1;
     public static final Integer VIDEO_LIBRARY_STATE_ERROR = 2;
 
-    public static final String CMD_UPDATE_VIDEO = "CMD_UPDATE_VIDEO";
+    public static final String CMD_DONE_CONVERT_VIDEO = "CMD_DONE_CONVERT_VIDEO";
     public static final String CMD_CONVERT_VIDEO = "CMD_CONVERT_VIDEO";
     public static final String CMD_DELETE_VIDEO = "CMD_DELETE_VIDEO";
 
@@ -64,6 +64,12 @@ public class BaseConstant {
 
     public static final Integer REACTION_TYPE_LIKE = 1;
     public static final Integer REACTION_TYPE_DISLIKE = 2;
+
+    public static final Integer FAVOURITE_TYPE_MOVIE = 1;
+    public static final Integer FAVOURITE_TYPE_PERSON = 2;
+
+    public static final String APP_NAME_CMS = "CMS";
+    public static final String APP_NAME_CLIENT = "CLIENT";
 
     private BaseConstant(){
         throw new IllegalStateException("Utility class");

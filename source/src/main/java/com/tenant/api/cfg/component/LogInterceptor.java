@@ -46,6 +46,10 @@ public class LogInterceptor implements HandlerInterceptor {
     final static List<String> BYPASS_JWT = List.of(
             "/v1/employee/login",
             "/v1/user/register",
+            "/v1/user/verify-otp",
+            "/v1/user/resend-otp",
+            "/v1/user/request-forgot-password",
+            "/v1/user/forgot-password",
             "/v1/user/login",
             "/v1/user/auth/social-login",
             "/v1/user/auth/web-callback",
@@ -79,7 +83,10 @@ public class LogInterceptor implements HandlerInterceptor {
         log.error("Starting call url: [" + getUrl(request) + "]");
 
         String tenantName = request.getHeader("X-tenant");
-        if (isAllowed(request, BYPASS_JWT) && tenantName != null) {
+        if (isAllowed(request, BYPASS_JWT)) {
+            if (tenantName == null) {
+                throw new UnauthorizationException("Invalid tenant");
+            }
             TenantDBContext.setCurrentTenant(tenantName);
             return true;
         }
@@ -92,6 +99,7 @@ public class LogInterceptor implements HandlerInterceptor {
             TenantDBContext.setCurrentTenant(tenantName);
             return true;
         }
+
         // manager
         if (jwt != null && jwt.getTenantId() != null) {
             TenantDBContext.setCurrentTenant(jwt.getTenantId().split("&")[0]);

@@ -16,6 +16,7 @@ import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.EmployeeMapper;
 import com.tenant.api.service.LoginService;
+import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.Employee;
@@ -37,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,6 +66,9 @@ public class EmployeeController extends ABasicController {
 
     @Autowired
     private LoginService loginService;
+
+    @Autowired
+    private MediaService mediaService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -175,10 +178,9 @@ public class EmployeeController extends ABasicController {
             employee.getAccount().setGroup(group);
         }
 
-        List<String> deleteFiles = new ArrayList<>();
         if (!Objects.equals(form.getAvatarPath(), employee.getAccount().getAvatarPath())) {
             String avatarPath = employee.getAccount().getAvatarPath();
-            deleteFiles.add(avatarPath);
+            mediaService.deleteFile(avatarPath);
         }
 
         accountMapper.fromUpdateEmployeeFormToEntity(form, employee.getAccount());
@@ -186,10 +188,6 @@ public class EmployeeController extends ABasicController {
 
         employeeMapper.fromUpdateEmployeeFormToEntity(form, employee);
         employeeRepository.save(employee);
-
-        if (!deleteFiles.isEmpty()) {
-//            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
-        }
 
         return makeSuccessResponse("Update employee success");
     }
@@ -215,8 +213,10 @@ public class EmployeeController extends ABasicController {
             throw new UnauthorizationException("Not allowed get");
         }
 
-        employeeRepository.findById(id)
+        Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
+
+        mediaService.deleteFile(employee.getAccount().getAvatarPath());
 
         employeeRepository.deleteById(id);
         accountRepository.deleteById(id);
@@ -282,23 +282,14 @@ public class EmployeeController extends ABasicController {
             throw new BadRequestException("[Employee] Email existed", ErrorCode.EMPLOYEE_ERROR_EMAIL_EXISTED);
         }
 
-        if (StringUtils.isNotBlank(form.getUsername()) && !Objects.equals(employee.getAccount().getUsername(), form.getUsername())
-                && employeeRepository.existsByAccountUsernameAndStatusNot(form.getUsername(), BaseConstant.STATUS_DELETE)) {
-            throw new BadRequestException("[Employee] Username existed", ErrorCode.EMPLOYEE_ERROR_USERNAME_EXISTED);
-        }
-
-        List<String> deleteFiles = new ArrayList<>();
         if (!Objects.equals(form.getAvatarPath(), employee.getAccount().getAvatarPath())) {
             String avatarPath = employee.getAccount().getAvatarPath();
-            deleteFiles.add(avatarPath);
+            mediaService.deleteFile(avatarPath);
         }
 
         accountMapper.fromUpdateEmployeeProfileFormToEntity(form, employee.getAccount());
         accountRepository.save(employee.getAccount());
 
-        if (!deleteFiles.isEmpty()) {
-//            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
-        }
         return makeSuccessResponse("Update employee profile success");
     }
 }
