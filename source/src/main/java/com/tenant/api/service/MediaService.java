@@ -1,6 +1,8 @@
 package com.tenant.api.service;
 
 import com.tenant.api.cfg.tenants.TenantDBContext;
+import com.tenant.api.dto.ErrorCode;
+import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.form.file.DeleteListFileForm;
 import com.tenant.api.service.feign.FeignFileMediaService;
 import com.tenant.api.service.impl.UserServiceImpl;
@@ -24,13 +26,13 @@ public class MediaService {
 
     public void deleteFile(String filePath) {
         if (StringUtils.isNotBlank(filePath)) {
-            feignFileMediaService.deleteListFile(TenantDBContext.getCurrentTenant(), userService.getBearerTokenHeader(), new DeleteListFileForm(Collections.singletonList(filePath)));
+            handleDeleteMedia(new DeleteListFileForm(Collections.singletonList(filePath)));
         }
     }
 
     public void deleteFiles(DeleteListFileForm deleteListFileForm) {
         if (deleteListFileForm != null && !deleteListFileForm.getFiles().isEmpty()) {
-            feignFileMediaService.deleteListFile(TenantDBContext.getCurrentTenant(), userService.getBearerTokenHeader(), deleteListFileForm);
+            handleDeleteMedia(deleteListFileForm);
         }
     }
 
@@ -43,8 +45,17 @@ public class MediaService {
                 }
             }
             if (!filesToDelete.isEmpty()) {
-                feignFileMediaService.deleteListFile(TenantDBContext.getCurrentTenant(), userService.getBearerTokenHeader(), new DeleteListFileForm(filesToDelete));
+                handleDeleteMedia(new DeleteListFileForm(filesToDelete));
             }
+        }
+    }
+
+    private void handleDeleteMedia(DeleteListFileForm form) {
+        try {
+            feignFileMediaService.deleteListFile(TenantDBContext.getCurrentTenant(), userService.getBearerTokenHeader(), form);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BadRequestException(ErrorCode.MEDIA_ERROR_DELETE_FILE, e.getMessage());
         }
     }
 }

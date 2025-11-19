@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
@@ -11,6 +12,7 @@ import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.movieItem.CreateMovieItemForm;
 import com.tenant.api.form.movieItem.UpdateMovieItemForm;
 import com.tenant.api.mapper.MovieItemMapper;
+import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.MovieItem;
@@ -58,6 +60,9 @@ public class MovieItemController extends ABasicController {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private RedisService redisService;
+
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_I_C')")
@@ -98,6 +103,8 @@ public class MovieItemController extends ABasicController {
         movieItem.setMovie(movie);
 
         movieItemRepository.save(movieItem);
+
+        redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movie.getId().toString()));
 
         return makeSuccessResponse("Create movie item success");
     }
@@ -165,6 +172,9 @@ public class MovieItemController extends ABasicController {
         movieItemMapper.fromUpdateMovieItemFormToEntity(form, movieItem);
         movieItem.setVideo(video);
         movieItemRepository.save(movieItem);
+
+        redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movieItem.getMovie().getId().toString()));
+
         return makeSuccessResponse("Update movie item success");
     }
 
@@ -181,8 +191,10 @@ public class MovieItemController extends ABasicController {
 
         sidebarRepository.deleteByMovieItemId(id);
         commentRepository.deleteByMovieItemId(id);
-        movieItemRepository.deleteByParentId(movieItem.getId());
+
         movieItemRepository.delete(movieItem);
+
+        redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movieItem.getMovie().getId().toString()));
 
         return makeSuccessResponse("Delete movie item success");
     }

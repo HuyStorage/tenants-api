@@ -28,21 +28,21 @@ public class CommonAsyncService {
     private TaskExecutor taskExecutor;
 
     @Async
-    public void sendEmail(String email, String msg, String subject, boolean html){
+    public void sendEmail(String email, String msg, String subject, boolean html) {
 
         Runnable task3 = () -> {
             try {
-                emailService.sendEmail(email,msg,subject,html);
+                emailService.sendEmail(email, msg, subject, html);
             } catch (Exception e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         };
         taskExecutor.execute(task3);
     }
 
     @Async
-    public void pushToFirebase(String url, String data, HttpMethod httpMethod){
-        System.out.println("firebase url push: "+url);
+    public void pushToFirebase(String url, String data, HttpMethod httpMethod) {
+        System.out.println("firebase url push: " + url);
         Runnable task3 = () -> {
             try {
                 HttpHeaders headers = new HttpHeaders();
@@ -60,8 +60,8 @@ public class CommonAsyncService {
     }
 
     @Async
-    public void deleteFirebasePath(String url){
-        System.out.println("firebase url delete: "+url);
+    public void deleteFirebasePath(String url) {
+        System.out.println("firebase url delete: " + url);
         Runnable task3 = () -> {
             try {
                 HttpHeaders headers = new HttpHeaders();
