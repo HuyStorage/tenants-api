@@ -1,28 +1,25 @@
 package com.tenant.api.controller;
 
+import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
-import com.tenant.api.dto.user.GoogleMobileCallback;
-import com.tenant.api.dto.user.GoogleWebCallback;
-import com.tenant.api.dto.user.UserDto;
-import com.tenant.api.dto.user.UserGoogleInfo;
+import com.tenant.api.dto.user.*;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.ChangeStatusForm;
 import com.tenant.api.form.user.*;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.UserMapper;
-import com.tenant.api.service.GoogleService;
-import com.tenant.api.service.LoginService;
-import com.tenant.api.service.MediaService;
+import com.tenant.api.service.*;
 import com.tenant.api.storage.tenant.criteria.UserCriteria;
 import com.tenant.api.storage.tenant.model.Account;
 import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
 import com.tenant.api.storage.tenant.repository.FavouriteRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
+import com.tenant.api.utils.TemplateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,9 +71,17 @@ public class UserController extends ABasicController {
     @Autowired
     private MediaService mediaService;
 
+    @Autowired
+    private OTPService otpService;
+
+    @Autowired
+    private CommonAsyncService commonAsyncService;
+
+    private final Integer otpLength = 6;
+
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Void> create(@Valid @RequestBody RegisterUserForm form) {
+    public ApiMessageDto<Void> create(@Valid @RequestBody RegisterUserForm form) throws IOException {
         Account account = accountRepository.findFirstByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
         if (account != null) {
             throw new BadRequestException("[Account] Email existed", ErrorCode.ACCOUNT_ERROR_EMAIL_EXISTED);
@@ -85,13 +90,93 @@ public class UserController extends ABasicController {
         account = accountMapper.fromRegisterUserFormToEntity(form);
         account.setPassword(passwordEncoder.encode(form.getPassword()));
         account.setKind(BaseConstant.USER_KIND_USER);
+        account.setStatus(BaseConstant.STATUS_PENDING);
+        accountRepository.save(account);
+
+        String otp = otpService.generate(otpLength);
+        otpService.storeOtp(form.getEmail(), otp, TenantDBContext.getCurrentTenant());
+
+        // Send email
+        String htmlContent = TemplateUtils.loadTemplate("active-account.html").replace("${email}", account.getEmail()).replace("${otp}", otp);
+        commonAsyncService.sendEmail(account.getEmail(), htmlContent, "Chào mừng đến MovieHub", true);
+
+        return makeSuccessResponse("Register success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/verify-otp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> verifyOtp(@Valid @RequestBody VerifyOtpForm form) {
+        Account account = accountRepository.findFirstByEmailAndStatus(form.getEmail(), BaseConstant.STATUS_PENDING)
+                .orElseThrow(() -> new NotFoundException("[Account] Not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+
+        if (!otpService.verifyOtp(form.getEmail(), form.getOtp(), TenantDBContext.getCurrentTenant())) {
+            throw new BadRequestException("Invalid OTP", ErrorCode.USER_ERROR_OTP_INVALID);
+        }
+
+        account.setStatus(BaseConstant.STATUS_ACTIVE);
         accountRepository.save(account);
 
         User user = new User();
         user.setAccount(account);
+        user.setStatus(BaseConstant.STATUS_ACTIVE);
         userRepository.save(user);
 
-        return makeSuccessResponse("Register user success");
+        otpService.deleteOtp(form.getEmail(), TenantDBContext.getCurrentTenant());
+        return makeSuccessResponse("Verify otp success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/resend-otp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> resendOtp(@Valid @RequestBody ResendOtpForm form) throws IOException {
+        Account account = accountRepository.findFirstByEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE)
+                .orElseThrow(() -> new NotFoundException("[Account] Not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+
+        String otp = otpService.resendOtp(account.getEmail(), TenantDBContext.getCurrentTenant());
+        if (otp == null) {
+            throw new BadRequestException("Resend OTP limit (3 per 10 minutes)", ErrorCode.USER_ERROR_RESEND_OTP_LIMIT);
+        }
+
+        // Send email
+        String htmlContent = TemplateUtils.loadTemplate("active-account.html").replace("${email}", account.getEmail()).replace("${otp}", otp);
+        commonAsyncService.sendEmail(account.getEmail(), htmlContent, "Chào mừng đến MovieHub", true);
+
+        return makeSuccessResponse("Resend otp success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/request-forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> requestForgotPassword(@Valid @RequestBody RequestForgotPasswordForm form) throws IOException {
+        Account account = accountRepository.findFirstByEmailAndStatus(form.getEmail(), BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Account] Not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+
+        String otp = otpService.generate(otpLength);
+        otpService.storeOtp(account.getEmail(), otp, TenantDBContext.getCurrentTenant());
+
+        // Send email
+        String htmlContent = TemplateUtils.loadTemplate("active-account.html").replace("${email}", account.getEmail()).replace("${otp}", otp);
+        commonAsyncService.sendEmail(account.getEmail(), htmlContent, "Chào mừng đến MovieHub", true);
+
+        return makeSuccessResponse("Request forgot password success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> forgotPassword(@Valid @RequestBody ForgotPasswordForm form) {
+        Account account = accountRepository.findFirstByEmailAndStatus(form.getEmail(), BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Account] Not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+
+        if (!Objects.equals(form.getPassword(), form.getConfirmPassword())) {
+            throw new BadRequestException("[Account] Confirm password invalid", ErrorCode.USER_ERROR_CONFIRM_PASSWORD_INVALID);
+        }
+
+        if (!otpService.verifyOtp(form.getEmail(), form.getOtp(), TenantDBContext.getCurrentTenant())) {
+            throw new BadRequestException("Invalid OTP", ErrorCode.USER_ERROR_OTP_INVALID);
+        }
+
+        account.setPassword(passwordEncoder.encode(form.getPassword()));
+        accountRepository.save(account);
+
+        return makeSuccessResponse("Change password success");
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -20,7 +20,6 @@ public class UpdateEmployeeProfileForm {
     @EmailConstraint(allowNull = true)
     private String email;
 
-    @PasswordConstraint(message = "oldPassword invalid format", allowNull = true)
     private String oldPassword;
 
     @PasswordConstraint(message = "newPassword invalid format", allowNull = true)
