@@ -49,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/sidebar/list",
             "/v1/comment/list",
             "/v1/comment/update",
+            "/v1/app-version/check-version/**"
     };
 
     @Override

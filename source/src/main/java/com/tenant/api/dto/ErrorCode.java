@@ -134,4 +134,11 @@ public class ErrorCode {
      * Media error code
      */
     public static final String MEDIA_ERROR_DELETE_FILE = "ERROR-MEDIA-0000";
+
+    /**
+     * AppVersion error code
+     */
+    public static final String APP_VERSION_ERROR_NOT_FOUND = "ERROR-APP-VERSION-0000";
+    public static final String APP_VERSION_ERROR_NAME_EXISTED = "ERROR-APP-VERSION-0001";
+    public static final String APP_VERSION_ERROR_NOT_HAVE_LATEST_VERSION = "ERROR-APP-VERSION-0002";
 }
