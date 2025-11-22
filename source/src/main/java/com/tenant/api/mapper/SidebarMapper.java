@@ -16,8 +16,8 @@ public interface SidebarMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "movieItem", target = "movieItem", qualifiedByName = "entityToMovieItemShortDto")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl")
+    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl")
     @Mapping(source = "mainColor", target = "mainColor")
     @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "active", target = "active")
@@ -32,16 +32,16 @@ public interface SidebarMapper {
     List<SidebarDto> fromEntityToSidebarDtoList(List<Sidebar> Sidebars);
 
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl")
+    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl")
     @Mapping(source = "mainColor", target = "mainColor")
     @Mapping(source = "active", target = "active")
     @BeanMapping(ignoreByDefault = true)
     Sidebar fromCreateSidebarFormToEntity(CreateSidebarForm form);
 
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl")
+    @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl")
     @Mapping(source = "mainColor", target = "mainColor")
     @Mapping(source = "active", target = "active")
     @BeanMapping(ignoreByDefault = true)

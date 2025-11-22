@@ -12,6 +12,7 @@ import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.movieItem.CreateMovieItemForm;
 import com.tenant.api.form.movieItem.UpdateMovieItemForm;
 import com.tenant.api.mapper.MovieItemMapper;
+import com.tenant.api.service.MediaService;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
@@ -19,6 +20,7 @@ import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.model.VideoLibrary;
 import com.tenant.api.storage.tenant.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +65,9 @@ public class MovieItemController extends ABasicController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private MediaService mediaService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -169,6 +175,12 @@ public class MovieItemController extends ABasicController {
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
 
+        if (StringUtils.isNoneBlank(form.getThumbnailUrl())
+                && StringUtils.isNoneBlank(movieItem.getThumbnailUrl())
+                && !Objects.equals(form.getThumbnailUrl(), movieItem.getThumbnailUrl())) {
+            mediaService.deleteFile(movieItem.getThumbnailUrl());
+        }
+
         movieItemMapper.fromUpdateMovieItemFormToEntity(form, movieItem);
         movieItem.setVideo(video);
         movieItemRepository.save(movieItem);
@@ -184,6 +196,10 @@ public class MovieItemController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         MovieItem movieItem = movieItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Movie Item] Not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
+        if (movieItem.getThumbnailUrl() != null) {
+            mediaService.deleteFile(movieItem.getThumbnailUrl());
+        }
 
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
             movieItemRepository.decreaseTotalEpisode(movieItem.getParent().getId());

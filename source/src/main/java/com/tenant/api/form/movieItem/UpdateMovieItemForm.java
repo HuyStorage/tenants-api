@@ -39,4 +39,6 @@ public class UpdateMovieItemForm {
     @NotNull(message = "releaseDate cannot be null")
     @ApiModelProperty(required = true)
     private Date releaseDate;
+
+    private String thumbnailUrl;
 }

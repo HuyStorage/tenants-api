@@ -16,7 +16,7 @@ public interface AccountMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "fullName", target = "fullName")
-    @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "kind", target = "kind")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToAccountDto")
@@ -26,7 +26,7 @@ public interface AccountMapper {
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
-    @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     Account fromCreateEmployeeFormToEntity(CreateEmployeeForm form);
@@ -35,7 +35,7 @@ public interface AccountMapper {
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
-    @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateEmployeeFormToEntity(UpdateEmployeeForm form, @MappingTarget Account account);
@@ -43,7 +43,7 @@ public interface AccountMapper {
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
-    @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "avatarPath", target = "avatarPath")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateEmployeeProfileFormToEntity(UpdateEmployeeProfileForm form, @MappingTarget Account account);
 
@@ -59,7 +59,7 @@ public interface AccountMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "phone", target = "phone")
     @Mapping(source = "fullName", target = "fullName")
-    @Mapping(source = "avatarPath", target = "avatarPath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "avatarPath", target = "avatarPath")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateUserProfileFormToEntity(UpdateUserProfileForm form, @MappingTarget Account account);
 }

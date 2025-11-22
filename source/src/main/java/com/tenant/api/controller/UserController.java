@@ -241,9 +241,9 @@ public class UserController extends ABasicController {
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USR_D')")
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
-        userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
-
+        mediaService.deleteFile(user.getAccount().getAvatarPath());
         favouriteRepository.deleteByUserId(id);
         userRepository.deleteById(id);
         accountRepository.deleteById(id);
@@ -295,10 +295,9 @@ public class UserController extends ABasicController {
             throw new BadRequestException("[User] Username existed", ErrorCode.USER_ERROR_USERNAME_EXISTED);
         }
 
-        List<String> deleteFiles = new ArrayList<>();
         if (!Objects.equals(form.getAvatarPath(), user.getAccount().getAvatarPath())) {
             String avatarPath = user.getAccount().getAvatarPath();
-            deleteFiles.add(avatarPath);
+            mediaService.deleteFile(avatarPath);
         }
 
         accountMapper.fromUpdateUserProfileFormToEntity(form, user.getAccount());
@@ -306,9 +305,6 @@ public class UserController extends ABasicController {
 
         userMapper.fromUpdateUserProfileFormToEntity(form, user);
         userRepository.save(user);
-        if (!deleteFiles.isEmpty()) {
-//            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
-        }
         return makeSuccessResponse("Update user profile success");
     }
 

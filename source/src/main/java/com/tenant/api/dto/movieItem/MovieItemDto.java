@@ -23,6 +23,7 @@ public class MovieItemDto extends ABasicAdminDto {
     private MovieDto movie;
     private VideoLibraryDto video;
     private Date releaseDate;
+    private String thumbnailUrl;
 
     private List<MovieItemDto> episodes;
     private MovieItemDto trailer;

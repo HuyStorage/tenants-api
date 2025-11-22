@@ -55,7 +55,7 @@ public class MediaService {
             feignFileMediaService.deleteListFile(TenantDBContext.getCurrentTenant(), userService.getBearerTokenHeader(), form);
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new BadRequestException(ErrorCode.MEDIA_ERROR_DELETE_FILE, e.getMessage());
+//            throw new BadRequestException(ErrorCode.MEDIA_ERROR_DELETE_FILE, e.getMessage());
         }
     }
 }

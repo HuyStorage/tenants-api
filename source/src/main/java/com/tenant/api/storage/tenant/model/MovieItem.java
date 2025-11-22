@@ -21,7 +21,6 @@ import java.util.List;
 @Getter
 @Setter
 public class MovieItem extends Auditable<String> {
-
     @Id
     @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
@@ -61,4 +60,7 @@ public class MovieItem extends Auditable<String> {
 
     @Column(name = "total_episode")
     private Integer totalEpisode = 0;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
 }

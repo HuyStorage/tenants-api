@@ -24,6 +24,7 @@ public interface MovieItemMapper {
     @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieAutoCompleteDto")
     @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "status", target = "status")
@@ -42,6 +43,7 @@ public interface MovieItemMapper {
     @Mapping(source = "parent", target = "parent", qualifiedByName = "entityToMovieItemAutoCompleteDto")
     @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieItemAutoCompleteDto")
@@ -59,6 +61,7 @@ public interface MovieItemMapper {
     @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieShortDto")
     @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieItemShortDto")
     MovieItemDto entityToMovieItemShortDto(MovieItem movieItem);
@@ -71,6 +74,7 @@ public interface MovieItemMapper {
     @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "video", target = "video", qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieItemPublicDto")
     MovieItemDto entityToMovieItemPublicDto(MovieItem movieItem);
@@ -81,6 +85,7 @@ public interface MovieItemMapper {
     @Mapping(source = "label", target = "label")
     @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     MovieItem fromCreateMovieItemFormToEntity(CreateMovieItemForm form);
@@ -89,6 +94,7 @@ public interface MovieItemMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "label", target = "label")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateMovieItemFormToEntity(UpdateMovieItemForm form, @MappingTarget MovieItem movieItem);

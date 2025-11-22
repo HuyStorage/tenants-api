@@ -718,4 +718,9 @@
             <column name="label" type="varchar(255)" afterColumn="kind"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1763691516924-1">
+        <addColumn tableName="db_movie_item">
+            <column name="thumbnail_url" type="varchar(255)" afterColumn="total_episode"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

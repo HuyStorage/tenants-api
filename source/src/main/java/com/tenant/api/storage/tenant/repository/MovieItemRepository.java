@@ -62,4 +62,7 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
     @Transactional
     @Query("DELETE MovieItem mi WHERE mi.parent.id = :parentId AND mi.kind = :kind")
     void deleteByParentIdAndKind(@Param("parentId") Long parentId, @Param("kind") Integer kind);
+
+    @Query("SELECT mi.thumbnailUrl FROM MovieItem mi WHERE mi.movie.id = :movieId AND mi.thumbnailUrl IS NOT NULL ")
+    List<String> findThumbnailsByMovieId(@Param("movieId") Long movieId);
 }

@@ -13,13 +13,15 @@ import java.util.List;
 
 @Data
 public class MovieCriteria {
-
     private Long id;
     private String title;
     private String originalTitle;
     private Integer type;
     private Integer ageRating;
     private Integer status;
+    private String language;
+    private String country;
+    private Boolean isFeatured;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -50,6 +52,18 @@ public class MovieCriteria {
 
                 if (getAgeRating() != null) {
                     predicates.add(cb.equal(root.get("ageRating"), getAgeRating()));
+                }
+
+                if (getLanguage() != null) {
+                    predicates.add(cb.equal(root.get("language"), getLanguage()));
+                }
+
+                if (getCountry() != null) {
+                    predicates.add(cb.equal(root.get("country"), getCountry()));
+                }
+
+                if (getIsFeatured() != null) {
+                    predicates.add(cb.equal(root.get("isFeatured"), getIsFeatured()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

@@ -230,6 +230,10 @@ public class MovieController extends ABasicController {
         List<String> deletedFiles = new ArrayList<>();
         deletedFiles.add(movie.getThumbnailUrl());
         deletedFiles.add(movie.getPosterUrl());
+
+        List<String> movieItemThumbnails = movieItemRepository.findThumbnailsByMovieId(movie.getId());
+        deletedFiles.addAll(movieItemThumbnails);
+
         mediaService.deleteFiles(deletedFiles);
 
         commentRepository.deleteByMovieId(movie.getId());
