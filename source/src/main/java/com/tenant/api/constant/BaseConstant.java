@@ -71,6 +71,9 @@ public class BaseConstant {
     public static final String APP_NAME_CMS = "CMS";
     public static final String APP_NAME_CLIENT = "CLIENT";
 
+    public static final Integer SOURCE_TYPE_INTERNAL = 1;
+    public static final Integer SOURCE_TYPE_EXTERNAL = 2;
+
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

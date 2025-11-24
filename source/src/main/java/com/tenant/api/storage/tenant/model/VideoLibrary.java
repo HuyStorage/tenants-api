@@ -30,6 +30,9 @@ public class VideoLibrary extends Auditable<String> {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "source_type")
+    private Integer sourceType; // 1: INTERNAL, 2: EXTERNAL
+
     @Column(name = "content")
     private String content;
 

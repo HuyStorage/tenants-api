@@ -23,6 +23,8 @@ public class UpdateVideoLibraryForm {
 
     private String shortDescription;
 
+    private String content;
+
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
     private String description;

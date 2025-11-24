@@ -17,6 +17,7 @@ public interface VideoLibraryMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "shortDescription", target = "shortDescription")
     @Mapping(source = "description", target = "description")
+    @Mapping(source = "sourceType", target = "sourceType")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "relativeContentPath", target = "relativeContentPath")
     @Mapping(source = "spriteUrl", target = "spriteUrl")
@@ -39,6 +40,7 @@ public interface VideoLibraryMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
+    @Mapping(source = "sourceType", target = "sourceType")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "relativeContentPath", target = "relativeContentPath")
     @Mapping(source = "spriteUrl", target = "spriteUrl")
@@ -58,6 +60,7 @@ public interface VideoLibraryMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "shortDescription", target = "shortDescription")
     @Mapping(source = "description", target = "description")
+    @Mapping(source = "sourceType", target = "sourceType")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "introStart", target = "introStart")

@@ -1,5 +1,6 @@
 package com.tenant.api.form.video;
 
+import com.tenant.api.validation.SourceTypeConstraint;
 import com.tenant.api.validation.StatusConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -21,6 +22,10 @@ public class CreateVideoLibraryForm {
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
     private String description;
+
+    @SourceTypeConstraint
+    @ApiModelProperty(required = true)
+    private Integer sourceType;
 
     @NotBlank(message = "content cannot be empty")
     @ApiModelProperty(required = true)

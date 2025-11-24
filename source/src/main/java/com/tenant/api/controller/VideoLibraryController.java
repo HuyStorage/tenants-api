@@ -66,23 +66,28 @@ public class VideoLibraryController extends ABasicController {
         }
 
         videoLibrary = videoLibraryMapper.fromCreateVideoLibraryFormToEntity(form);
-        videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
+
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_INTERNAL)) {
+            videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
+
+            VideoLibraryDto data = new VideoLibraryDto();
+            data.setId(videoLibrary.getId());
+            data.setContent(videoLibrary.getContent());
+            rabbitService.handleSendMsg(
+                    appName,
+                    convertVideoQueue,
+                    data,
+                    BaseConstant.CMD_CONVERT_VIDEO,
+                    null,
+                    null,
+                    null,
+                    TenantDBContext.getCurrentTenant()
+            );
+        } else { // external video source
+            videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
+        }
+
         videoLibraryRepository.save(videoLibrary);
-
-        VideoLibraryDto data = new VideoLibraryDto();
-        data.setId(videoLibrary.getId());
-        data.setContent(videoLibrary.getContent());
-        rabbitService.handleSendMsg(
-                appName,
-                convertVideoQueue,
-                data,
-                BaseConstant.CMD_CONVERT_VIDEO,
-                null,
-                null,
-                null,
-                TenantDBContext.getCurrentTenant()
-        );
-
         return makeSuccessResponse("Create videoLibrary success");
     }
 
@@ -114,6 +119,11 @@ public class VideoLibraryController extends ABasicController {
         }
 
         videoLibraryMapper.fromUpdateVideoLibraryFormToEntity(form, videoLibrary);
+
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL) && form.getContent() != null) {
+            videoLibrary.setContent(form.getContent());
+        }
+
         videoLibraryRepository.save(videoLibrary);
         return makeSuccessResponse("Update video library success");
     }
