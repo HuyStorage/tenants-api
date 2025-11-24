@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+    Optional<User> findByIdAndStatus(Long id, Integer status);
+
     Optional<User> findFirstByAccountEmailAndStatusNot(String email, Integer status);
 
     boolean existsByAccountUsernameAndStatusNot(String username, Integer status);

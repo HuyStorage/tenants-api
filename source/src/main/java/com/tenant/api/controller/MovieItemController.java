@@ -28,11 +28,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,6 +68,8 @@ public class MovieItemController extends ABasicController {
 
     @Autowired
     private MediaService mediaService;
+    @Autowired
+    private WatchHistoryRepository watchHistoryRepository;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -204,6 +206,13 @@ public class MovieItemController extends ABasicController {
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
             movieItemRepository.decreaseTotalEpisode(movieItem.getParent().getId());
         }
+
+        List<Long> movieItemIds = new ArrayList<>();
+        movieItemIds.add(id);
+        if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+            movieItemIds.addAll(movieItemRepository.findAllByParentIdAndKindNot(id, BaseConstant.MOVIE_ITEM_KIND_TRAILER));
+        }
+        watchHistoryRepository.deleteByMovieItemIds(movieItemIds);
 
         sidebarRepository.deleteByMovieItemId(id);
         commentRepository.deleteByMovieItemId(id);

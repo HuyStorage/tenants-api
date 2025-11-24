@@ -19,6 +19,7 @@ import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
 import com.tenant.api.storage.tenant.repository.FavouriteRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
+import com.tenant.api.storage.tenant.repository.WatchHistoryRepository;
 import com.tenant.api.utils.TemplateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +77,9 @@ public class UserController extends ABasicController {
 
     @Autowired
     private CommonAsyncService commonAsyncService;
+
+    @Autowired
+    private WatchHistoryRepository watchHistoryRepository;
 
     private final Integer otpLength = 6;
 
@@ -245,6 +249,7 @@ public class UserController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
         mediaService.deleteFile(user.getAccount().getAvatarPath());
         favouriteRepository.deleteByUserId(id);
+        watchHistoryRepository.deleteByUserId(user.getId());
         userRepository.deleteById(id);
         accountRepository.deleteById(id);
 

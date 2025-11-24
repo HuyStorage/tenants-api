@@ -7,18 +7,20 @@ import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.dto.movieItem.MovieItemDto;
-import com.tenant.api.exception.BadRequestException;
+import com.tenant.api.dto.watchHistory.WatchHistoryDto;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
+import com.tenant.api.mapper.WatchHistoryMapper;
 import com.tenant.api.service.MediaService;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.MovieItem;
+import com.tenant.api.storage.tenant.model.WatchHistory;
 import com.tenant.api.storage.tenant.repository.*;
 import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +71,12 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private WatchHistoryRepository watchHistoryRepository;
+
+    @Autowired
+    private WatchHistoryMapper watchHistoryMapper;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -243,6 +251,10 @@ public class MovieController extends ABasicController {
         // delete movie person
         moviePersonRepository.deleteByMovieId(movie.getId());
 
+        // delete watch history
+        watchHistoryRepository.deleteByMovieId(movie.getId());
+
+        // delete movie item
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_TRAILER);
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_EPISODE);
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_SEASON);
@@ -255,5 +267,11 @@ public class MovieController extends ABasicController {
 
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movie.getId().toString()));
         return makeSuccessResponse("Delete movie success");
+    }
+
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<WatchHistoryDto>> history() {
+        List<WatchHistory> watchHistories = watchHistoryRepository.findLatestInProgressGroupedByMovie(getCurrentUser());
+        return makeSuccessResponse(watchHistoryMapper.fromEntityToWatchHistoryDetailsDtoList(watchHistories), "List movie success");
     }
 }

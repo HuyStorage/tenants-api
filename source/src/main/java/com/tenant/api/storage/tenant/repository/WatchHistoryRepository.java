@@ -1,0 +1,59 @@
+package com.tenant.api.storage.tenant.repository;
+
+import com.tenant.api.storage.tenant.model.WatchHistory;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface WatchHistoryRepository extends JpaRepository<WatchHistory, Long>, JpaSpecificationExecutor<WatchHistory> {
+    Optional<WatchHistory> findByMovieItemIdAndUserId(Long movieItemId, Long userId);
+
+    @Query("SELECT wh From WatchHistory wh " +
+            "WHERE wh.movie.id = :movieId " +
+            "AND wh.user.id = :userId " +
+            "AND wh.movieItem IS NULL")
+    Optional<WatchHistory> findWatchHistoryMovie(@Param("movieId") Long movieId, @Param("userId") Long userId);
+
+    @Query("SELECT COUNT(wh) FROM WatchHistory wh " +
+            "WHERE wh.movie.id = :movieId " +
+            "AND wh.user.id = :userId " +
+            "AND wh.isCompleted = true " +
+            "AND wh.movieItem IS NOT NULL")
+    Long countCompletedWatchHistory(@Param("movieId") Long movieId, @Param("userId") Long userId);
+
+    @Query(
+            "SELECT wh FROM WatchHistory wh " +
+                    "WHERE wh.user.id = :userId " +
+                    "AND wh.isCompleted = false " +
+                    "AND wh.movieItem IS NOT NULL " +
+                    "AND wh.modifiedDate = ( " +
+                    "    SELECT MAX(wh2.modifiedDate) " +
+                    "    FROM WatchHistory wh2 " +
+                    "    WHERE wh2.user.id = wh.user.id " +
+                    "    AND wh2.movie.id = wh.movie.id " +
+                    "    AND wh2.isCompleted = false " +
+                    ")"
+    )
+    List<WatchHistory> findLatestInProgressGroupedByMovie(@Param("userId") Long userId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM WatchHistory WHERE movie.id = :movieId")
+    void deleteByMovieId(@Param("movieId") Long movieId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM WatchHistory WHERE user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM WatchHistory WHERE movieItem.id IN :movieItemIds")
+    void deleteByMovieItemIds(@Param("movieItemIds") List<Long> movieItemIds);
+}
