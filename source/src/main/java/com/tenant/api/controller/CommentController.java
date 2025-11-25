@@ -104,6 +104,7 @@ public class CommentController extends ABasicController {
                 pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        criteria.setIsParent(criteria.getParentId() == null);
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
     }
@@ -134,7 +135,7 @@ public class CommentController extends ABasicController {
     }
 
     @PatchMapping(value = "/pin", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('CMT_U')")
+    @PreAuthorize("hasRole('CMT_PIN')")
     public ApiMessageDto<Void> pin(@Valid @RequestBody PinnedCommentForm form) {
         if (isUser()) {
             throw new UnauthorizationException("Not allow");
@@ -199,6 +200,10 @@ public class CommentController extends ABasicController {
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+
+        if (isUser() && comment.getAuthor().getId() != getCurrentUser()) {
+            throw new UnauthorizationException("Not allow");
+        }
 
         if (comment.getParent() != null) {
             commentRepository.decreaseTotalChild(comment.getParent().getId());

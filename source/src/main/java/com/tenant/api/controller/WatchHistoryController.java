@@ -23,9 +23,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/watch-history")
@@ -118,6 +120,11 @@ public class WatchHistoryController extends ABasicController {
                 break;
             }
         }
+
+        // sort asc by modifiedDate
+        watchHistories = watchHistories.stream()
+                .sorted(Comparator.comparing(WatchHistory::getModifiedDate))
+                .collect(Collectors.toList());
 
         ListWatchHistoryDto listWatchHistoryDto = new ListWatchHistoryDto();
         listWatchHistoryDto.setIsCompletedMovie(isCompletedMovie);

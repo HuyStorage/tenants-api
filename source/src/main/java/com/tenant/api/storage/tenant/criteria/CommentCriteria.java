@@ -1,7 +1,6 @@
 package com.tenant.api.storage.tenant.criteria;
 
 import com.tenant.api.storage.tenant.model.Comment;
-import com.tenant.api.storage.tenant.model.User;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -22,6 +21,7 @@ public class CommentCriteria {
     private Long authorId;
     private Boolean isPinned;
     private Integer status;
+    private Boolean isParent;
 
     public Specification<Comment> getSpecification() {
         return new Specification<Comment>() {
@@ -56,6 +56,10 @@ public class CommentCriteria {
 
                 if (getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), getStatus()));
+                }
+
+                if (getIsParent() != null) {
+                    predicates.add(cb.isNull(root.get("parent")));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

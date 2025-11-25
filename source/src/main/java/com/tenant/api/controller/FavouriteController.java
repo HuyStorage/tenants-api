@@ -6,6 +6,7 @@ import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.favourite.FavouriteDto;
 import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.exception.UnauthorizationException;
 import com.tenant.api.form.favourite.CreateFavouriteForm;
 import com.tenant.api.mapper.FavouriteMapper;
 import com.tenant.api.storage.tenant.criteria.FavouriteCriteria;
@@ -21,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -51,12 +52,17 @@ public class FavouriteController extends ABasicController {
     private UserRepository userRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('FAV_C')")
-    public ApiMessageDto<Void> create(@Valid @RequestBody CreateFavouriteForm form) {
+    public ApiMessageDto<Long> create(@Valid @RequestBody CreateFavouriteForm form) {
         User user = userRepository.findById(getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("[User] user not found"));
 
-        Favourite favourite = new Favourite();
+        Favourite favourite = favouriteRepository.findByUserIdAndTypeAndTargetId(user.getId(), form.getType(), form.getTargetId())
+                .orElse(null);
+        if (favourite != null) {
+            return makeSuccessResponse(favourite.getId(), "Create favourite success");
+        }
+
+        favourite = new Favourite();
         favourite.setUser(user);
         favourite.setType(form.getType());
 
@@ -70,21 +76,20 @@ public class FavouriteController extends ABasicController {
             favourite.setPerson(person);
         }
 
-        favouriteRepository.save(favourite);
-        return makeSuccessResponse("Create favourite success");
+        favourite = favouriteRepository.save(favourite);
+        return makeSuccessResponse(favourite.getId(), "Create favourite success");
     }
 
-    @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('FAV_V')")
-    public ApiMessageDto<FavouriteDto> get(@PathVariable("id") Long id) {
-        Favourite favourite = favouriteRepository.findById(id)
+    @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<FavouriteDto> get(@Param("targetId") Long targetId, @Param("targetId") Integer type) {
+        Favourite favourite = favouriteRepository.findByUserIdAndTypeAndTargetId(getCurrentUser(), type, targetId)
                 .orElseThrow(() -> new NotFoundException("[Favourite] not found", ErrorCode.FAVOURITE_ERROR_NOT_FOUND));
-
-        return makeSuccessResponse(favouriteMapper.entityToFavouriteDto(favourite), "Get favourite success");
+        FavouriteDto favouriteDto = new FavouriteDto();
+        favouriteDto.setId(favourite.getId());
+        return makeSuccessResponse(favouriteDto, "Get favourite success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('FAV_L')")
     public ApiMessageDto<ResponseListDto<List<FavouriteDto>>> list(FavouriteCriteria criteria, Pageable pageable) {
         criteria.setUserId(getCurrentUser());
         Page<Favourite> favourites = favouriteRepository.findAll(criteria.getSpecification(), pageable);
@@ -93,10 +98,12 @@ public class FavouriteController extends ABasicController {
     }
 
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('FAV_D')")
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
         Favourite favourite = favouriteRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Favourite] Not found", ErrorCode.FAVOURITE_ERROR_NOT_FOUND));
+        if (!favourite.getUser().getId().equals(getCurrentUser())) {
+            throw new UnauthorizationException("Not allow");
+        }
         favouriteRepository.delete(favourite);
         return makeSuccessResponse("Delete favourite success");
     }

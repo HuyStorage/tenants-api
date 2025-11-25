@@ -110,7 +110,7 @@ public class ReviewController extends ABasicController {
         Review review = reviewRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
 
-        if (review.getAuthor().getId() != getCurrentUser()) {
+        if (!Objects.equals(review.getAuthor().getId(), getCurrentUser())) {
             throw new UnauthorizationException("Not allow");
         }
 

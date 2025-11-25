@@ -38,7 +38,8 @@ public interface WatchHistoryRepository extends JpaRepository<WatchHistory, Long
                     "    WHERE wh2.user.id = wh.user.id " +
                     "    AND wh2.movie.id = wh.movie.id " +
                     "    AND wh2.isCompleted = false " +
-                    ")"
+                    ") " +
+                    "ORDER BY wh.modifiedDate DESC"
     )
     List<WatchHistory> findLatestInProgressGroupedByMovie(@Param("userId") Long userId);
 

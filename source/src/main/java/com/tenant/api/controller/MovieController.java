@@ -280,7 +280,7 @@ public class MovieController extends ABasicController {
                 movie.getLanguage(),
                 movie.getType(),
                 PageRequest.of(0, 10));
-        return makeSuccessResponse(movieMapper.fromEntityToMovieAutoCompleteDtoList(movies), "List movie success");
+        return makeSuccessResponse(movieMapper.fromEntityToMovieDtoList(movies), "List movie success");
     }
 
     @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
