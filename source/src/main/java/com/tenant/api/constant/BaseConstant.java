@@ -74,6 +74,12 @@ public class BaseConstant {
     public static final Integer SOURCE_TYPE_INTERNAL = 1;
     public static final Integer SOURCE_TYPE_EXTERNAL = 2;
 
+    public static final Integer COLLECTION_TYPE_TOPIC = 1;
+    public static final Integer COLLECTION_TYPE_SECTION = 2;
+
+    public static final Integer JSON_TYPE_FILTER_MOVIE = 1;
+
+    public static final String FILTER_MOVIE_SAMPLE_DATA = "{\"type\":1,\"ageRating\":18,\"language\":\"en-US\",\"country\":\"US\",\"isFeatured\":true,\"categoryIds\":[101,102,103]}";
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

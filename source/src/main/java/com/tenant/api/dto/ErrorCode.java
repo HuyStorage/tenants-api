@@ -142,4 +142,16 @@ public class ErrorCode {
     public static final String APP_VERSION_ERROR_NOT_FOUND = "ERROR-APP-VERSION-0000";
     public static final String APP_VERSION_ERROR_NAME_EXISTED = "ERROR-APP-VERSION-0001";
     public static final String APP_VERSION_ERROR_NOT_HAVE_LATEST_VERSION = "ERROR-APP-VERSION-0002";
+
+    /**
+     * Collection error code
+     */
+    public static final String COLLECTION_ERROR_NOT_FOUND = "ERROR-COLLECTION-0000";
+    public static final String COLLECTION_ERROR_NAME_EXISTED = "ERROR-COLLECTION-0001";
+
+    /**
+     * Collection error code
+     */
+    public static final String COLLECTION_ITEM_ERROR_NOT_FOUND = "ERROR-COLLECTION-ITEM-0000";
+    public static final String COLLECTION_ITEM_ERROR_MOVIE_EXISTED = "ERROR-COLLECTION-ITEM-0001";
 }

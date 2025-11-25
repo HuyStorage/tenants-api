@@ -1,5 +1,6 @@
 package com.tenant.api.form.reaction;
 
+import com.tenant.api.validation.ReactionTypeConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class CreateReactionForm {
     @ApiModelProperty(required = true)
     private Long id;
 
-    @NotNull(message = "type cannot be null")
+    @ReactionTypeConstraint
     @ApiModelProperty(required = true)
     private Integer type;
 }

@@ -1,13 +1,11 @@
 package com.tenant.api.storage.tenant.criteria;
 
+import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.Movie;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +20,7 @@ public class MovieCriteria {
     private String language;
     private String country;
     private Boolean isFeatured;
+    private List<Long> categoryIds;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -64,6 +63,11 @@ public class MovieCriteria {
 
                 if (getIsFeatured() != null) {
                     predicates.add(cb.equal(root.get("isFeatured"), getIsFeatured()));
+                }
+
+                if (getCategoryIds() != null && !getCategoryIds().isEmpty()) {
+                    Join<Movie, Category> categoryJoin = root.join("categories", JoinType.INNER);
+                    predicates.add(categoryJoin.get("id").in(getCategoryIds()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

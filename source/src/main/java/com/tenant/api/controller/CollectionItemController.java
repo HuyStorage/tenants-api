@@ -1,0 +1,129 @@
+package com.tenant.api.controller;
+
+import com.tenant.api.dto.ApiMessageDto;
+import com.tenant.api.dto.ErrorCode;
+import com.tenant.api.dto.ResponseListDto;
+import com.tenant.api.dto.collectionItem.CollectionItemDto;
+import com.tenant.api.dto.movie.MovieDto;
+import com.tenant.api.exception.BadRequestException;
+import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.form.UpdateOrderingForm;
+import com.tenant.api.form.collectionItem.CreateCollectionItemForm;
+import com.tenant.api.mapper.CollectionItemMapper;
+import com.tenant.api.storage.tenant.criteria.CollectionItemCriteria;
+import com.tenant.api.storage.tenant.model.Collection;
+import com.tenant.api.storage.tenant.model.CollectionItem;
+import com.tenant.api.storage.tenant.model.Movie;
+import com.tenant.api.storage.tenant.repository.CollectionItemRepository;
+import com.tenant.api.storage.tenant.repository.CollectionRepository;
+import com.tenant.api.storage.tenant.repository.MovieRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/v1/collection-item")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
+@Slf4j
+public class CollectionItemController extends ABasicController {
+    @Autowired
+    private CollectionRepository collectionRepository;
+
+    @Autowired
+    private MovieRepository movieRepository;
+
+    @Autowired
+    private CollectionItemRepository collectionItemRepository;
+
+    @Autowired
+    private CollectionItemMapper collectionItemMapper;
+
+    @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('COL_I_C')")
+    public ApiMessageDto<Void> create(@Valid @RequestBody CreateCollectionItemForm form) {
+        Collection collection = collectionRepository.findById(form.getCollectionId())
+                .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COLLECTION_ERROR_NOT_FOUND));
+
+        Movie movie = movieRepository.findById(form.getMovieId())
+                .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+
+        if (collectionItemRepository.existsByCollectionIdAndMovieId(collection.getId(), movie.getId())) {
+            throw new BadRequestException("[Collection Item] Movie already exists in this collection", ErrorCode.COLLECTION_ITEM_ERROR_MOVIE_EXISTED);
+        }
+
+        CollectionItem collectionItem = new CollectionItem();
+        collectionItem.setMovie(movie);
+        collectionItem.setCollection(collection);
+        collectionItem.setOrdering(form.getOrdering());
+        collectionItemRepository.save(collectionItem);
+        return makeSuccessResponse("Create collection item success");
+    }
+
+    @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('COL_I_L')")
+    public ApiMessageDto<ResponseListDto<List<CollectionItemDto>>> adminList(@RequestParam("collectionId") Long collectionId, Pageable pageable) {
+        CollectionItemCriteria criteria = new CollectionItemCriteria();
+        criteria.setCollectionId(collectionId);
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
+
+        Page<CollectionItem> collectionItems = collectionItemRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(collectionItems, collectionItemMapper::entityToCollectionItemDtoList), "List collection item success");
+    }
+
+    @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<MovieDto>>> list(@RequestParam("collectionId") Long collectionId, Pageable pageable) {
+        CollectionItemCriteria criteria = new CollectionItemCriteria();
+        criteria.setCollectionId(collectionId);
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(new Sort.Order(Sort.Direction.ASC, "ordering")));
+
+        Page<CollectionItem> collectionItems = collectionItemRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(collectionItems, collectionItemMapper::collectionItemsToMovieDtos), "List collection success");
+    }
+
+    @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('COL_I_D')")
+    public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
+        CollectionItem collectionItem = collectionItemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("[Collection Item] Not found", ErrorCode.COLLECTION_ITEM_ERROR_NOT_FOUND));
+        collectionItemRepository.delete(collectionItem);
+        return makeSuccessResponse("Delete collection item success");
+    }
+
+    @PutMapping(value = "/update-ordering", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('COL_I_U')")
+    public ApiMessageDto<Void> updateOrdering(@RequestBody List<@Valid UpdateOrderingForm> form) {
+        if (form == null || form.isEmpty()) {
+            throw new BadRequestException("Input list cannot be empty", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
+        }
+
+        List<Long> ids = form.stream()
+                .map(UpdateOrderingForm::getId)
+                .collect(Collectors.toList());
+        List<CollectionItem> collectionItems = collectionItemRepository.findAllById(ids);
+
+        if (collectionItems.size() != ids.size()) {
+            throw new NotFoundException("[Collection Item] Not found", ErrorCode.COLLECTION_ITEM_ERROR_NOT_FOUND);
+        }
+
+        Map<Long, Integer> orderingMap = form.stream()
+                .collect(Collectors.toMap(UpdateOrderingForm::getId, UpdateOrderingForm::getOrdering));
+
+        for (CollectionItem item : collectionItems) {
+            item.setOrdering(orderingMap.get(item.getId()));
+        }
+        collectionItemRepository.saveAll(collectionItems);
+
+        return makeSuccessResponse("Update ordering collectionItems success");
+    }
+}

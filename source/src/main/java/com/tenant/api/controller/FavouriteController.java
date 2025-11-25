@@ -81,7 +81,7 @@ public class FavouriteController extends ABasicController {
     }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<FavouriteDto> get(@Param("targetId") Long targetId, @Param("targetId") Integer type) {
+    public ApiMessageDto<FavouriteDto> get(@RequestParam("targetId") Long targetId, @RequestParam("targetId") Integer type) {
         Favourite favourite = favouriteRepository.findByUserIdAndTypeAndTargetId(getCurrentUser(), type, targetId)
                 .orElseThrow(() -> new NotFoundException("[Favourite] not found", ErrorCode.FAVOURITE_ERROR_NOT_FOUND));
         FavouriteDto favouriteDto = new FavouriteDto();

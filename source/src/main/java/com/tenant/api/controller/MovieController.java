@@ -79,6 +79,9 @@ public class MovieController extends ABasicController {
     @Autowired
     private WatchHistoryMapper watchHistoryMapper;
 
+    @Autowired
+    private CollectionItemRepository collectionItemRepository;
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMovieForm form) {
@@ -254,6 +257,9 @@ public class MovieController extends ABasicController {
 
         // delete watch history
         watchHistoryRepository.deleteByMovieId(movie.getId());
+
+        // delete collection item
+        collectionItemRepository.deleteByMovieId(movie.getId());
 
         // delete movie item
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_TRAILER);

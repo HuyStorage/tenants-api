@@ -9,34 +9,28 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = DatabaseConstant.PREFIX_TABLE + "watch_history")
+@Table(name = DatabaseConstant.PREFIX_TABLE + "collection")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class WatchHistory extends Auditable<String> {
-
+public class Collection extends Auditable<String> {
     @Id
     @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
     private Long id;
+    private String name;
+    private String color;
+    private Integer ordering;
+    private Integer style;
+    private Integer type;
+    private Boolean randomData = false;
+    private String filter;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_item_id")
-    private MovieItem movieItem;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_id")
-    private Movie movie;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    private Long lastWatchSeconds;
-
-    private Boolean isCompleted = false;
-
-    private Integer timesWatched = 0;
+    @OneToMany(mappedBy = "collection", fetch = FetchType.LAZY)
+    @OrderBy("ordering ASC")
+    private List<CollectionItem> collectionItems = new ArrayList<>();
 }
