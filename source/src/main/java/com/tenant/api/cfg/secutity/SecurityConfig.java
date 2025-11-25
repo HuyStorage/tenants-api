@@ -39,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/category/list",
             "/v1/movie/get/**",
             "/v1/movie/list",
+            "/v1/movie/recommendations/**",
             "/v1/movie-item/get/**",
             "/v1/movie-item/list",
             "/v1/movie-person/list",

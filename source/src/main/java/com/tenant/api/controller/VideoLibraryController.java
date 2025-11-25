@@ -17,6 +17,7 @@ import com.tenant.api.storage.tenant.model.VideoLibrary;
 import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -120,8 +121,21 @@ public class VideoLibraryController extends ABasicController {
 
         videoLibraryMapper.fromUpdateVideoLibraryFormToEntity(form, videoLibrary);
 
-        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL) && form.getContent() != null) {
-            videoLibrary.setContent(form.getContent());
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL)) {
+            if (StringUtils.isNoneBlank(form.getContent())) {
+                videoLibrary.setContent(form.getContent());
+            }
+            if (form.getDuration() != null) {
+                long endOfVideo = videoLibrary.getOutroStart() != null
+                        ? videoLibrary.getOutroStart()
+                        : videoLibrary.getIntroEnd() != null
+                        ? videoLibrary.getIntroEnd()
+                        : 0L;
+                if (form.getDuration() <= endOfVideo) {
+                    throw new BadRequestException("[Video Library] duration invalid", ErrorCode.VIDEO_LIBRARY_ERROR_DURATION_INVALID);
+                }
+                videoLibrary.setDuration(form.getDuration());
+            }
         }
 
         videoLibraryRepository.save(videoLibrary);

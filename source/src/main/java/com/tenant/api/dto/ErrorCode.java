@@ -71,6 +71,7 @@ public class ErrorCode {
     public static final String VIDEO_LIBRARY_ERROR_NOT_FOUND = "ERROR-VIDEO-LIBRARY-ERROR-0000";
     public static final String VIDEO_LIBRARY_ERROR_NAME_EXISTED = "ERROR-VIDEO-LIBRARY-ERROR-0002";
     public static final String VIDEO_LIBRARY_ERROR_MOVIE_ITEM_EXISTED = "ERROR-VIDEO-LIBRARY-ERROR-0003";
+    public static final String VIDEO_LIBRARY_ERROR_DURATION_INVALID = "ERROR-VIDEO-LIBRARY-ERROR-0004";
 
     /**
      * Starting error code Movie

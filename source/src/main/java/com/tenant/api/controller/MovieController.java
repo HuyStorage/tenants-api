@@ -26,6 +26,7 @@ import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -267,6 +268,19 @@ public class MovieController extends ABasicController {
 
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movie.getId().toString()));
         return makeSuccessResponse("Delete movie success");
+    }
+
+    @GetMapping(value = "/recommendations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<MovieDto>> recommendations(@PathVariable("id") Long id) {
+        Movie movie = movieRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+        List<Movie> movies = movieRepository.findRecommendations(id,
+                movie.getCategories().stream().map(Category::getId).collect(Collectors.toList()),
+                movie.getCountry(),
+                movie.getLanguage(),
+                movie.getType(),
+                PageRequest.of(0, 10));
+        return makeSuccessResponse(movieMapper.fromEntityToMovieAutoCompleteDtoList(movies), "List movie success");
     }
 
     @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
