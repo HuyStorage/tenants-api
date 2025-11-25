@@ -43,7 +43,13 @@ public interface MovieMapper {
     @Mapping(source = "slug", target = "slug")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @Mapping(source = "posterUrl", target = "posterUrl")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "isFeatured", target = "isFeatured")
+    @Mapping(source = "language", target = "language")
+    @Mapping(source = "country", target = "country")
+    @Mapping(source = "ageRating", target = "ageRating")
+    @Mapping(source = "viewCount", target = "viewCount")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieAutoCompleteDto")
     MovieDto entityToMovieAutoCompleteDto(Movie movie);

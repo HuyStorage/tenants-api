@@ -45,7 +45,7 @@ public class GroupController extends ABasicController {
     private FeignPermissionAuthService feignPermissionAuthService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_C')")
+    @PreAuthorize("hasRole('GR_T_C')")
     public ApiMessageDto<String> create(@Valid @RequestBody CreateGroupForm createGroupForm) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed create.");
@@ -79,7 +79,7 @@ public class GroupController extends ABasicController {
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_U')")
+    @PreAuthorize("hasRole('GR_T_U')")
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateGroupForm updateGroupForm) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed update.");
@@ -119,7 +119,7 @@ public class GroupController extends ABasicController {
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_V')")
+    @PreAuthorize("hasRole('GR_T_V')")
     public ApiMessageDto<GroupDto> get(@PathVariable("id") Long id) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");
@@ -131,7 +131,7 @@ public class GroupController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_L')")
+    @PreAuthorize("hasRole('GR_T_L')")
     public ApiMessageDto<ResponseListDto<List<GroupDto>>> list(GroupCriteria groupCriteria, Pageable pageable) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");
