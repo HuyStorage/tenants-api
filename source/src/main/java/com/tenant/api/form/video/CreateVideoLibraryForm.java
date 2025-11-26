@@ -33,6 +33,8 @@ public class CreateVideoLibraryForm {
 
     private String thumbnailUrl;
 
+    private Long duration;
+
     private Long introStart;
 
     private Long introEnd;

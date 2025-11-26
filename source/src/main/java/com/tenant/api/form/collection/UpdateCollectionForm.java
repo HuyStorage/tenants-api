@@ -29,9 +29,9 @@ public class UpdateCollectionForm {
     @ApiModelProperty(required = true)
     private String color;
 
-    @NotNull(message = "style cannot be null")
+    @NotNull(message = "styleId cannot be null")
     @ApiModelProperty(required = true)
-    private Integer style;
+    private Long styleId;
 
     @CollectionTypeConstraint
     @ApiModelProperty(required = true)

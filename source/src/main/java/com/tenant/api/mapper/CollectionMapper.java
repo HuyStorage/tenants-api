@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        uses = {CollectionItemMapper.class})
+        uses = {CollectionItemMapper.class, StyleMapper.class})
 public interface CollectionMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "color", target = "color")
     @Mapping(source = "ordering", target = "ordering")
-    @Mapping(source = "style", target = "style")
+    @Mapping(source = "style", target = "style", qualifiedByName = "entityToStyleDto")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "randomData", target = "randomData")
     @Mapping(source = "filter", target = "filter")
@@ -36,7 +36,6 @@ public interface CollectionMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "color", target = "color")
     @Mapping(source = "ordering", target = "ordering")
-    @Mapping(source = "style", target = "style")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "randomData", target = "randomData")
     @Mapping(source = "filter", target = "filter")
@@ -45,7 +44,6 @@ public interface CollectionMapper {
 
     @Mapping(source = "name", target = "name")
     @Mapping(source = "color", target = "color")
-    @Mapping(source = "style", target = "style")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "randomData", target = "randomData")
     @Mapping(source = "filter", target = "filter")
@@ -56,7 +54,7 @@ public interface CollectionMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "color", target = "color")
     @Mapping(source = "ordering", target = "ordering")
-    @Mapping(source = "style", target = "style")
+    @Mapping(source = "style.type", target = "styleType")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "randomData", target = "randomData")
     @Mapping(source = "filter", target = "filter")

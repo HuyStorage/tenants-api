@@ -86,6 +86,7 @@ public class VideoLibraryController extends ABasicController {
             );
         } else { // external video source
             videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
+            updateDuration(videoLibrary, form.getDuration());
         }
 
         videoLibraryRepository.save(videoLibrary);
@@ -125,17 +126,7 @@ public class VideoLibraryController extends ABasicController {
             if (StringUtils.isNoneBlank(form.getContent())) {
                 videoLibrary.setContent(form.getContent());
             }
-            if (form.getDuration() != null) {
-                long endOfVideo = videoLibrary.getOutroStart() != null
-                        ? videoLibrary.getOutroStart()
-                        : videoLibrary.getIntroEnd() != null
-                        ? videoLibrary.getIntroEnd()
-                        : 0L;
-                if (form.getDuration() <= endOfVideo) {
-                    throw new BadRequestException("[Video Library] duration invalid", ErrorCode.VIDEO_LIBRARY_ERROR_DURATION_INVALID);
-                }
-                videoLibrary.setDuration(form.getDuration());
-            }
+            updateDuration(videoLibrary, form.getDuration());
         }
 
         videoLibraryRepository.save(videoLibrary);
@@ -167,5 +158,19 @@ public class VideoLibraryController extends ABasicController {
 
         videoLibraryRepository.delete(videoLibrary);
         return makeSuccessResponse("Delete video library success");
+    }
+
+    private void updateDuration(VideoLibrary videoLibrary, Long duration) {
+        if (duration != null) {
+            long endOfVideo = videoLibrary.getOutroStart() != null
+                    ? videoLibrary.getOutroStart()
+                    : videoLibrary.getIntroEnd() != null
+                    ? videoLibrary.getIntroEnd()
+                    : 0L;
+            if (duration <= endOfVideo) {
+                throw new BadRequestException("[Video Library] duration invalid", ErrorCode.VIDEO_LIBRARY_ERROR_DURATION_INVALID);
+            }
+            videoLibrary.setDuration(duration);
+        }
     }
 }

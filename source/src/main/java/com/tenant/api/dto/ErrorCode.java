@@ -150,8 +150,15 @@ public class ErrorCode {
     public static final String COLLECTION_ERROR_NAME_EXISTED = "ERROR-COLLECTION-0001";
 
     /**
-     * Collection error code
+     * Collection item error code
      */
     public static final String COLLECTION_ITEM_ERROR_NOT_FOUND = "ERROR-COLLECTION-ITEM-0000";
     public static final String COLLECTION_ITEM_ERROR_MOVIE_EXISTED = "ERROR-COLLECTION-ITEM-0001";
+
+    /**
+     * Style error code
+     */
+    public static final String STYLE_ERROR_NOT_FOUND = "ERROR-STYLE-0000";
+    public static final String STYLE_ERROR_TYPE_EXISTED = "ERROR-STYLE-0001";
+    public static final String STYLE_ERROR_TYPE_NOT_HAVE_DEFAULT = "ERROR-STYLE-0002";
 }
