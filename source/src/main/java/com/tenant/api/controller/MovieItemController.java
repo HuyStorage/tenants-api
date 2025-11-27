@@ -58,9 +58,6 @@ public class MovieItemController extends ABasicController {
     private VideoLibraryRepository videoLibraryRepository;
 
     @Autowired
-    private SidebarRepository sidebarRepository;
-
-    @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
@@ -214,7 +211,6 @@ public class MovieItemController extends ABasicController {
         }
         watchHistoryRepository.deleteByMovieItemIds(movieItemIds);
 
-        sidebarRepository.deleteByMovieItemId(id);
         commentRepository.deleteByMovieItemId(id);
 
         movieItemRepository.delete(movieItem);

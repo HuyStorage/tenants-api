@@ -86,6 +86,9 @@ public class MovieController extends ABasicController {
     private CollectionRepository collectionRepository;
 
     @Autowired
+    private SidebarRepository sidebarRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -252,10 +255,13 @@ public class MovieController extends ABasicController {
         List<String> movieItemThumbnails = movieItemRepository.findThumbnailsByMovieId(movie.getId());
         deletedFiles.addAll(movieItemThumbnails);
 
+        // delete media
         mediaService.deleteFiles(deletedFiles);
 
+        // delete comment
         commentRepository.deleteByMovieId(movie.getId());
 
+        // delete favourite
         favouriteRepository.deleteByMovieId(movie.getId());
 
         // delete movie person
@@ -263,6 +269,9 @@ public class MovieController extends ABasicController {
 
         // delete watch history
         watchHistoryRepository.deleteByMovieId(movie.getId());
+
+        // delete sidebar
+        sidebarRepository.deleteByMovieId(movie.getId());
 
         // delete collection item
         collectionItemRepository.deleteByMovieId(movie.getId());

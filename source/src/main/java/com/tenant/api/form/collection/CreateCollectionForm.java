@@ -29,8 +29,6 @@ public class CreateCollectionForm {
     @ApiModelProperty(required = true)
     private Integer ordering;
 
-    @NotNull(message = "styleId cannot be null")
-    @ApiModelProperty(required = true)
     private Long styleId;
 
     @CollectionTypeConstraint

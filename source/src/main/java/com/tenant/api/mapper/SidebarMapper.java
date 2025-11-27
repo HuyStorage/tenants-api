@@ -10,11 +10,11 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        uses = {MovieItemMapper.class})
+        uses = {MovieMapper.class})
 public interface SidebarMapper {
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "movieItem", target = "movieItem", qualifiedByName = "entityToMovieItemShortDto")
+    @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieDto")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "webThumbnailUrl", target = "webThumbnailUrl")
     @Mapping(source = "mobileThumbnailUrl", target = "mobileThumbnailUrl")

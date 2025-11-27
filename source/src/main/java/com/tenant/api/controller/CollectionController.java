@@ -53,15 +53,16 @@ public class CollectionController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('COL_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateCollectionForm form) {
-        Style style = styleRepository.findById(form.getStyleId())
-                .orElseThrow(() -> new NotFoundException("[Style] not found", ErrorCode.STYLE_ERROR_NOT_FOUND));
-
         if (collectionRepository.existsByName(form.getName())) {
             throw new BadRequestException("[Collection] name existed", ErrorCode.COLLECTION_ERROR_NAME_EXISTED);
         }
 
         Collection collection = collectionMapper.fromCreateCollectionFormToEntity(form);
-        collection.setStyle(style);
+        if (Objects.equals(collection.getType(), BaseConstant.COLLECTION_TYPE_SECTION) && form.getStyleId() != null) {
+            Style style = styleRepository.findById(form.getStyleId())
+                    .orElseThrow(() -> new NotFoundException("[Style] not found", ErrorCode.STYLE_ERROR_NOT_FOUND));
+            collection.setStyle(style);
+        }
         collectionRepository.save(collection);
         return makeSuccessResponse("Create collection success");
     }
@@ -109,11 +110,13 @@ public class CollectionController extends ABasicController {
             throw new BadRequestException("[Collection] name existed", ErrorCode.COLLECTION_ERROR_NAME_EXISTED);
         }
 
-        Style style = styleRepository.findById(form.getStyleId())
-                .orElseThrow(() -> new NotFoundException("[Style] not found", ErrorCode.STYLE_ERROR_NOT_FOUND));
+        if (Objects.equals(form.getType(), BaseConstant.COLLECTION_TYPE_SECTION) && form.getStyleId() != null) {
+            Style style = styleRepository.findById(form.getStyleId())
+                    .orElseThrow(() -> new NotFoundException("[Style] not found", ErrorCode.STYLE_ERROR_NOT_FOUND));
+            collection.setStyle(style);
+        }
 
         collectionMapper.fromUpdateCollectionFormToEntity(form, collection);
-        collection.setStyle(style);
         collectionRepository.save(collection);
         return makeSuccessResponse("Update collection success");
     }

@@ -19,9 +19,9 @@ public class UpdateSidebarForm {
     @ApiModelProperty(required = true)
     private Long id;
 
-    @NotNull(message = "movieItemId cannot be null")
+    @NotNull(message = "movieId cannot be null")
     @ApiModelProperty(required = true)
-    private Long movieItemId;
+    private Long movieId;
 
     private String description;
 

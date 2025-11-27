@@ -13,9 +13,9 @@ import com.tenant.api.form.sidebar.UpdateSidebarForm;
 import com.tenant.api.mapper.SidebarMapper;
 import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.SidebarCriteria;
-import com.tenant.api.storage.tenant.model.MovieItem;
+import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.model.Sidebar;
-import com.tenant.api.storage.tenant.repository.MovieItemRepository;
+import com.tenant.api.storage.tenant.repository.MovieRepository;
 import com.tenant.api.storage.tenant.repository.SidebarRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class SidebarController extends ABasicController {
     private SidebarMapper sidebarMapper;
 
     @Autowired
-    private MovieItemRepository movieItemRepository;
+    private MovieRepository movieRepository;
 
     @Autowired
     private MediaService mediaService;
@@ -55,15 +55,15 @@ public class SidebarController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('SDB_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateSidebarForm form) {
-        if (sidebarRepository.existsByMovieItemIdAndActive(form.getMovieItemId(), BaseConstant.SIDEBAR_ACTIVE_TRUE)) {
+        if (sidebarRepository.existsByMovieIdAndActive(form.getMovieId(), BaseConstant.SIDEBAR_ACTIVE_TRUE)) {
             throw new BadRequestException("[Sidebar] Movie already exists", ErrorCode.SIDEBAR_ERROR_MOVIE_EXISTED);
         }
 
-        MovieItem movieItem = movieItemRepository.findById(form.getMovieItemId())
-                .orElseThrow(() -> new NotFoundException("[Movie Item] not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+        Movie movie = movieRepository.findById(form.getMovieId())
+                .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
 
         Sidebar sidebar = sidebarMapper.fromCreateSidebarFormToEntity(form);
-        sidebar.setMovieItem(movieItem);
+        sidebar.setMovie(movie);
         int ordering = sidebarRepository.findMaxOrdering().map(o -> o + 1).orElse(0);
         sidebar.setOrdering(ordering);
 
@@ -112,13 +112,13 @@ public class SidebarController extends ABasicController {
         Sidebar sidebar = sidebarRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Sidebar] Not found", ErrorCode.SIDEBAR_ERROR_NOT_FOUND));
 
-        if (!Objects.equals(sidebar.getMovieItem().getId(), form.getMovieItemId())) {
-            if (sidebarRepository.existsByMovieItemIdAndActive(form.getMovieItemId(), BaseConstant.SIDEBAR_ACTIVE_TRUE)) {
+        if (!Objects.equals(sidebar.getMovie().getId(), form.getMovieId())) {
+            if (sidebarRepository.existsByMovieIdAndActive(form.getMovieId(), BaseConstant.SIDEBAR_ACTIVE_TRUE)) {
                 throw new BadRequestException("[Sidebar] Movie already exists", ErrorCode.SIDEBAR_ERROR_MOVIE_EXISTED);
             }
-            MovieItem movieItem = movieItemRepository.findById(form.getMovieItemId())
-                    .orElseThrow(() -> new NotFoundException("[Movie Item] not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
-            sidebar.setMovieItem(movieItem);
+            Movie movie = movieRepository.findById(form.getMovieId())
+                    .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+            sidebar.setMovie(movie);
         }
 
         List<String> deletedFile = new ArrayList<>();
