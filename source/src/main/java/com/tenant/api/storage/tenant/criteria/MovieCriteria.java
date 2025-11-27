@@ -1,6 +1,7 @@
 package com.tenant.api.storage.tenant.criteria;
 
 import com.tenant.api.storage.tenant.model.Category;
+import com.tenant.api.storage.tenant.model.CollectionItem;
 import com.tenant.api.storage.tenant.model.Movie;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +22,7 @@ public class MovieCriteria {
     private String country;
     private Boolean isFeatured;
     private List<Long> categoryIds;
+    private Long collectionId;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -68,6 +70,14 @@ public class MovieCriteria {
                 if (getCategoryIds() != null && !getCategoryIds().isEmpty()) {
                     Join<Movie, Category> categoryJoin = root.join("categories", JoinType.INNER);
                     predicates.add(categoryJoin.get("id").in(getCategoryIds()));
+                }
+
+                if (getCollectionId() != null) {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<CollectionItem> collectionItemRoot = subquery.from(CollectionItem.class);
+                    subquery.select(collectionItemRoot.get("movie").get("id"))
+                            .where(cb.equal(collectionItemRoot.get("collection").get("id"), getCollectionId()));
+                    predicates.add(cb.not(root.get("id").in(subquery)));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

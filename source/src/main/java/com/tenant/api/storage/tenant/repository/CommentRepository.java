@@ -1,5 +1,6 @@
 package com.tenant.api.storage.tenant.repository;
 
+import com.tenant.api.dto.reaction.VoteDto;
 import com.tenant.api.storage.tenant.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -7,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
 
@@ -57,4 +60,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
     @Transactional
     @Query("DELETE FROM Comment c WHERE c.movieId = :movieId")
     void deleteByMovieId(@Param("movieId") Long movieId);
+
+    @Query("SELECT new com.tenant.api.dto.reaction.VoteDto(c.id, r.type) " +
+            "FROM Comment c " +
+            "JOIN Reaction r ON c.id = r.commentId " +
+            "WHERE c.movieId = :movieId AND c.author.id = :userId")
+    List<VoteDto> findVotesByMovieIdAndUserId(@Param("movieId") Long movieId, @Param("userId") Long userId);
 }

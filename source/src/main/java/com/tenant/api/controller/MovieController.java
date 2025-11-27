@@ -91,6 +91,12 @@ public class MovieController extends ABasicController {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PlaylistRepository playlistRepository;
+
+    @Autowired
+    private PlaylistItemRepository playlistItemRepository;
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateMovieForm form) {
@@ -276,6 +282,13 @@ public class MovieController extends ABasicController {
         // delete collection item
         collectionItemRepository.deleteByMovieId(movie.getId());
 
+        // delete playlist
+        List<Long> playlistIds = playlistRepository.findByMovieId(movie.getId());
+        if (!playlistIds.isEmpty()) {
+            playlistItemRepository.deleteByMovieId(movie.getId());
+            playlistRepository.recalculateTotalMovieByIdIn(playlistIds);
+        }
+
         // delete movie item
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_TRAILER);
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_EPISODE);
@@ -314,6 +327,7 @@ public class MovieController extends ABasicController {
     @PreAuthorize("hasRole('MOV_L')")
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> collectionFilter(@PathVariable("collectionId") Long collectionId, @RequestParam(value = "title", required = false) String title, Pageable pageable) {
         MovieCriteria criteria = fromCollection(collectionId);
+        criteria.setCollectionId(collectionId);
         if (title != null) {
             criteria.setTitle(title);
         }

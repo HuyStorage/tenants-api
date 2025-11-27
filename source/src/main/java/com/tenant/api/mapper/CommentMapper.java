@@ -36,7 +36,6 @@ public interface CommentMapper {
     List<CommentDto> fromEntityToCommentDtoList(List<Comment> comments);
 
     @Mapping(source = "content", target = "content")
-    @Mapping(source = "isPinned", target = "isPinned")
     @BeanMapping(ignoreByDefault = true)
     Comment fromCreateCommentFormToEntity(CreateCommentForm form);
 

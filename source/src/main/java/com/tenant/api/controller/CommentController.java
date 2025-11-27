@@ -5,6 +5,7 @@ import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.comment.CommentDto;
+import com.tenant.api.dto.reaction.VoteDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.exception.UnauthorizationException;
@@ -87,7 +88,7 @@ public class CommentController extends ABasicController {
         }
 
         commentRepository.save(comment);
-        return makeSuccessResponse("Create employee success");
+        return makeSuccessResponse("Create comment success");
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -176,6 +177,11 @@ public class CommentController extends ABasicController {
             reactionRepository.save(reaction);
         }
         return makeSuccessResponse("Vote success");
+    }
+
+    @GetMapping(value = "/vote-list/{movieId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<VoteDto>> voteList(@PathVariable("movieId") Long movieId) {
+        return makeSuccessResponse(commentRepository.findVotesByMovieIdAndUserId(movieId, getCurrentUser()), "Get list vote success");
     }
 
     private void increaseCounter(Long commentId, Integer type) {

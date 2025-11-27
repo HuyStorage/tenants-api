@@ -21,10 +21,6 @@ public class CreateCommentForm {
     @ApiModelProperty(required = true)
     private String content;
 
-    @NotNull(message = "isPinned cannot be null")
-    @ApiModelProperty(required = true)
-    private Boolean isPinned;
-
     private Long parentId;
 
     @AssertTrue(message = "At least one of movieId or movieItemId must be provided.")

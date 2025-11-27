@@ -161,4 +161,9 @@ public class ErrorCode {
     public static final String STYLE_ERROR_NOT_FOUND = "ERROR-STYLE-0000";
     public static final String STYLE_ERROR_TYPE_EXISTED = "ERROR-STYLE-0001";
     public static final String STYLE_ERROR_TYPE_NOT_HAVE_DEFAULT = "ERROR-STYLE-0002";
+
+    /**
+     * Playlist error code
+     */
+    public static final String PLAYLIST_ERROR_NOT_FOUND = "ERROR-PLAYLIST-0000";
 }
