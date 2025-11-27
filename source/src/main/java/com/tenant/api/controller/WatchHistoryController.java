@@ -123,7 +123,7 @@ public class WatchHistoryController extends ABasicController {
 
         // sort asc by modifiedDate
         watchHistories = watchHistories.stream()
-                .sorted(Comparator.comparing(WatchHistory::getModifiedDate))
+                .sorted(Comparator.comparing(WatchHistory::getModifiedDate).reversed())
                 .collect(Collectors.toList());
 
         ListWatchHistoryDto listWatchHistoryDto = new ListWatchHistoryDto();

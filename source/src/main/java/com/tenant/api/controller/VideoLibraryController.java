@@ -68,9 +68,16 @@ public class VideoLibraryController extends ABasicController {
 
         videoLibrary = videoLibraryMapper.fromCreateVideoLibraryFormToEntity(form);
 
-        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_INTERNAL)) {
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL)) {
+            videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
+            updateDuration(videoLibrary, form.getDuration());
+        } else {
             videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
+        }
+        videoLibraryRepository.save(videoLibrary);
 
+        // send to CONVERT_MEDIA_QUEUE to convert video internal
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_INTERNAL)) {
             VideoLibraryDto data = new VideoLibraryDto();
             data.setId(videoLibrary.getId());
             data.setContent(videoLibrary.getContent());
@@ -84,12 +91,7 @@ public class VideoLibraryController extends ABasicController {
                     null,
                     TenantDBContext.getCurrentTenant()
             );
-        } else { // external video source
-            videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
-            updateDuration(videoLibrary, form.getDuration());
         }
-
-        videoLibraryRepository.save(videoLibrary);
         return makeSuccessResponse("Create videoLibrary success");
     }
 

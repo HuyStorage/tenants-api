@@ -42,6 +42,6 @@ public class CreateCollectionForm {
     private Boolean randomData;
 
     @ApiModelProperty(required = true, example = BaseConstant.FILTER_MOVIE_SAMPLE_DATA)
-    @ValidJsonField(classType = FilterMovieForm.class, allowNull = true)
+    @ValidJsonField(classType = FilterMovieForm.class)
     private String filter;
 }

@@ -2,7 +2,9 @@ package com.tenant.api.mapper;
 
 import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.form.movie.CreateMovieForm;
+import com.tenant.api.form.movie.FilterMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
+import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
 import org.mapstruct.*;
 
@@ -101,4 +103,13 @@ public interface MovieMapper {
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateMovieFormToEntity(UpdateMovieForm form, @MappingTarget Movie movie);
+
+    @Mapping(source = "type", target = "type")
+    @Mapping(source = "isFeatured", target = "isFeatured")
+    @Mapping(source = "language", target = "language")
+    @Mapping(source = "country", target = "country")
+    @Mapping(source = "ageRating", target = "ageRating")
+    @Mapping(source = "categoryIds", target = "categoryIds")
+    @BeanMapping(ignoreByDefault = true)
+    MovieCriteria fromFilterMovieFromToMovieCriteria(FilterMovieForm form);
 }
