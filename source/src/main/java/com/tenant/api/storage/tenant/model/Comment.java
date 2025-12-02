@@ -45,4 +45,7 @@ public class Comment extends Auditable<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account author;
+
+    @Column(columnDefinition = "TEXT")
+    private String authorInfo;
 }

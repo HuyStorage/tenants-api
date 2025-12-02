@@ -22,7 +22,7 @@ public interface CommentMapper {
     @Mapping(source = "totalDislike", target = "totalDislike")
     @Mapping(source = "totalChildren", target = "totalChildren")
     @Mapping(source = "isPinned", target = "isPinned")
-    @Mapping(source = "author", target = "author", qualifiedByName = "entityToAccountDto")
+    @Mapping(source = "authorInfo", target = "authorInfo")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")

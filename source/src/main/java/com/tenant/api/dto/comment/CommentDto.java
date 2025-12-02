@@ -20,4 +20,5 @@ public class CommentDto extends ABasicAdminDto {
     private Boolean isPinned;
     private CommentDto parent;
     private AccountDto author;
+    private String authorInfo;
 }

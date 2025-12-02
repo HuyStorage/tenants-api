@@ -58,4 +58,9 @@
     <changeSet author="Tenant" id="1764234834142-5">
         <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_playlist_item" constraintName="FK8n1gve3ujnj5gwv1ksk5k9ayw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
     </changeSet>
+    <changeSet author="Tenant" id="1764672419493-1">
+        <addColumn tableName="db_comment">
+            <column name="author_info" type="TEXT" afterColumn="account_id"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

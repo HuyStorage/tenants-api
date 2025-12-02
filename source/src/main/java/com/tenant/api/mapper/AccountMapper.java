@@ -1,6 +1,8 @@
 package com.tenant.api.mapper;
 
 import com.tenant.api.dto.account.AccountDto;
+import com.tenant.api.dto.account.CustomerDto;
+import com.tenant.api.dto.comment.AuthorInfoDto;
 import com.tenant.api.form.employee.CreateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
@@ -21,6 +23,24 @@ public interface AccountMapper {
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToAccountDto")
     AccountDto entityToAccountDto(Account account);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "fullName", target = "fullName")
+    @Mapping(source = "kind", target = "kind")
+    @Mapping(source = "avatarPath", target = "avatarPath")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToAccountDto")
+    AuthorInfoDto fromCustomerDtoToAuthorInfoDto(CustomerDto customerDto);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "fullName", target = "fullName")
+    @Mapping(source = "kind", target = "kind")
+    @Mapping(source = "avatarPath", target = "avatarPath")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToAccountDto")
+    AuthorInfoDto entityToAuthorInfoDto(Account account);
 
     @Mapping(source = "username", target = "username")
     @Mapping(source = "phone", target = "phone")
