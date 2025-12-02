@@ -1,5 +1,6 @@
 package com.tenant.api.form.playlist;
 
+import com.tenant.api.validation.ActionPlaylistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class ActionUpdatePlaylistForm {
     @ApiModelProperty(required = true)
     private Long playlistId;
 
-    @NotNull(message = "action cannot be empty")
+    @ActionPlaylistConstraint
     @ApiModelProperty(required = true)
     private Integer action;
 }

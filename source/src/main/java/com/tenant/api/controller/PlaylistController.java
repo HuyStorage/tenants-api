@@ -6,6 +6,7 @@ import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.dto.playlist.PlaylistDto;
+import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.playlist.ActionUpdatePlaylistForm;
 import com.tenant.api.form.playlist.CreatePlaylistForm;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -61,14 +63,18 @@ public class PlaylistController extends ABasicController {
     private PlaylistItemMapper playlistItemMapper;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Void> create(@Valid @RequestBody CreatePlaylistForm form) {
+    public ApiMessageDto<PlaylistDto> create(@Valid @RequestBody CreatePlaylistForm form) {
         User user = userRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[User] not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
+        if (playlistRepository.countByUserId(user.getId()) > BaseConstant.MAX_PLAYLIST_PER_USER) {
+            throw new BadRequestException("[Playlist] Maximum playlist per user", ErrorCode.PLAYLIST_ERROR_MAX_PER_USER);
+        }
+
         Playlist playlist = playlistMapper.fromCreatePlaylistFormToEntity(form);
         playlist.setUser(user);
-        playlistRepository.save(playlist);
-        return makeSuccessResponse("Create playlist success");
+        playlist = playlistRepository.save(playlist);
+        return makeSuccessResponse(playlistMapper.entityToPlaylistDto(playlist), "Create playlist success");
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -143,7 +149,7 @@ public class PlaylistController extends ABasicController {
             Long playlistId = action.getPlaylistId();
             Playlist playlist = playlistMap.get(playlistId);
 
-            if (action.getAction() == 0) {
+            if (Objects.equals(action.getAction(), BaseConstant.ACTION_DELETE_FROM_PLAYLIST)) {
                 removeMovieFromPlaylist(playlist, movie);
             } else {
                 addMovieToPlaylist(playlist, movie);

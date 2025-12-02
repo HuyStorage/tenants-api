@@ -40,4 +40,6 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long>, JpaSp
             "(SELECT COUNT(pi) FROM PlaylistItem pi WHERE pi.playlist.id = p.id) " +
             "WHERE p.id IN :ids")
     void recalculateTotalMovieByIdIn(@Param("ids") List<Long> ids);
+
+    long countByUserId(Long userId);
 }

@@ -3,10 +3,7 @@ package com.tenant.api.mapper;
 import com.tenant.api.dto.comment.CommentDto;
 import com.tenant.api.form.comment.CreateCommentForm;
 import com.tenant.api.form.comment.UpdateCommentForm;
-import com.tenant.api.form.employee.CreateEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.storage.tenant.model.Comment;
-import com.tenant.api.storage.tenant.model.Employee;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -19,6 +16,7 @@ public interface CommentMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "movieItem", target = "movieItem", qualifiedByName = "entityToMovieItemAutoCompleteDto")
     @Mapping(source = "movieId", target = "movieId")
+    @Mapping(source = "parent", target = "parent", qualifiedByName = "entityToParentDto")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "totalLike", target = "totalLike")
     @Mapping(source = "totalDislike", target = "totalDislike")
@@ -34,6 +32,11 @@ public interface CommentMapper {
 
     @IterableMapping(elementTargetType = CommentDto.class, qualifiedByName = "entityToCommentDto")
     List<CommentDto> fromEntityToCommentDtoList(List<Comment> comments);
+
+    @Mapping(source = "id", target = "id")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToParentDto")
+    CommentDto entityToParentDto(Comment comment);
 
     @Mapping(source = "content", target = "content")
     @BeanMapping(ignoreByDefault = true)

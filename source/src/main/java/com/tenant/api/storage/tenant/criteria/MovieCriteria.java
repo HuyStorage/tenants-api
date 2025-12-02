@@ -23,6 +23,7 @@ public class MovieCriteria {
     private Boolean isFeatured;
     private List<Long> categoryIds;
     private Long collectionId;
+    private Integer releaseYear;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -78,6 +79,11 @@ public class MovieCriteria {
                     subquery.select(collectionItemRoot.get("movie").get("id"))
                             .where(cb.equal(collectionItemRoot.get("collection").get("id"), getCollectionId()));
                     predicates.add(cb.not(root.get("id").in(subquery)));
+                }
+
+                if (releaseYear != null) {
+                    Expression<Integer> yearExpr = cb.function("year", Integer.class, root.get("releaseDate"));
+                    predicates.add(cb.equal(yearExpr, releaseYear));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

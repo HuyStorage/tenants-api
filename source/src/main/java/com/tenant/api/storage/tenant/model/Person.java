@@ -19,7 +19,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Person extends Auditable<String> {
-
     @Id
     @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)

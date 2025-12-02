@@ -166,4 +166,5 @@ public class ErrorCode {
      * Playlist error code
      */
     public static final String PLAYLIST_ERROR_NOT_FOUND = "ERROR-PLAYLIST-0000";
+    public static final String PLAYLIST_ERROR_MAX_PER_USER = "ERROR-PLAYLIST-0001";
 }

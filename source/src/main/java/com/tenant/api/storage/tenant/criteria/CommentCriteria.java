@@ -59,7 +59,9 @@ public class CommentCriteria {
                 }
 
                 if (getIsParent() != null) {
-                    predicates.add(cb.isNull(root.get("parent")));
+                    if (getIsParent()) {
+                        predicates.add(cb.isNull(root.get("parent")));
+                    }
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

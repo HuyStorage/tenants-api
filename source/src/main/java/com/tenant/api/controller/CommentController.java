@@ -120,13 +120,13 @@ public class CommentController extends ABasicController {
         return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
     }
 
-    @PatchMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_U')")
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateCommentForm form) {
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
 
-        if (comment.getAuthor().getId() != getCurrentUser()) {
+        if (isUser() && comment.getAuthor().getId() != getCurrentUser()) {
             throw new UnauthorizationException("Not allow");
         }
 
@@ -135,7 +135,7 @@ public class CommentController extends ABasicController {
         return makeSuccessResponse("Update comment success");
     }
 
-    @PatchMapping(value = "/pin", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/pin", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_PIN')")
     public ApiMessageDto<Void> pin(@Valid @RequestBody PinnedCommentForm form) {
         if (isUser()) {
@@ -151,7 +151,7 @@ public class CommentController extends ABasicController {
     }
 
     @Transactional("tenantTransactionManager")
-    @PatchMapping(value = "/vote", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/vote", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_VOTE')")
     public ApiMessageDto<Void> vote(@Valid @RequestBody CreateReactionForm form) {
         Long userId = getCurrentUser();
