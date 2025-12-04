@@ -22,6 +22,7 @@ public class StatusValidation implements ConstraintValidator<StatusConstraint, I
         }
         return Objects.equals(value, BaseConstant.STATUS_ACTIVE)
                 || Objects.equals(value, BaseConstant.STATUS_PENDING)
-                || Objects.equals(value, BaseConstant.STATUS_LOCK);
+                || Objects.equals(value, BaseConstant.STATUS_LOCK)
+                || Objects.equals(value, BaseConstant.STATUS_DELETE);
     }
 }

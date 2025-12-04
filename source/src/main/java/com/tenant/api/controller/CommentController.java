@@ -13,6 +13,7 @@ import com.tenant.api.dto.reaction.VoteDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.exception.UnauthorizationException;
+import com.tenant.api.form.ChangeStatusForm;
 import com.tenant.api.form.comment.CreateCommentForm;
 import com.tenant.api.form.comment.PinnedCommentForm;
 import com.tenant.api.form.comment.UpdateCommentForm;
@@ -142,6 +143,7 @@ public class CommentController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
+        criteria.setIsParent(criteria.getParentId() == null);
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
     }
@@ -246,5 +248,19 @@ public class CommentController extends ABasicController {
         reactionRepository.deleteByCommentId(comment.getId());
         commentRepository.delete(comment);
         return makeSuccessResponse("Delete comment success");
+    }
+
+    @Transactional("tenantTransactionManager")
+    @PutMapping(value = "/change-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('CMT_D')")
+    public ApiMessageDto<Void> changeStatus(@Valid @RequestBody ChangeStatusForm form) {
+        Comment comment = commentRepository.findById(form.getId())
+                .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+        if (comment.getParent() == null) {
+            commentRepository.updateStatusByParentId(comment.getId(), form.getStatus());
+        }
+        comment.setStatus(form.getStatus());
+        commentRepository.save(comment);
+        return makeSuccessResponse("Change status success");
     }
 }

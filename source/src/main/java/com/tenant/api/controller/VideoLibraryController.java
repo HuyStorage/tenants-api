@@ -70,7 +70,7 @@ public class VideoLibraryController extends ABasicController {
 
         if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL)) {
             videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
-            updateDuration(videoLibrary, form.getDuration());
+            updateExternalSource(videoLibrary, form.getDuration(), form.getVttUrl());
         } else {
             videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
         }
@@ -112,6 +112,14 @@ public class VideoLibraryController extends ABasicController {
         return makeSuccessResponse(makeResponseListDto(videoLibraries, videoLibraryMapper::fromEntityToVideoLibraryDtoList), "List video library success");
     }
 
+    @GetMapping(value = "/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<VideoLibraryDto>>> autoComplete(VideoLibraryCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdDate").descending());
+
+        Page<VideoLibrary> videoLibraries = videoLibraryRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(videoLibraries, videoLibraryMapper::fromEntityToVideoLibraryAutoCompleteDtoList), "List video library success");
+    }
+
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('VID_L_U')")
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateVideoLibraryForm form) {
@@ -128,7 +136,7 @@ public class VideoLibraryController extends ABasicController {
             if (StringUtils.isNoneBlank(form.getContent())) {
                 videoLibrary.setContent(form.getContent());
             }
-            updateDuration(videoLibrary, form.getDuration());
+            updateExternalSource(videoLibrary, form.getDuration(), form.getVttUrl());
         }
 
         videoLibraryRepository.save(videoLibrary);
@@ -162,7 +170,7 @@ public class VideoLibraryController extends ABasicController {
         return makeSuccessResponse("Delete video library success");
     }
 
-    private void updateDuration(VideoLibrary videoLibrary, Long duration) {
+    private void updateExternalSource(VideoLibrary videoLibrary, Long duration, String vttUrl) {
         if (duration != null) {
             long endOfVideo = videoLibrary.getOutroStart() != null
                     ? videoLibrary.getOutroStart()
@@ -173,6 +181,9 @@ public class VideoLibraryController extends ABasicController {
                 throw new BadRequestException("[Video Library] duration invalid", ErrorCode.VIDEO_LIBRARY_ERROR_DURATION_INVALID);
             }
             videoLibrary.setDuration(duration);
+        }
+        if (vttUrl != null) {
+            videoLibrary.setVttUrl(vttUrl);
         }
     }
 }

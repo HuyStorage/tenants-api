@@ -1,5 +1,7 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
@@ -50,9 +52,12 @@ public class CollectionController extends ABasicController {
     @Autowired
     private StyleRepository styleRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('COL_C')")
-    public ApiMessageDto<Void> create(@Valid @RequestBody CreateCollectionForm form) {
+    public ApiMessageDto<Void> create(@Valid @RequestBody CreateCollectionForm form) throws JsonProcessingException {
         if (collectionRepository.existsByName(form.getName())) {
             throw new BadRequestException("[Collection] name existed", ErrorCode.COLLECTION_ERROR_NAME_EXISTED);
         }
@@ -63,6 +68,7 @@ public class CollectionController extends ABasicController {
                     .orElseThrow(() -> new NotFoundException("[Style] not found", ErrorCode.STYLE_ERROR_NOT_FOUND));
             collection.setStyle(style);
         }
+        collection.setColor(objectMapper.writeValueAsString(form.getColors()));
         collectionRepository.save(collection);
         return makeSuccessResponse("Create collection success");
     }
@@ -102,7 +108,7 @@ public class CollectionController extends ABasicController {
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('COL_U')")
-    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateCollectionForm form) {
+    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateCollectionForm form) throws JsonProcessingException {
         Collection collection = collectionRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COLLECTION_ERROR_NOT_FOUND));
 
@@ -117,6 +123,7 @@ public class CollectionController extends ABasicController {
         }
 
         collectionMapper.fromUpdateCollectionFormToEntity(form, collection);
+        collection.setColor(objectMapper.writeValueAsString(form.getColors()));
         collectionRepository.save(collection);
         return makeSuccessResponse("Update collection success");
     }

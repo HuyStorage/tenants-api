@@ -61,9 +61,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
     @Query("DELETE FROM Comment c WHERE c.movieId = :movieId")
     void deleteByMovieId(@Param("movieId") Long movieId);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.status = :status WHERE c.parent.id = :parentId")
+    void updateStatusByParentId(@Param("parentId") Long parentId, @Param("status") Integer status);
+
     @Query("SELECT new com.tenant.api.dto.reaction.VoteDto(c.id, r.type) " +
             "FROM Comment c " +
             "JOIN Reaction r ON c.id = r.commentId " +
-            "WHERE c.movieId = :movieId AND c.author.id = :userId")
+            "WHERE c.movieId = :movieId AND r.userId = :userId")
     List<VoteDto> findVotesByMovieIdAndUserId(@Param("movieId") Long movieId, @Param("userId") Long userId);
 }

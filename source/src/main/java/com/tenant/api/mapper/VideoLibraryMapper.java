@@ -40,6 +40,15 @@ public interface VideoLibraryMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToVideoLibraryAutoCompleteDto")
+    VideoLibraryDto entityToVideoLibraryAutoCompleteDto(VideoLibrary video);
+
+    @IterableMapping(elementTargetType = VideoLibraryDto.class, qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
+    List<VideoLibraryDto> fromEntityToVideoLibraryAutoCompleteDtoList(List<VideoLibrary> videoLibraries);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
     @Mapping(source = "sourceType", target = "sourceType")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "relativeContentPath", target = "relativeContentPath")
@@ -51,11 +60,11 @@ public interface VideoLibraryMapper {
     @Mapping(source = "introEnd", target = "introEnd")
     @Mapping(source = "outroStart", target = "outroStart")
     @BeanMapping(ignoreByDefault = true)
-    @Named("entityToVideoLibraryAutoCompleteDto")
-    VideoLibraryDto entityToVideoLibraryAutoCompleteDto(VideoLibrary video);
+    @Named("entityToVideoLibraryShortDto")
+    VideoLibraryDto entityToVideoLibraryShortDto(VideoLibrary video);
 
-    @IterableMapping(elementTargetType = VideoLibraryDto.class, qualifiedByName = "entityToVideoLibraryAutoCompleteDto")
-    List<VideoLibraryDto> fromEntityToVideoLibraryAutoCompleteDtoList(List<VideoLibrary> videoLibraries);
+    @IterableMapping(elementTargetType = VideoLibraryDto.class, qualifiedByName = "entityToVideoLibraryShortDto")
+    List<VideoLibraryDto> fromEntityToVideoLibraryShortDtoList(List<VideoLibrary> videoLibraries);
 
     @Mapping(source = "name", target = "name")
     @Mapping(source = "shortDescription", target = "shortDescription")

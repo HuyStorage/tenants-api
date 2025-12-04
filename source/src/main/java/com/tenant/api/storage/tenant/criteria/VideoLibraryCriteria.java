@@ -18,6 +18,8 @@ public class VideoLibraryCriteria {
     private String name;
     private Integer status;
     private Integer state;
+    private Integer sourceType;
+    private Long requiredId;
 
     public Specification<VideoLibrary> getSpecification() {
         return new Specification<VideoLibrary>() {
@@ -38,10 +40,28 @@ public class VideoLibraryCriteria {
                     predicates.add(cb.equal(root.get("state"), getState()));
                 }
 
+                if (getSourceType() != null) {
+                    predicates.add(cb.equal(root.get("sourceType"), getSourceType()));
+                }
+
                 if (getName() != null) {
                     predicates.add(cb.like(cb.lower(root.get("name")), "%" + getName().toLowerCase() + "%"));
                 }
-                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+
+                Predicate filters = cb.and(predicates.toArray(new Predicate[0]));
+
+                if (getRequiredId() != null) {
+                    Predicate required = cb.equal(root.get("id"), getRequiredId());
+                    query.orderBy(
+                            cb.desc(cb.selectCase()
+                                    .when(required, 1)
+                                    .otherwise(0)
+                            )
+                    );
+                    return cb.or(filters, required);
+                } else {
+                    return filters;
+                }
             }
         };
     }
