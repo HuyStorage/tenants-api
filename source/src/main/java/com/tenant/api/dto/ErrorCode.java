@@ -119,6 +119,7 @@ public class ErrorCode {
      * Starting error code Review
      */
     public static final String REVIEW_ERROR_NOT_FOUND = "ERROR-REVIEW-ERROR-0000";
+    public static final String REVIEW_ERROR_EXISTED = "ERROR-REVIEW-ERROR-0001";
 
     /**
      * Starting error code Favourite

@@ -4,6 +4,7 @@ import com.tenant.api.storage.tenant.model.Category;
 import com.tenant.api.storage.tenant.model.CollectionItem;
 import com.tenant.api.storage.tenant.model.Movie;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
@@ -24,6 +25,7 @@ public class MovieCriteria {
     private List<Long> categoryIds;
     private Long collectionId;
     private Integer releaseYear;
+    private String keyword;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -32,6 +34,7 @@ public class MovieCriteria {
             @Override
             public Predicate toPredicate(Root<Movie> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
+                query.distinct(true);
                 if (getId() != null) {
                     predicates.add(cb.equal(root.get("id"), getId()));
                 }
@@ -81,9 +84,16 @@ public class MovieCriteria {
                     predicates.add(cb.not(root.get("id").in(subquery)));
                 }
 
-                if (releaseYear != null) {
+                if (getReleaseYear() != null) {
                     Expression<Integer> yearExpr = cb.function("year", Integer.class, root.get("releaseDate"));
-                    predicates.add(cb.equal(yearExpr, releaseYear));
+                    predicates.add(cb.equal(yearExpr, getReleaseYear()));
+                }
+
+                if (StringUtils.isNoneBlank(getKeyword())) {
+                    String kw = "%" + getKeyword().toLowerCase() + "%";
+                    Predicate titleLike = cb.like(cb.lower(root.get("title")), kw);
+                    Predicate originalTitleLike = cb.like(cb.lower(root.get("originalTitle")), kw);
+                    predicates.add(cb.or(titleLike, originalTitleLike));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

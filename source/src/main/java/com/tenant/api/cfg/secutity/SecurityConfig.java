@@ -49,6 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/sidebar/get/**",
             "/v1/sidebar/list",
             "/v1/comment/list",
+            "/v1/review/list",
+            "/v1/review/get",
             "/v1/app-version/check-version/**",
             "/v1/collection/list",
             "/v1/collection/topics",

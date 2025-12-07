@@ -20,6 +20,7 @@ import com.tenant.api.form.comment.UpdateCommentForm;
 import com.tenant.api.form.reaction.CreateReactionForm;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.CommentMapper;
+import com.tenant.api.service.MovieService;
 import com.tenant.api.service.feign.FeignCustomerAuthService;
 import com.tenant.api.storage.tenant.criteria.CommentCriteria;
 import com.tenant.api.storage.tenant.model.*;
@@ -71,10 +72,16 @@ public class CommentController extends ABasicController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private MovieRepository movieRepository;
+
+    @Autowired
+    private MovieService movieService;
+
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_C')")
-    public ApiMessageDto<Void> create(@Valid @RequestBody CreateCommentForm form) throws JsonProcessingException {
+    public ApiMessageDto<CommentDto> create(@Valid @RequestBody CreateCommentForm form) throws JsonProcessingException {
         AuthorInfoDto authorInfoDto;
         Account account = null;
         if (isShop()) {
@@ -101,8 +108,12 @@ public class CommentController extends ABasicController {
             comment.setMovieItem(movieItem);
             comment.setMovieId(movieItem.getMovie().getId());
         } else {
-            comment.setMovieId(form.getMovieId());
+            Movie movie = movieRepository.findById(form.getMovieId())
+                    .orElseThrow(() -> new NotFoundException("[Movie] not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+            comment.setMovieId(movie.getId());
         }
+
+        movieService.calculateComment(comment.getMovieId(), BaseConstant.ACTION_ADD);
 
         if (form.getParentId() != null) {
             Comment parent = commentRepository.findById(form.getParentId())
@@ -115,7 +126,7 @@ public class CommentController extends ABasicController {
         }
 
         commentRepository.save(comment);
-        return makeSuccessResponse("Create comment success");
+        return makeSuccessResponse(commentMapper.entityToCommentDto(comment), "Create comment success");
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -131,7 +142,7 @@ public class CommentController extends ABasicController {
         pageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
-        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+//        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         criteria.setIsParent(criteria.getParentId() == null);
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
@@ -244,7 +255,7 @@ public class CommentController extends ABasicController {
         } else {
             commentRepository.deleteByParentId(comment.getId());
         }
-
+        movieService.calculateComment(comment.getMovieId(), BaseConstant.ACTION_DELETE);
         reactionRepository.deleteByCommentId(comment.getId());
         commentRepository.delete(comment);
         return makeSuccessResponse("Delete comment success");

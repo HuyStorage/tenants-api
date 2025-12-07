@@ -12,4 +12,5 @@
     <include file="20251126071227_changelog.xml" relativeToChangelogFile="true"/>
     <include file="20251127060900_changelog.xml" relativeToChangelogFile="true"/>
     <include file="20251127091343_changelog.xml" relativeToChangelogFile="true"/>
+    <include file="20251206070745_changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

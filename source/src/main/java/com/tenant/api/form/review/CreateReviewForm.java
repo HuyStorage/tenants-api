@@ -18,6 +18,7 @@ public class CreateReviewForm {
     @ApiModelProperty(required = true)
     private Long movieId;
 
+    @NotNull(message = "rate cannot be null")
     @Min(value = 1, message = "rate cannot be < 1")
     @Max(value = 5, message = "rate cannot be > 1")
     @ApiModelProperty(required = true)

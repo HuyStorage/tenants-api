@@ -34,6 +34,7 @@ public interface CommentMapper {
     List<CommentDto> fromEntityToCommentDtoList(List<Comment> comments);
 
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "authorInfo", target = "authorInfo")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToParentDto")
     CommentDto entityToParentDto(Comment comment);

@@ -16,4 +16,5 @@ public class ReviewDto extends ABasicAdminDto {
     private String content;
     private Integer totalLike;
     private Integer totalDislike;
+    private ReviewStatisticsDto statistics;
 }

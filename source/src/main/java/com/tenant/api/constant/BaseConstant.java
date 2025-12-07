@@ -85,6 +85,9 @@ public class BaseConstant {
     public static final Integer ACTION_DELETE_FROM_PLAYLIST = 0;
     public static final Integer ACTION_ADD_TO_PLAYLIST = 1;
 
+    public static final Integer ACTION_DELETE= 0;
+    public static final Integer ACTION_ADD = 1;
+
     public static final Integer MAX_PLAYLIST_PER_USER = 5;
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
