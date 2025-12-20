@@ -7,14 +7,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
-
     @Modifying
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Query("UPDATE Comment c SET c.totalChildren = c.totalChildren + 1 WHERE c.id = :id")
     void increaseTotalChild(@Param("id") Long id);
 
@@ -71,4 +71,12 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
             "JOIN Reaction r ON c.id = r.commentId " +
             "WHERE c.movieId = :movieId AND r.userId = :userId")
     List<VoteDto> findVotesByMovieIdAndUserId(@Param("movieId") Long movieId, @Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c " +
+            "SET c.authorInfo = CASE WHEN c.authorId = :id THEN :info ELSE c.authorInfo END, " +
+            "    c.replyToInfo = CASE WHEN c.replyToId = :id THEN :info ELSE c.replyToInfo END " +
+            "WHERE c.authorId = :id OR c.replyToId = :id")
+    void updateCommentInfoByAuthorOrReply(@Param("id") Long id, @Param("info") String info);
 }

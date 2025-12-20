@@ -23,6 +23,7 @@ public interface CommentMapper {
     @Mapping(source = "totalChildren", target = "totalChildren")
     @Mapping(source = "isPinned", target = "isPinned")
     @Mapping(source = "authorInfo", target = "authorInfo")
+    @Mapping(source = "replyToInfo", target = "replyToInfo")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")

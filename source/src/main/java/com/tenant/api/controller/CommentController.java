@@ -83,13 +83,15 @@ public class CommentController extends ABasicController {
     @PreAuthorize("hasRole('CMT_C')")
     public ApiMessageDto<CommentDto> create(@Valid @RequestBody CreateCommentForm form) throws JsonProcessingException {
         AuthorInfoDto authorInfoDto;
-        Account account = null;
+        Long authorId;
         if (isShop()) {
             CustomerDto customerDto = feignCustomerAuthService.get(getCurrentUser()).getData();
+            authorId = customerDto.getId();
             authorInfoDto = accountMapper.fromCustomerDtoToAuthorInfoDto(customerDto);
         } else {
-            account = accountRepository.findById(getCurrentUser())
+            Account account = accountRepository.findById(getCurrentUser())
                     .orElseThrow(() -> new NotFoundException("[Account] not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+            authorId = account.getId();
             authorInfoDto = accountMapper.entityToAuthorInfoDto(account);
             if (isUser()) {
                 User user = userRepository.findByIdAndStatus(account.getId(), BaseConstant.STATUS_ACTIVE)
@@ -99,7 +101,7 @@ public class CommentController extends ABasicController {
         }
 
         Comment comment = commentMapper.fromCreateCommentFormToEntity(form);
-        comment.setAuthor(account);
+        comment.setAuthorId(authorId);
         comment.setAuthorInfo(objectMapper.writeValueAsString(authorInfoDto));
 
         if (form.getMovieItemId() != null) {
@@ -113,19 +115,38 @@ public class CommentController extends ABasicController {
             comment.setMovieId(movie.getId());
         }
 
-        movieService.calculateComment(comment.getMovieId(), BaseConstant.ACTION_ADD);
-
         if (form.getParentId() != null) {
+            if (form.getReplyToId() == null || form.getReplyToKind() == null) {
+                throw new BadRequestException("[Comment] reply invalid", ErrorCode.COMMENT_ERROR_REPLY_INVALID);
+            }
             Comment parent = commentRepository.findById(form.getParentId())
                     .orElseThrow(() -> new NotFoundException("[Comment] not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
             if (parent.getParent() != null) {
                 throw new BadRequestException("[Comment] parent invalid", ErrorCode.COMMENT_ERROR_PARENT_INVALID);
             }
+            Long replyToId;
+            AuthorInfoDto replyToInfo;
+            if (Objects.equals(form.getReplyToKind(), BaseConstant.USER_KIND_MANAGER)) {
+                CustomerDto customerDto = feignCustomerAuthService.get(form.getReplyToId()).getData();
+                if (customerDto == null) {
+                    throw new NotFoundException("[Customer] not found", ErrorCode.COMMENT_ERROR_REPLY_NOT_FOUND);
+                }
+                replyToId = customerDto.getId();
+                replyToInfo = accountMapper.fromCustomerDtoToAuthorInfoDto(customerDto);
+            } else {
+                Account account = accountRepository.findById(form.getReplyToId())
+                        .orElseThrow(() -> new NotFoundException("[Account] not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+                replyToId = account.getId();
+                replyToInfo = accountMapper.entityToAuthorInfoDto(account);
+            }
             commentRepository.increaseTotalChild(parent.getId());
+            comment.setReplyToId(replyToId);
+            comment.setReplyToInfo(objectMapper.writeValueAsString(replyToInfo));
             comment.setParent(parent);
         }
 
         commentRepository.save(comment);
+        movieService.calculateComment(comment.getMovieId(), BaseConstant.ACTION_ADD);
         return makeSuccessResponse(commentMapper.entityToCommentDto(comment), "Create comment success");
     }
 
@@ -165,7 +186,7 @@ public class CommentController extends ABasicController {
         Comment comment = commentRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
 
-        if (isUser() && comment.getAuthor().getId() != getCurrentUser()) {
+        if (comment.getAuthorId() != getCurrentUser()) {
             throw new UnauthorizationException("Not allow");
         }
 
@@ -246,7 +267,7 @@ public class CommentController extends ABasicController {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Comment] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
 
-        if (isUser() && comment.getAuthor().getId() != getCurrentUser()) {
+        if (isUser() && comment.getAuthorId() != getCurrentUser()) {
             throw new UnauthorizationException("Not allow");
         }
 

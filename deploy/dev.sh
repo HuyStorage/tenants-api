@@ -3,6 +3,7 @@ SERVER_DEPLOY=192.168.155.10
 TARGET_DIR=/opt/deploy/moviehub/tenant
 APP_ID=tenant-api
 PACKAGE_NAME=com.tenant.api
+LOG_DIR=/var/log/${APP_ID}
 
 echo "Build source..."
 cd ../source
@@ -24,6 +25,7 @@ sed -i "s/{ENV}/dev/g" release/application.properties
 sed -i "s/{APP_ID}/$APP_ID/g" release/application-dev.properties
 sed -i "s/{PACKAGE_NAME}/$PACKAGE_NAME/g" release/application-dev.properties
 sed -i "s/{PACKAGE_NAME}/$PACKAGE_NAME/g" release/logback-spring.xml
+sed -i "s#{LOG_DIR}#$LOG_DIR#g" release/logback-spring.xml
 
 cp service-template.service release/$APP_ID.service
 sed -i "s/{CONFIG_LOCATION}/$(printf '%s\n' "$TARGET_DIR" | sed -e 's/[]\/$*.^[]/\\&/g')/g" release/$APP_ID.service

@@ -180,12 +180,12 @@ public class ReviewController extends ABasicController {
 
     @Transactional("tenantTransactionManager")
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//    @PreAuthorize("hasRole('REV_D')")
+    @PreAuthorize("hasRole('REV_D')")
     public ApiMessageDto<ReviewStatisticsDto> delete(@PathVariable("id") Long id) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Review] Not found", ErrorCode.REVIEW_ERROR_NOT_FOUND));
 
-        if (!isUser() && !Objects.equals(review.getAuthor().getId(), getCurrentUser())) {
+        if (isUser() && !Objects.equals(review.getAuthor().getId(), getCurrentUser())) {
             throw new UnauthorizationException("Not allow");
         }
 

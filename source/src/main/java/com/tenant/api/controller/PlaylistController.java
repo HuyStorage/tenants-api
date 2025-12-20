@@ -67,7 +67,7 @@ public class PlaylistController extends ABasicController {
         User user = userRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[User] not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
-        if (playlistRepository.countByUserId(user.getId()) > BaseConstant.MAX_PLAYLIST_PER_USER) {
+        if (playlistRepository.countByUserId(user.getId()) >= BaseConstant.MAX_PLAYLIST_PER_USER) {
             throw new BadRequestException("[Playlist] Maximum playlist per user", ErrorCode.PLAYLIST_ERROR_MAX_PER_USER);
         }
 

@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ApiModel
-public class CreateVideoLibraryForm {
+public class CreateVideoLibraryForm extends ExternalVideoLibraryForm {
     @NotBlank(message = "name cannot be empty")
     @ApiModelProperty(required = true)
     private String name;
@@ -32,10 +32,6 @@ public class CreateVideoLibraryForm {
     private String content;
 
     private String thumbnailUrl;
-
-    private String vttUrl;
-
-    private Long duration;
 
     private Long introStart;
 

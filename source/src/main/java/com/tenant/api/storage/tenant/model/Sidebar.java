@@ -22,6 +22,7 @@ public class Sidebar extends Auditable<String> {
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
     private Long id;
 
+    @Column(columnDefinition = "text")
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)

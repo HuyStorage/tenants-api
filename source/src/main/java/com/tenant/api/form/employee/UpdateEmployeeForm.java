@@ -27,8 +27,6 @@ public class UpdateEmployeeForm {
     @EmailConstraint(allowNull = true)
     private String email;
 
-    private String oldPassword;
-
     @PasswordConstraint(message = "newPassword invalid format", allowNull = true)
     private String newPassword;
 

@@ -9,6 +9,7 @@ import com.tenant.api.dto.video.VideoLibraryDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.video.CreateVideoLibraryForm;
+import com.tenant.api.form.video.ExternalVideoLibraryForm;
 import com.tenant.api.form.video.UpdateVideoLibraryForm;
 import com.tenant.api.mapper.VideoLibraryMapper;
 import com.tenant.api.service.rabbit.RabbitService;
@@ -70,7 +71,7 @@ public class VideoLibraryController extends ABasicController {
 
         if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL)) {
             videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
-            updateExternalSource(videoLibrary, form.getDuration(), form.getVttUrl());
+            updateExternalSource(videoLibrary, form);
         } else {
             videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
         }
@@ -136,7 +137,7 @@ public class VideoLibraryController extends ABasicController {
             if (StringUtils.isNoneBlank(form.getContent())) {
                 videoLibrary.setContent(form.getContent());
             }
-            updateExternalSource(videoLibrary, form.getDuration(), form.getVttUrl());
+            updateExternalSource(videoLibrary, form);
         }
 
         videoLibraryRepository.save(videoLibrary);
@@ -170,20 +171,23 @@ public class VideoLibraryController extends ABasicController {
         return makeSuccessResponse("Delete video library success");
     }
 
-    private void updateExternalSource(VideoLibrary videoLibrary, Long duration, String vttUrl) {
-        if (duration != null) {
+    private void updateExternalSource(VideoLibrary videoLibrary, ExternalVideoLibraryForm form) {
+        if (form.getDuration() != null) {
             long endOfVideo = videoLibrary.getOutroStart() != null
                     ? videoLibrary.getOutroStart()
                     : videoLibrary.getIntroEnd() != null
                     ? videoLibrary.getIntroEnd()
                     : 0L;
-            if (duration <= endOfVideo) {
+            if (form.getDuration() <= endOfVideo) {
                 throw new BadRequestException("[Video Library] duration invalid", ErrorCode.VIDEO_LIBRARY_ERROR_DURATION_INVALID);
             }
-            videoLibrary.setDuration(duration);
+            videoLibrary.setDuration(form.getDuration());
         }
-        if (vttUrl != null) {
-            videoLibrary.setVttUrl(vttUrl);
+        if (form.getVttUrl() != null) {
+            videoLibrary.setVttUrl(form.getVttUrl());
+        }
+        if (form.getSpriteUrl() != null) {
+            videoLibrary.setSpriteUrl(form.getSpriteUrl());
         }
     }
 }

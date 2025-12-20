@@ -42,10 +42,14 @@ public class Comment extends Auditable<String> {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account author;
+    @Column(name = "account_id")
+    private Long authorId;
 
     @Column(columnDefinition = "TEXT")
     private String authorInfo;
+
+    private Long replyToId;
+
+    @Column(columnDefinition = "TEXT")
+    private String replyToInfo;
 }

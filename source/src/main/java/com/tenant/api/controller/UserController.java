@@ -1,10 +1,12 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
+import com.tenant.api.dto.comment.AuthorInfoDto;
 import com.tenant.api.dto.user.*;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
@@ -80,6 +82,9 @@ public class UserController extends ABasicController {
 
     @Autowired
     private WatchHistoryRepository watchHistoryRepository;
+
+    @Autowired
+    private CommentService commentService;
 
     private final Integer otpLength = 6;
 
@@ -180,6 +185,8 @@ public class UserController extends ABasicController {
         account.setPassword(passwordEncoder.encode(form.getPassword()));
         accountRepository.save(account);
 
+        otpService.deleteOtp(form.getEmail(), TenantDBContext.getCurrentTenant());
+
         return makeSuccessResponse("Change password success");
     }
 
@@ -202,7 +209,7 @@ public class UserController extends ABasicController {
     @Transactional("tenantTransactionManager")
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USR_U')")
-    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateUserForm form) {
+    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateUserForm form) throws JsonProcessingException {
         User user = userRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
@@ -211,6 +218,11 @@ public class UserController extends ABasicController {
 
         userMapper.fromUpdateUserFormToEntity(form, user);
         userRepository.save(user);
+
+        AuthorInfoDto authorInfoDto = accountMapper.entityToAuthorInfoDto(user.getAccount());
+        authorInfoDto.setGender(user.getGender());
+        commentService.updateInfo(authorInfoDto);
+
         return makeSuccessResponse("Update user success");
     }
 
@@ -258,12 +270,8 @@ public class UserController extends ABasicController {
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public OAuth2AccessToken login(@Valid @RequestBody LoginUserForm form) {
-        User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
-
-        if (user == null) {
-            log.error("Invalid email or password.");
-            throw new UsernameNotFoundException("Invalid username or password.");
-        }
+        User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
 
         if (!passwordEncoder.matches(form.getPassword(), user.getAccount().getPassword())) {
             log.error("Invalid username or password.");
@@ -279,15 +287,15 @@ public class UserController extends ABasicController {
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<UserDto> profile() {
-        User user = userRepository.findById(getCurrentUser())
+        User user = userRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
         return makeSuccessResponse(userMapper.fromEntityToUserDtoProfile(user), "Get profile success");
     }
 
     @Transactional("tenantTransactionManager")
     @PutMapping(value = "/update-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Void> updateProfile(@Valid @RequestBody UpdateUserProfileForm form) {
-        User user = userRepository.findById(getCurrentUser())
+    public ApiMessageDto<Void> updateProfile(@Valid @RequestBody UpdateUserProfileForm form) throws JsonProcessingException {
+        User user = userRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
         if (StringUtils.isNotBlank(form.getPhone()) && !Objects.equals(user.getAccount().getPhone(), form.getPhone())
@@ -310,6 +318,10 @@ public class UserController extends ABasicController {
 
         userMapper.fromUpdateUserProfileFormToEntity(form, user);
         userRepository.save(user);
+
+        AuthorInfoDto authorInfoDto = accountMapper.entityToAuthorInfoDto(user.getAccount());
+        authorInfoDto.setGender(user.getGender());
+        commentService.updateInfo(authorInfoDto);
         return makeSuccessResponse("Update user profile success");
     }
 

@@ -16,9 +16,10 @@ import java.util.List;
 public class MoviePersonCriteria {
 
     private Long id;
-    private String movieId;
-    private String personId;
+    private Long movieId;
+    private Long personId;
     private Integer kind;
+    private String keyword;
 
     public Specification<MoviePerson> getSpecification() {
         return new Specification<MoviePerson>() {

@@ -6,7 +6,7 @@
         <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
             </encoder>
         </appender>
         <logger name="org.springframework" level="INFO"/>
@@ -17,9 +17,10 @@
     </springProfile>
     <springProfile name="prod">
         <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${LOG_FILE}</file>
+            <file>{LOG_DIR}/log.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <file>{LOG_DIR}/log.log</file>
+                <fileNamePattern>{LOG_DIR}/log.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <!-- each archived file, size max 10MB -->
                 <maxFileSize>10MB</maxFileSize>
                 <!-- total size of all archive files, if total size > 20GB, it will delete old archived file -->
@@ -29,7 +30,7 @@
             </rollingPolicy>
 
             <encoder>
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
             </encoder>
         </appender>
         <logger name="org.springframework" level="INFO"/>

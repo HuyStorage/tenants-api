@@ -114,6 +114,8 @@ public class ErrorCode {
      */
     public static final String COMMENT_ERROR_NOT_FOUND = "ERROR-COMMENT-ERROR-0000";
     public static final String COMMENT_ERROR_PARENT_INVALID = "ERROR-COMMENT-ERROR-0001";
+    public static final String COMMENT_ERROR_REPLY_INVALID = "ERROR-COMMENT-ERROR-0002";
+    public static final String COMMENT_ERROR_REPLY_NOT_FOUND = "ERROR-COMMENT-ERROR-0003";
 
     /**
      * Starting error code Review

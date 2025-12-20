@@ -323,6 +323,14 @@ public class MovieController extends ABasicController {
         return makeSuccessResponse(watchHistoryMapper.fromEntityToWatchHistoryDetailsDtoList(watchHistories), "List movie success");
     }
 
+    @GetMapping(value = "/top-views", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<MovieDto>>> topViews(MovieCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
+
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+    }
+
     @GetMapping(value = "/collection-filter/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_L')")
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> collectionFilter(@PathVariable("collectionId") Long collectionId, @RequestParam(value = "title", required = false) String title, Pageable pageable) {

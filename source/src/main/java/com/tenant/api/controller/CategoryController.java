@@ -44,6 +44,9 @@ public class CategoryController extends ABasicController {
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CA_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateCategoryForm form) {
+        if (categoryRepository.existsByName(form.getName())) {
+            throw new BadRequestException("[Category] name existed", ErrorCode.CATEGORY_ERROR_NAME_EXISTED);
+        }
         Category category = categoryMapper.fromCreateCategoryFormToEntity(form);
         category.setSlug(StringUtils.slugify(form.getName()));
         categoryRepository.save(category);
@@ -86,6 +89,9 @@ public class CategoryController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Category] Not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
 
         if (!Objects.equals(category.getName(), form.getName())) {
+            if (categoryRepository.existsByName(form.getName())) {
+                throw new BadRequestException("[Category] name existed", ErrorCode.CATEGORY_ERROR_NAME_EXISTED);
+            }
             category.setSlug(StringUtils.slugify(form.getName()));
         }
 
