@@ -71,6 +71,7 @@ public class ErrorCode {
     public static final String VIDEO_LIBRARY_ERROR_NOT_FOUND = "ERROR-VIDEO-LIBRARY-ERROR-0000";
     public static final String VIDEO_LIBRARY_ERROR_NAME_EXISTED = "ERROR-VIDEO-LIBRARY-ERROR-0002";
     public static final String VIDEO_LIBRARY_ERROR_MOVIE_ITEM_EXISTED = "ERROR-VIDEO-LIBRARY-ERROR-0003";
+    public static final String VIDEO_LIBRARY_ERROR_DURATION_INVALID = "ERROR-VIDEO-LIBRARY-ERROR-0004";
 
     /**
      * Starting error code Movie
@@ -113,11 +114,14 @@ public class ErrorCode {
      */
     public static final String COMMENT_ERROR_NOT_FOUND = "ERROR-COMMENT-ERROR-0000";
     public static final String COMMENT_ERROR_PARENT_INVALID = "ERROR-COMMENT-ERROR-0001";
+    public static final String COMMENT_ERROR_REPLY_INVALID = "ERROR-COMMENT-ERROR-0002";
+    public static final String COMMENT_ERROR_REPLY_NOT_FOUND = "ERROR-COMMENT-ERROR-0003";
 
     /**
      * Starting error code Review
      */
     public static final String REVIEW_ERROR_NOT_FOUND = "ERROR-REVIEW-ERROR-0000";
+    public static final String REVIEW_ERROR_EXISTED = "ERROR-REVIEW-ERROR-0001";
 
     /**
      * Starting error code Favourite
@@ -134,4 +138,36 @@ public class ErrorCode {
      * Media error code
      */
     public static final String MEDIA_ERROR_DELETE_FILE = "ERROR-MEDIA-0000";
+
+    /**
+     * AppVersion error code
+     */
+    public static final String APP_VERSION_ERROR_NOT_FOUND = "ERROR-APP-VERSION-0000";
+    public static final String APP_VERSION_ERROR_NAME_EXISTED = "ERROR-APP-VERSION-0001";
+    public static final String APP_VERSION_ERROR_NOT_HAVE_LATEST_VERSION = "ERROR-APP-VERSION-0002";
+
+    /**
+     * Collection error code
+     */
+    public static final String COLLECTION_ERROR_NOT_FOUND = "ERROR-COLLECTION-0000";
+    public static final String COLLECTION_ERROR_NAME_EXISTED = "ERROR-COLLECTION-0001";
+
+    /**
+     * Collection item error code
+     */
+    public static final String COLLECTION_ITEM_ERROR_NOT_FOUND = "ERROR-COLLECTION-ITEM-0000";
+    public static final String COLLECTION_ITEM_ERROR_MOVIE_EXISTED = "ERROR-COLLECTION-ITEM-0001";
+
+    /**
+     * Style error code
+     */
+    public static final String STYLE_ERROR_NOT_FOUND = "ERROR-STYLE-0000";
+    public static final String STYLE_ERROR_TYPE_EXISTED = "ERROR-STYLE-0001";
+    public static final String STYLE_ERROR_TYPE_NOT_HAVE_DEFAULT = "ERROR-STYLE-0002";
+
+    /**
+     * Playlist error code
+     */
+    public static final String PLAYLIST_ERROR_NOT_FOUND = "ERROR-PLAYLIST-0000";
+    public static final String PLAYLIST_ERROR_MAX_PER_USER = "ERROR-PLAYLIST-0001";
 }

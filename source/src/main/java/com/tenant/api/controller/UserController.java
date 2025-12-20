@@ -1,10 +1,12 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
+import com.tenant.api.dto.comment.AuthorInfoDto;
 import com.tenant.api.dto.user.*;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
@@ -19,6 +21,7 @@ import com.tenant.api.storage.tenant.model.User;
 import com.tenant.api.storage.tenant.repository.AccountRepository;
 import com.tenant.api.storage.tenant.repository.FavouriteRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
+import com.tenant.api.storage.tenant.repository.WatchHistoryRepository;
 import com.tenant.api.utils.TemplateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +79,12 @@ public class UserController extends ABasicController {
 
     @Autowired
     private CommonAsyncService commonAsyncService;
+
+    @Autowired
+    private WatchHistoryRepository watchHistoryRepository;
+
+    @Autowired
+    private CommentService commentService;
 
     private final Integer otpLength = 6;
 
@@ -176,6 +185,8 @@ public class UserController extends ABasicController {
         account.setPassword(passwordEncoder.encode(form.getPassword()));
         accountRepository.save(account);
 
+        otpService.deleteOtp(form.getEmail(), TenantDBContext.getCurrentTenant());
+
         return makeSuccessResponse("Change password success");
     }
 
@@ -198,7 +209,7 @@ public class UserController extends ABasicController {
     @Transactional("tenantTransactionManager")
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USR_U')")
-    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateUserForm form) {
+    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateUserForm form) throws JsonProcessingException {
         User user = userRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
@@ -207,6 +218,11 @@ public class UserController extends ABasicController {
 
         userMapper.fromUpdateUserFormToEntity(form, user);
         userRepository.save(user);
+
+        AuthorInfoDto authorInfoDto = accountMapper.entityToAuthorInfoDto(user.getAccount());
+        authorInfoDto.setGender(user.getGender());
+        commentService.updateInfo(authorInfoDto);
+
         return makeSuccessResponse("Update user success");
     }
 
@@ -241,10 +257,11 @@ public class UserController extends ABasicController {
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USR_D')")
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
-        userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
-
+        mediaService.deleteFile(user.getAccount().getAvatarPath());
         favouriteRepository.deleteByUserId(id);
+        watchHistoryRepository.deleteByUserId(user.getId());
         userRepository.deleteById(id);
         accountRepository.deleteById(id);
 
@@ -253,12 +270,8 @@ public class UserController extends ABasicController {
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public OAuth2AccessToken login(@Valid @RequestBody LoginUserForm form) {
-        User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE).orElse(null);
-
-        if (user == null) {
-            log.error("Invalid email or password.");
-            throw new UsernameNotFoundException("Invalid username or password.");
-        }
+        User user = userRepository.findFirstByAccountEmailAndStatusNot(form.getEmail(), BaseConstant.STATUS_DELETE)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
 
         if (!passwordEncoder.matches(form.getPassword(), user.getAccount().getPassword())) {
             log.error("Invalid username or password.");
@@ -274,15 +287,15 @@ public class UserController extends ABasicController {
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<UserDto> profile() {
-        User user = userRepository.findById(getCurrentUser())
+        User user = userRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
         return makeSuccessResponse(userMapper.fromEntityToUserDtoProfile(user), "Get profile success");
     }
 
     @Transactional("tenantTransactionManager")
     @PutMapping(value = "/update-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Void> updateProfile(@Valid @RequestBody UpdateUserProfileForm form) {
-        User user = userRepository.findById(getCurrentUser())
+    public ApiMessageDto<Void> updateProfile(@Valid @RequestBody UpdateUserProfileForm form) throws JsonProcessingException {
+        User user = userRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[User] Not found", ErrorCode.USER_ERROR_NOT_FOUND));
 
         if (StringUtils.isNotBlank(form.getPhone()) && !Objects.equals(user.getAccount().getPhone(), form.getPhone())
@@ -295,10 +308,9 @@ public class UserController extends ABasicController {
             throw new BadRequestException("[User] Username existed", ErrorCode.USER_ERROR_USERNAME_EXISTED);
         }
 
-        List<String> deleteFiles = new ArrayList<>();
         if (!Objects.equals(form.getAvatarPath(), user.getAccount().getAvatarPath())) {
             String avatarPath = user.getAccount().getAvatarPath();
-            deleteFiles.add(avatarPath);
+            mediaService.deleteFile(avatarPath);
         }
 
         accountMapper.fromUpdateUserProfileFormToEntity(form, user.getAccount());
@@ -306,9 +318,10 @@ public class UserController extends ABasicController {
 
         userMapper.fromUpdateUserProfileFormToEntity(form, user);
         userRepository.save(user);
-        if (!deleteFiles.isEmpty()) {
-//            baseApiService.deleteFile(new DeleteListFileForm(deleteFiles));
-        }
+
+        AuthorInfoDto authorInfoDto = accountMapper.entityToAuthorInfoDto(user.getAccount());
+        authorInfoDto.setGender(user.getGender());
+        commentService.updateInfo(authorInfoDto);
         return makeSuccessResponse("Update user profile success");
     }
 

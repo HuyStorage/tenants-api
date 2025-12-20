@@ -39,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/category/list",
             "/v1/movie/get/**",
             "/v1/movie/list",
+            "/v1/movie/recommendations/**",
             "/v1/movie-item/get/**",
             "/v1/movie-item/list",
             "/v1/movie-person/list",
@@ -48,7 +49,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v1/sidebar/get/**",
             "/v1/sidebar/list",
             "/v1/comment/list",
-            "/v1/comment/update",
+            "/v1/review/list",
+            "/v1/review/get",
+            "/v1/app-version/check-version/**",
+            "/v1/collection/list",
+            "/v1/collection/topics",
+            "/v1/collection-item/list"
     };
 
     @Override

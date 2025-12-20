@@ -19,7 +19,9 @@ import com.tenant.api.storage.tenant.repository.PersonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +80,11 @@ public class PersonController extends ABasicController {
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> list(PersonCriteria criteria, Pageable pageable) {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        pageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "id")
+        );
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
         return makeSuccessResponse(makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList), "List person success");
@@ -86,6 +93,11 @@ public class PersonController extends ABasicController {
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PSN_L')")
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> listForAdmin(PersonCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "id")
+        );
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
         return makeSuccessResponse(makeResponseListDto(movies, personMapper::fromEntityToPersonDtoList), "List person success");
@@ -94,6 +106,11 @@ public class PersonController extends ABasicController {
     @GetMapping(value = "/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> autoComplete(PersonCriteria criteria, Pageable pageable) {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        pageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "id")
+        );
         Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
 
         return makeSuccessResponse(makeResponseListDto(movies, personMapper::fromEntityToPersonAutoCompleteDtoList), "List auto complete person success");
@@ -102,8 +119,11 @@ public class PersonController extends ABasicController {
     @GetMapping(value = "/admin/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PSN_L')")
     public ApiMessageDto<ResponseListDto<List<PersonDto>>> autoCompleteForAdmin(PersonCriteria criteria, Pageable pageable) {
-        Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
-
+        pageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "id")
+        );Page<Person> movies = personRepository.findAll(criteria.getSpecification(), pageable);
         ResponseListDto<List<PersonDto>> responseListDto = makeResponseListDto(movies, personMapper::fromEntityToPersonAutoCompleteDtoList);
         return makeSuccessResponse(responseListDto, "List auto complete person success");
     }

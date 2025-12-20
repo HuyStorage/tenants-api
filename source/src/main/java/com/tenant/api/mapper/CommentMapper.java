@@ -3,10 +3,7 @@ package com.tenant.api.mapper;
 import com.tenant.api.dto.comment.CommentDto;
 import com.tenant.api.form.comment.CreateCommentForm;
 import com.tenant.api.form.comment.UpdateCommentForm;
-import com.tenant.api.form.employee.CreateEmployeeForm;
-import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.storage.tenant.model.Comment;
-import com.tenant.api.storage.tenant.model.Employee;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -19,12 +16,14 @@ public interface CommentMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "movieItem", target = "movieItem", qualifiedByName = "entityToMovieItemAutoCompleteDto")
     @Mapping(source = "movieId", target = "movieId")
+    @Mapping(source = "parent", target = "parent", qualifiedByName = "entityToParentDto")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "totalLike", target = "totalLike")
     @Mapping(source = "totalDislike", target = "totalDislike")
     @Mapping(source = "totalChildren", target = "totalChildren")
     @Mapping(source = "isPinned", target = "isPinned")
-    @Mapping(source = "author", target = "author", qualifiedByName = "entityToAccountDto")
+    @Mapping(source = "authorInfo", target = "authorInfo")
+    @Mapping(source = "replyToInfo", target = "replyToInfo")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
@@ -35,8 +34,13 @@ public interface CommentMapper {
     @IterableMapping(elementTargetType = CommentDto.class, qualifiedByName = "entityToCommentDto")
     List<CommentDto> fromEntityToCommentDtoList(List<Comment> comments);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "authorInfo", target = "authorInfo")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToParentDto")
+    CommentDto entityToParentDto(Comment comment);
+
     @Mapping(source = "content", target = "content")
-    @Mapping(source = "isPinned", target = "isPinned")
     @BeanMapping(ignoreByDefault = true)
     Comment fromCreateCommentFormToEntity(CreateCommentForm form);
 

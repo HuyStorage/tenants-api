@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/group")
@@ -44,7 +45,7 @@ public class GroupController extends ABasicController {
     private FeignPermissionAuthService feignPermissionAuthService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_C')")
+    @PreAuthorize("hasRole('GR_T_C')")
     public ApiMessageDto<String> create(@Valid @RequestBody CreateGroupForm createGroupForm) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed create.");
@@ -78,7 +79,7 @@ public class GroupController extends ABasicController {
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_U')")
+    @PreAuthorize("hasRole('GR_T_U')")
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateGroupForm updateGroupForm) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed update.");
@@ -89,8 +90,9 @@ public class GroupController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Group] Group not found", ErrorCode.GROUP_ERROR_NOT_FOUND));
 
         // Check if the new name already exists
-        if (groupRepository.existsByName(updateGroupForm.getName())) {
-            throw new BadRequestException("[Group] Cant update this group name because it is exist!", ErrorCode.GROUP_ERROR_NAME_EXISTED);
+        if (!Objects.equals(updateGroupForm.getName(), group.getName())
+                && groupRepository.existsByName(updateGroupForm.getName())) {
+            throw new BadRequestException("[Group] Name existed", ErrorCode.GROUP_ERROR_NAME_EXISTED);
         }
 
         List<GroupPermission> permissions = new ArrayList<>();
@@ -117,7 +119,7 @@ public class GroupController extends ABasicController {
     }
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_V')")
+    @PreAuthorize("hasRole('GR_T_V')")
     public ApiMessageDto<GroupDto> get(@PathVariable("id") Long id) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");
@@ -129,7 +131,7 @@ public class GroupController extends ABasicController {
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('GR_L')")
+    @PreAuthorize("hasRole('GR_T_L')")
     public ApiMessageDto<ResponseListDto<List<GroupDto>>> list(GroupCriteria groupCriteria, Pageable pageable) {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed to get.");

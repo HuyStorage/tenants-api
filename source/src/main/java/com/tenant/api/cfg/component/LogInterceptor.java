@@ -1,13 +1,13 @@
 package com.tenant.api.cfg.component;
 
 
+import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.SecurityConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.exception.UnauthorizationException;
+import com.tenant.api.jwt.TenantJwt;
 import com.tenant.api.service.LoggingService;
 import com.tenant.api.service.impl.UserServiceImpl;
-import com.tenant.api.cfg.tenants.TenantDBContext;
-import com.tenant.api.jwt.TenantJwt;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -58,6 +57,7 @@ public class LogInterceptor implements HandlerInterceptor {
             "/v1/category/list",
             "/v1/movie/get/**",
             "/v1/movie/list",
+            "/v1/movie/recommendations/**",
             "/v1/movie-item/get/**",
             "/v1/movie-item/list",
             "/v1/movie-person/list",
@@ -67,7 +67,12 @@ public class LogInterceptor implements HandlerInterceptor {
             "/v1/sidebar/get/**",
             "/v1/sidebar/list",
             "/v1/comment/list",
-            "/v1/comment/update"
+            "/v1/review/list",
+            "/v1/review/get",
+            "/v1/app-version/check-version/**",
+            "/v1/collection/list",
+            "/v1/collection/topics",
+            "/v1/collection-item/list"
     );
 
     @Override

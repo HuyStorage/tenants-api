@@ -43,6 +43,7 @@ public class BaseConstant {
     public static final String PHONE_PATTERN = "^0[35789][0-9]{8}$";
     public static final String EMAIL_PATTERN = "^(?!.*[.]{2,})[a-zA-Z0-9.%]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     public static final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$";
+    public static final String COLOR_PATTERN = "^#[0-9A-Fa-f]{6}$";
 
     public static final Integer GENDER_MALE = 1;
     public static final Integer GENDER_FEMALE = 2;
@@ -71,6 +72,23 @@ public class BaseConstant {
     public static final String APP_NAME_CMS = "CMS";
     public static final String APP_NAME_CLIENT = "CLIENT";
 
+    public static final Integer SOURCE_TYPE_INTERNAL = 1;
+    public static final Integer SOURCE_TYPE_EXTERNAL = 2;
+
+    public static final Integer COLLECTION_TYPE_TOPIC = 1;
+    public static final Integer COLLECTION_TYPE_SECTION = 2;
+
+    public static final Integer JSON_TYPE_FILTER_MOVIE = 1;
+
+    public static final String FILTER_MOVIE_SAMPLE_DATA = "{\"type\":1,\"ageRating\":18,\"language\":\"en-US\",\"country\":\"US\",\"isFeatured\":true,\"categoryIds\":[101,102,103]}";
+
+    public static final Integer ACTION_DELETE_FROM_PLAYLIST = 0;
+    public static final Integer ACTION_ADD_TO_PLAYLIST = 1;
+
+    public static final Integer ACTION_DELETE= 0;
+    public static final Integer ACTION_ADD = 1;
+
+    public static final Integer MAX_PLAYLIST_PER_USER = 5;
     private BaseConstant(){
         throw new IllegalStateException("Utility class");
     }

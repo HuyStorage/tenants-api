@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
@@ -7,23 +8,25 @@ import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.dto.movieItem.MovieItemDto;
-import com.tenant.api.exception.BadRequestException;
+import com.tenant.api.dto.watchHistory.WatchHistoryDto;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
+import com.tenant.api.form.movie.FilterMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
+import com.tenant.api.mapper.WatchHistoryMapper;
 import com.tenant.api.service.MediaService;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
-import com.tenant.api.storage.tenant.model.Category;
-import com.tenant.api.storage.tenant.model.Movie;
-import com.tenant.api.storage.tenant.model.MovieItem;
+import com.tenant.api.storage.tenant.model.Collection;
+import com.tenant.api.storage.tenant.model.*;
 import com.tenant.api.storage.tenant.repository.*;
 import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,6 +72,30 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private WatchHistoryRepository watchHistoryRepository;
+
+    @Autowired
+    private WatchHistoryMapper watchHistoryMapper;
+
+    @Autowired
+    private CollectionItemRepository collectionItemRepository;
+
+    @Autowired
+    private CollectionRepository collectionRepository;
+
+    @Autowired
+    private SidebarRepository sidebarRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private PlaylistRepository playlistRepository;
+
+    @Autowired
+    private PlaylistItemRepository playlistItemRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -230,15 +257,39 @@ public class MovieController extends ABasicController {
         List<String> deletedFiles = new ArrayList<>();
         deletedFiles.add(movie.getThumbnailUrl());
         deletedFiles.add(movie.getPosterUrl());
+
+        List<String> movieItemThumbnails = movieItemRepository.findThumbnailsByMovieId(movie.getId());
+        deletedFiles.addAll(movieItemThumbnails);
+
+        // delete media
         mediaService.deleteFiles(deletedFiles);
 
+        // delete comment
         commentRepository.deleteByMovieId(movie.getId());
 
+        // delete favourite
         favouriteRepository.deleteByMovieId(movie.getId());
 
         // delete movie person
         moviePersonRepository.deleteByMovieId(movie.getId());
 
+        // delete watch history
+        watchHistoryRepository.deleteByMovieId(movie.getId());
+
+        // delete sidebar
+        sidebarRepository.deleteByMovieId(movie.getId());
+
+        // delete collection item
+        collectionItemRepository.deleteByMovieId(movie.getId());
+
+        // delete playlist
+        List<Long> playlistIds = playlistRepository.findByMovieId(movie.getId());
+        if (!playlistIds.isEmpty()) {
+            playlistItemRepository.deleteByMovieId(movie.getId());
+            playlistRepository.recalculateTotalMovieByIdIn(playlistIds);
+        }
+
+        // delete movie item
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_TRAILER);
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_EPISODE);
         movieItemRepository.deleteByMovieIdAndKind(movie.getId(), BaseConstant.MOVIE_ITEM_KIND_SEASON);
@@ -251,5 +302,59 @@ public class MovieController extends ABasicController {
 
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movie.getId().toString()));
         return makeSuccessResponse("Delete movie success");
+    }
+
+    @GetMapping(value = "/recommendations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<MovieDto>> recommendations(@PathVariable("id") Long id) {
+        Movie movie = movieRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
+                .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
+        List<Movie> movies = movieRepository.findRecommendations(id,
+                movie.getCategories().stream().map(Category::getId).collect(Collectors.toList()),
+                movie.getCountry(),
+                movie.getLanguage(),
+                movie.getType(),
+                PageRequest.of(0, 10));
+        return makeSuccessResponse(movieMapper.fromEntityToMovieDtoList(movies), "List movie success");
+    }
+
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<WatchHistoryDto>> history() {
+        List<WatchHistory> watchHistories = watchHistoryRepository.findLatestInProgressGroupedByMovie(getCurrentUser());
+        return makeSuccessResponse(watchHistoryMapper.fromEntityToWatchHistoryDetailsDtoList(watchHistories), "List movie success");
+    }
+
+    @GetMapping(value = "/top-views", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<MovieDto>>> topViews(MovieCriteria criteria, Pageable pageable) {
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
+
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+    }
+
+    @GetMapping(value = "/collection-filter/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('MOV_L')")
+    public ApiMessageDto<ResponseListDto<List<MovieDto>>> collectionFilter(@PathVariable("collectionId") Long collectionId, @RequestParam(value = "title", required = false) String title, Pageable pageable) {
+        MovieCriteria criteria = fromCollection(collectionId);
+        criteria.setCollectionId(collectionId);
+        if (title != null) {
+            criteria.setTitle(title);
+        }
+        Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
+
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+    }
+
+    private MovieCriteria fromCollection(Long collectionId) {
+        Collection collection = collectionRepository.findById(collectionId)
+                .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COLLECTION_ERROR_NOT_FOUND));
+        FilterMovieForm filter;
+        try {
+            filter = objectMapper.readValue(collection.getFilter(), FilterMovieForm.class);
+        } catch (Exception e) {
+            log.error("Failed to parse filter JSON for collectionId {}: {}", collectionId, collection.getFilter(), e);
+            filter = new FilterMovieForm();
+        }
+
+        return movieMapper.fromFilterMovieFromToMovieCriteria(filter);
     }
 }

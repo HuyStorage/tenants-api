@@ -9,6 +9,7 @@ import com.tenant.api.dto.video.VideoLibraryDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.video.CreateVideoLibraryForm;
+import com.tenant.api.form.video.ExternalVideoLibraryForm;
 import com.tenant.api.form.video.UpdateVideoLibraryForm;
 import com.tenant.api.mapper.VideoLibraryMapper;
 import com.tenant.api.service.rabbit.RabbitService;
@@ -17,6 +18,7 @@ import com.tenant.api.storage.tenant.model.VideoLibrary;
 import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.VideoLibraryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -66,23 +68,31 @@ public class VideoLibraryController extends ABasicController {
         }
 
         videoLibrary = videoLibraryMapper.fromCreateVideoLibraryFormToEntity(form);
-        videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
+
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL)) {
+            videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_READY);
+            updateExternalSource(videoLibrary, form);
+        } else {
+            videoLibrary.setState(BaseConstant.VIDEO_LIBRARY_STATE_PROCESSING);
+        }
         videoLibraryRepository.save(videoLibrary);
 
-        VideoLibraryDto data = new VideoLibraryDto();
-        data.setId(videoLibrary.getId());
-        data.setContent(videoLibrary.getContent());
-        rabbitService.handleSendMsg(
-                appName,
-                convertVideoQueue,
-                data,
-                BaseConstant.CMD_CONVERT_VIDEO,
-                null,
-                null,
-                null,
-                TenantDBContext.getCurrentTenant()
-        );
-
+        // send to CONVERT_MEDIA_QUEUE to convert video internal
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_INTERNAL)) {
+            VideoLibraryDto data = new VideoLibraryDto();
+            data.setId(videoLibrary.getId());
+            data.setContent(videoLibrary.getContent());
+            rabbitService.handleSendMsg(
+                    appName,
+                    convertVideoQueue,
+                    data,
+                    BaseConstant.CMD_CONVERT_VIDEO,
+                    null,
+                    null,
+                    null,
+                    TenantDBContext.getCurrentTenant()
+            );
+        }
         return makeSuccessResponse("Create videoLibrary success");
     }
 
@@ -103,6 +113,14 @@ public class VideoLibraryController extends ABasicController {
         return makeSuccessResponse(makeResponseListDto(videoLibraries, videoLibraryMapper::fromEntityToVideoLibraryDtoList), "List video library success");
     }
 
+    @GetMapping(value = "/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<VideoLibraryDto>>> autoComplete(VideoLibraryCriteria criteria, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdDate").descending());
+
+        Page<VideoLibrary> videoLibraries = videoLibraryRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(videoLibraries, videoLibraryMapper::fromEntityToVideoLibraryAutoCompleteDtoList), "List video library success");
+    }
+
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('VID_L_U')")
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateVideoLibraryForm form) {
@@ -114,6 +132,14 @@ public class VideoLibraryController extends ABasicController {
         }
 
         videoLibraryMapper.fromUpdateVideoLibraryFormToEntity(form, videoLibrary);
+
+        if (Objects.equals(videoLibrary.getSourceType(), BaseConstant.SOURCE_TYPE_EXTERNAL)) {
+            if (StringUtils.isNoneBlank(form.getContent())) {
+                videoLibrary.setContent(form.getContent());
+            }
+            updateExternalSource(videoLibrary, form);
+        }
+
         videoLibraryRepository.save(videoLibrary);
         return makeSuccessResponse("Update video library success");
     }
@@ -143,5 +169,25 @@ public class VideoLibraryController extends ABasicController {
 
         videoLibraryRepository.delete(videoLibrary);
         return makeSuccessResponse("Delete video library success");
+    }
+
+    private void updateExternalSource(VideoLibrary videoLibrary, ExternalVideoLibraryForm form) {
+        if (form.getDuration() != null) {
+            long endOfVideo = videoLibrary.getOutroStart() != null
+                    ? videoLibrary.getOutroStart()
+                    : videoLibrary.getIntroEnd() != null
+                    ? videoLibrary.getIntroEnd()
+                    : 0L;
+            if (form.getDuration() <= endOfVideo) {
+                throw new BadRequestException("[Video Library] duration invalid", ErrorCode.VIDEO_LIBRARY_ERROR_DURATION_INVALID);
+            }
+            videoLibrary.setDuration(form.getDuration());
+        }
+        if (form.getVttUrl() != null) {
+            videoLibrary.setVttUrl(form.getVttUrl());
+        }
+        if (form.getSpriteUrl() != null) {
+            videoLibrary.setSpriteUrl(form.getSpriteUrl());
+        }
     }
 }

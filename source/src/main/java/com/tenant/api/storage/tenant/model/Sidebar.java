@@ -9,9 +9,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = DatabaseConstant.PREFIX_TABLE + "side_bar")
@@ -25,11 +22,12 @@ public class Sidebar extends Auditable<String> {
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)
     private Long id;
 
+    @Column(columnDefinition = "text")
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_item_id")
-    private MovieItem movieItem;
+    @JoinColumn(name = "movie_id")
+    private Movie movie;
 
     @Column(name = "web_thumbnail_url")
     private String webThumbnailUrl;

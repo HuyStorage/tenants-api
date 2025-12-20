@@ -15,9 +15,9 @@ import java.util.Date;
 @Setter
 @ApiModel
 public class CreateSidebarForm {
-    @NotNull(message = "movieItemId cannot be null")
+    @NotNull(message = "movieId cannot be null")
     @ApiModelProperty(required = true)
-    private Long movieItemId;
+    private Long movieId;
 
     private String description;
 

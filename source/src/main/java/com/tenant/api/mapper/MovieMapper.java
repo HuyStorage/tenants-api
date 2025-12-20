@@ -2,7 +2,9 @@ package com.tenant.api.mapper;
 
 import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.form.movie.CreateMovieForm;
+import com.tenant.api.form.movie.FilterMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
+import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
 import org.mapstruct.*;
 
@@ -17,8 +19,8 @@ public interface MovieMapper {
     @Mapping(source = "originalTitle", target = "originalTitle")
     @Mapping(source = "slug", target = "slug")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @Mapping(source = "posterUrl", target = "posterUrl")
     @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "isFeatured", target = "isFeatured")
@@ -26,6 +28,9 @@ public interface MovieMapper {
     @Mapping(source = "country", target = "country")
     @Mapping(source = "ageRating", target = "ageRating")
     @Mapping(source = "viewCount", target = "viewCount")
+    @Mapping(source = "commentCount", target = "commentCount")
+    @Mapping(source = "reviewCount", target = "reviewCount")
+    @Mapping(source = "averageRating", target = "averageRating")
     @Mapping(source = "categories", target = "categories", qualifiedByName = "fromEntityToCategoryAutoCompleteDtoList")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
@@ -42,8 +47,17 @@ public interface MovieMapper {
     @Mapping(source = "originalTitle", target = "originalTitle")
     @Mapping(source = "slug", target = "slug")
     @Mapping(source = "type", target = "type")
-    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @Mapping(source = "posterUrl", target = "posterUrl")
     @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "isFeatured", target = "isFeatured")
+    @Mapping(source = "language", target = "language")
+    @Mapping(source = "country", target = "country")
+    @Mapping(source = "ageRating", target = "ageRating")
+    @Mapping(source = "viewCount", target = "viewCount")
+    @Mapping(source = "commentCount", target = "commentCount")
+    @Mapping(source = "reviewCount", target = "reviewCount")
+    @Mapping(source = "averageRating", target = "averageRating")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToMovieAutoCompleteDto")
     MovieDto entityToMovieAutoCompleteDto(Movie movie);
@@ -58,8 +72,8 @@ public interface MovieMapper {
     @Mapping(source = "language", target = "language")
     @Mapping(source = "country", target = "country")
     @Mapping(source = "ageRating", target = "ageRating")
-    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @Mapping(source = "posterUrl", target = "posterUrl")
     @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "categories", target = "categories", qualifiedByName = "fromEntityToCategoryAutoCompleteDtoList")
     @BeanMapping(ignoreByDefault = true)
@@ -69,8 +83,8 @@ public interface MovieMapper {
     @Mapping(source = "title", target = "title")
     @Mapping(source = "originalTitle", target = "originalTitle")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @Mapping(source = "posterUrl", target = "posterUrl")
     @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "isFeatured", target = "isFeatured")
@@ -84,8 +98,8 @@ public interface MovieMapper {
     @Mapping(source = "title", target = "title")
     @Mapping(source = "originalTitle", target = "originalTitle")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "posterUrl", target = "posterUrl", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @Mapping(source = "posterUrl", target = "posterUrl")
     @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "isFeatured", target = "isFeatured")
@@ -95,4 +109,13 @@ public interface MovieMapper {
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateMovieFormToEntity(UpdateMovieForm form, @MappingTarget Movie movie);
+
+    @Mapping(source = "type", target = "type")
+    @Mapping(source = "isFeatured", target = "isFeatured")
+    @Mapping(source = "language", target = "language")
+    @Mapping(source = "country", target = "country")
+    @Mapping(source = "ageRating", target = "ageRating")
+    @Mapping(source = "categoryIds", target = "categoryIds")
+    @BeanMapping(ignoreByDefault = true)
+    MovieCriteria fromFilterMovieFromToMovieCriteria(FilterMovieForm form);
 }

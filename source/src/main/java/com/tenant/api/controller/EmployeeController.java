@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
@@ -15,6 +16,7 @@ import com.tenant.api.form.employee.UpdateEmployeeForm;
 import com.tenant.api.form.employee.UpdateEmployeeProfileForm;
 import com.tenant.api.mapper.AccountMapper;
 import com.tenant.api.mapper.EmployeeMapper;
+import com.tenant.api.service.CommentService;
 import com.tenant.api.service.LoginService;
 import com.tenant.api.service.MediaService;
 import com.tenant.api.storage.tenant.criteria.EmployeeCriteria;
@@ -69,6 +71,9 @@ public class EmployeeController extends ABasicController {
 
     @Autowired
     private MediaService mediaService;
+
+    @Autowired
+    private CommentService commentService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -134,7 +139,7 @@ public class EmployeeController extends ABasicController {
     @Transactional("tenantTransactionManager")
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('EM_U')")
-    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateEmployeeForm form) {
+    public ApiMessageDto<Void> update(@Valid @RequestBody UpdateEmployeeForm form) throws JsonProcessingException {
         if (!isShop() && !isSuperAdmin()) {
             throw new UnauthorizationException("Not allowed get");
         }
@@ -143,13 +148,7 @@ public class EmployeeController extends ABasicController {
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
 
         // check password
-        if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
-            if (!passwordEncoder.matches(form.getOldPassword(), employee.getAccount().getPassword())) {
-                throw new BadRequestException("[Employee] Wrong password", ErrorCode.EMPLOYEE_ERROR_WRONG_PASSWORD);
-            }
-            if (form.getNewPassword().equals(form.getOldPassword())) {
-                throw new BadRequestException("[Employee] New password must be different from old password", ErrorCode.EMPLOYEE_ERROR_NEW_PASSWORD_SAME_OLD_PASSWORD);
-            }
+        if (StringUtils.isNoneBlank(form.getNewPassword())) {
             employee.getAccount().setPassword(passwordEncoder.encode(form.getNewPassword()));
         }
 
@@ -188,6 +187,8 @@ public class EmployeeController extends ABasicController {
 
         employeeMapper.fromUpdateEmployeeFormToEntity(form, employee);
         employeeRepository.save(employee);
+
+        commentService.updateInfo(accountMapper.entityToAuthorInfoDto(employee.getAccount()));
 
         return makeSuccessResponse("Update employee success");
     }
@@ -251,15 +252,15 @@ public class EmployeeController extends ABasicController {
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<EmployeeDto> profile() {
-        Employee employee = employeeRepository.findById(getCurrentUser())
+        Employee employee = employeeRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
         return makeSuccessResponse(employeeMapper.fromEntityToEmployeeDtoProfile(employee), "Get profile success");
     }
 
     @Transactional("tenantTransactionManager")
     @PutMapping(value = "/update-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Void> updateProfile(@Valid @RequestBody UpdateEmployeeProfileForm form) {
-        Employee employee = employeeRepository.findById(getCurrentUser())
+    public ApiMessageDto<Void> updateProfile(@Valid @RequestBody UpdateEmployeeProfileForm form) throws JsonProcessingException {
+        Employee employee = employeeRepository.findByIdAndStatus(getCurrentUser(), BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Employee] Not found", ErrorCode.EMPLOYEE_ERROR_NOT_FOUND));
 
         if (StringUtils.isNoneBlank(form.getNewPassword()) && StringUtils.isNoneBlank(form.getOldPassword())) {
@@ -290,6 +291,7 @@ public class EmployeeController extends ABasicController {
         accountMapper.fromUpdateEmployeeProfileFormToEntity(form, employee.getAccount());
         accountRepository.save(employee.getAccount());
 
+        commentService.updateInfo(accountMapper.entityToAuthorInfoDto(employee.getAccount()));
         return makeSuccessResponse("Update employee profile success");
     }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1764223763074-2">
+        <addColumn tableName="db_side_bar">
+            <column name="movie_id" type="bigint" afterColumn="description"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1764223763074-3">
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_side_bar" constraintName="FK1ptu97c2eu0vmb10u9kt4mohk" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1764223763074-4">
+        <dropForeignKeyConstraint baseTableName="db_side_bar" constraintName="FKelhyknqetn5q2jwxxanapcb3g"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1764223763074-5">
+        <dropColumn columnName="movie_item_id" tableName="db_side_bar"/>
+    </changeSet>
+</databaseChangeLog>

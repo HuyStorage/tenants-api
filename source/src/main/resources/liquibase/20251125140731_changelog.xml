@@ -1,0 +1,63 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1764079664552-2">
+        <createTable tableName="db_collection">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_collectionPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="color" type="VARCHAR(255)"/>
+            <column name="ordering" type="INT"/>
+            <column name="style" type="INT"/>
+            <column name="type" type="INT"/>
+            <column name="random_data" type="BIT"/>
+            <column name="filter" type="VARCHAR(255)"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1764079664552-3">
+        <createTable tableName="db_collection_item">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_collection_itemPK"/>
+            </column>
+            <column name="collection_id" type="BIGINT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="ordering" type="INT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1764079664552-4">
+        <addForeignKeyConstraint baseColumnNames="collection_id" baseTableName="db_collection_item" constraintName="FK7t4sc5vsxmrc0d1x9d3gru3c2" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_collection" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1764079664552-5">
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_collection_item" constraintName="FKncn6nee37mcvwjoo9ydt874m5" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

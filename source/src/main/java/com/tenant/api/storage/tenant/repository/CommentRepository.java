@@ -1,17 +1,20 @@
 package com.tenant.api.storage.tenant.repository;
 
+import com.tenant.api.dto.reaction.VoteDto;
 import com.tenant.api.storage.tenant.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
+import java.util.List;
 
+public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
     @Modifying
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Query("UPDATE Comment c SET c.totalChildren = c.totalChildren + 1 WHERE c.id = :id")
     void increaseTotalChild(@Param("id") Long id);
 
@@ -57,4 +60,23 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
     @Transactional
     @Query("DELETE FROM Comment c WHERE c.movieId = :movieId")
     void deleteByMovieId(@Param("movieId") Long movieId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c SET c.status = :status WHERE c.parent.id = :parentId")
+    void updateStatusByParentId(@Param("parentId") Long parentId, @Param("status") Integer status);
+
+    @Query("SELECT new com.tenant.api.dto.reaction.VoteDto(c.id, r.type) " +
+            "FROM Comment c " +
+            "JOIN Reaction r ON c.id = r.commentId " +
+            "WHERE c.movieId = :movieId AND r.userId = :userId")
+    List<VoteDto> findVotesByMovieIdAndUserId(@Param("movieId") Long movieId, @Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Comment c " +
+            "SET c.authorInfo = CASE WHEN c.authorId = :id THEN :info ELSE c.authorInfo END, " +
+            "    c.replyToInfo = CASE WHEN c.replyToId = :id THEN :info ELSE c.replyToInfo END " +
+            "WHERE c.authorId = :id OR c.replyToId = :id")
+    void updateCommentInfoByAuthorOrReply(@Param("id") Long id, @Param("info") String info);
 }

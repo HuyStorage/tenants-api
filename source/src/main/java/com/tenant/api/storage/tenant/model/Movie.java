@@ -65,4 +65,13 @@ public class Movie extends Auditable<String> {
 
     @Column(name = "view_count")
     private Long viewCount = 0L;
+
+    @Column(name = "comment_count")
+    private Long commentCount = 0L;
+
+    @Column(name = "review_count")
+    private Long reviewCount = 0L;
+
+    @Column(name = "average_rating")
+    private Double averageRating = 0.0;
 }

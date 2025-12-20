@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ApiModel
-public class UpdateVideoLibraryForm {
+public class UpdateVideoLibraryForm extends ExternalVideoLibraryForm {
     @NotNull(message = "id cannot be null")
     @ApiModelProperty(required = true)
     private Long id;
@@ -22,6 +22,8 @@ public class UpdateVideoLibraryForm {
     private String name;
 
     private String shortDescription;
+
+    private String content;
 
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)

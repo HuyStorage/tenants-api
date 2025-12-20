@@ -1,0 +1,18 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1765004877200-1">
+        <addColumn tableName="db_movie">
+            <column name="comment_count" type="bigint" afterColumn="view_count"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1765004877200-2">
+        <addColumn tableName="db_movie">
+            <column name="review_count" type="bigint" afterColumn="comment_count"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1765004877200-3">
+        <addColumn tableName="db_movie">
+            <column name="average_rating" type="double precision" afterColumn="review_count"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

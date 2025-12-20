@@ -28,5 +28,8 @@ public class MovieDto extends ABasicAdminDto {
     private Integer ageRating;
     private List<CategoryDto> categories;
     private Long viewCount;
+    private Long commentCount;
+    private Long reviewCount;
+    private Double averageRating;
     private List<MovieItemDto> seasons;
 }

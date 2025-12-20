@@ -106,10 +106,11 @@ public class UserServiceImpl {
 
     public String getToken() {
         long nowMillis = System.currentTimeMillis();
-        long oneDayMillis = 24 * 60 * 60 * 1000L;
+//        long oneDayMillis = 24 * 60 * 60 * 1000L;
+        long oneHourMillis = 60 * 60 * 1000L; // 1 hour
 
         // refresh token
-        if (AUTH_SERVER_TOKEN_EXPIRES.getTime() <= nowMillis + oneDayMillis) {
+        if (AUTH_SERVER_TOKEN_EXPIRES.getTime() <= nowMillis + oneHourMillis) {
             MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
             request.add("grant_type", "refresh_token");
             request.add("refresh_token", AUTH_SERVER_REFRESH_TOKEN);

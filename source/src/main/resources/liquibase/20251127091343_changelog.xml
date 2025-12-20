@@ -1,0 +1,66 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1764234834142-1">
+        <createTable tableName="db_playlist">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_playlistPK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="total_movie" type="INT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1764234834142-2">
+        <createTable tableName="db_playlist_item">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_playlist_itemPK"/>
+            </column>
+            <column name="playlist_id" type="BIGINT"/>
+            <column name="movie_id" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tenant" id="1764234834142-3">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="db_playlist" constraintName="FK38qrvvtntxg2n4syhsyg4yd3m" deferrable="false" initiallyDeferred="false" referencedColumnNames="account_id" referencedTableName="db_user" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1764234834142-4">
+        <addForeignKeyConstraint baseColumnNames="playlist_id" baseTableName="db_playlist_item" constraintName="FK4truhw4enu39jj8gkathv5x8f" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_playlist" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1764234834142-5">
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="db_playlist_item" constraintName="FK8n1gve3ujnj5gwv1ksk5k9ayw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_movie" validate="true"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1764672419493-1">
+        <addColumn tableName="db_comment">
+            <column name="author_info" type="TEXT" afterColumn="account_id"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
