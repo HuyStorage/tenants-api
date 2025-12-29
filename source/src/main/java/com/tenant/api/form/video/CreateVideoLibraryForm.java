@@ -17,8 +17,6 @@ public class CreateVideoLibraryForm extends ExternalVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String name;
 
-    private String shortDescription;
-
     @NotBlank(message = "description cannot be empty")
     @ApiModelProperty(required = true)
     private String description;

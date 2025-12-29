@@ -39,10 +39,6 @@ public class CreateMovieItemForm {
 
     private Long videoId; // can be null
 
-    @NotNull(message = "ordering cannot be null")
-    @ApiModelProperty(required = true)
-    private Long ordering;
-
     @StatusConstraint
     @ApiModelProperty(required = true)
     private Integer status;

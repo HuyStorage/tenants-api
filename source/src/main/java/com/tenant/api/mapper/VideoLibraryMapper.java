@@ -12,10 +12,8 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface VideoLibraryMapper {
-
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "shortDescription", target = "shortDescription")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "sourceType", target = "sourceType")
     @Mapping(source = "content", target = "content")
@@ -67,7 +65,6 @@ public interface VideoLibraryMapper {
     List<VideoLibraryDto> fromEntityToVideoLibraryShortDtoList(List<VideoLibrary> videoLibraries);
 
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "shortDescription", target = "shortDescription")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "sourceType", target = "sourceType")
     @Mapping(source = "content", target = "content")
@@ -80,7 +77,6 @@ public interface VideoLibraryMapper {
     VideoLibrary fromCreateVideoLibraryFormToEntity(CreateVideoLibraryForm form);
 
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "shortDescription", target = "shortDescription")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "introStart", target = "introStart")

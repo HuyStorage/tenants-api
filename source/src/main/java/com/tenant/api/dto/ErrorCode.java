@@ -157,6 +157,7 @@ public class ErrorCode {
      */
     public static final String COLLECTION_ITEM_ERROR_NOT_FOUND = "ERROR-COLLECTION-ITEM-0000";
     public static final String COLLECTION_ITEM_ERROR_MOVIE_EXISTED = "ERROR-COLLECTION-ITEM-0001";
+    public static final String COLLECTION_ITEM_ERROR_MAX_ITEM = "ERROR-COLLECTION-ITEM-0002";
 
     /**
      * Style error code

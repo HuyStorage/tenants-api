@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
@@ -9,6 +10,7 @@ import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.collectionItem.CreateCollectionItemForm;
+import com.tenant.api.form.movie.FilterMovieForm;
 import com.tenant.api.mapper.CollectionItemMapper;
 import com.tenant.api.storage.tenant.criteria.CollectionItemCriteria;
 import com.tenant.api.storage.tenant.model.Collection;
@@ -49,6 +51,9 @@ public class CollectionItemController extends ABasicController {
     @Autowired
     private CollectionItemMapper collectionItemMapper;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('COL_I_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateCollectionItemForm form) {
@@ -60,6 +65,20 @@ public class CollectionItemController extends ABasicController {
 
         if (collectionItemRepository.existsByCollectionIdAndMovieId(collection.getId(), movie.getId())) {
             throw new BadRequestException("[Collection Item] Movie already exists in this collection", ErrorCode.COLLECTION_ITEM_ERROR_MOVIE_EXISTED);
+        }
+
+        FilterMovieForm filter;
+        try {
+            filter = objectMapper.readValue(collection.getFilter(), FilterMovieForm.class);
+        } catch (Exception e) {
+            log.error("Failed to parse filter JSON for collectionId {}: {}", collection.getId(), collection.getFilter(), e);
+            filter = null;
+        }
+
+        if (filter != null && filter.getLimit() != null) {
+            if (filter.getLimit() == collectionItemRepository.countByCollectionId(collection.getId())) {
+                throw new BadRequestException("[Collection Item] maximum item in collection", ErrorCode.COLLECTION_ITEM_ERROR_MAX_ITEM);
+            }
         }
 
         CollectionItem collectionItem = new CollectionItem();

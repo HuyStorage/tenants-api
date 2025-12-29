@@ -21,8 +21,6 @@ public class UpdateVideoLibraryForm extends ExternalVideoLibraryForm {
     @ApiModelProperty(required = true)
     private String name;
 
-    private String shortDescription;
-
     private String content;
 
     @NotBlank(message = "description cannot be empty")

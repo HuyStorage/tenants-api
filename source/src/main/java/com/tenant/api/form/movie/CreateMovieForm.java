@@ -17,7 +17,6 @@ import java.util.List;
 @Setter
 @ApiModel
 public class CreateMovieForm {
-
     @NotBlank(message = "title cannot be empty")
     @ApiModelProperty(required = true)
     private String title;

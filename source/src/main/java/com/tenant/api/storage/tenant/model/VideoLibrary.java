@@ -24,9 +24,6 @@ public class VideoLibrary extends Auditable<String> {
 
     private String name;
 
-    @Column(columnDefinition = "TEXT", name = "short_description")
-    private String shortDescription;
-
     @Column(columnDefinition = "TEXT")
     private String description;
 

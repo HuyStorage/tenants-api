@@ -77,27 +77,35 @@ public class MovieItemController extends ABasicController {
         MovieItem parent = null;
         VideoLibrary video = null;
 
-        boolean isRequiredVideo = false;
-        if (Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
-            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
-                isRequiredVideo = true;
-            }
-        } else {
+        if (Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE) && Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
+            throw new BadRequestException("[Movie Item] cannot create episode for movie type season", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
+        }
+
+        // if episode or trailer -> required parent
+        if (!Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
             if (form.getParentId() == null) {
                 throw new BadRequestException("[Movie Item] Parent is required", ErrorCode.MOVIE_ITEM_ERROR_PARENT_REQUIRED);
             }
             parent = movieItemRepository.findById(form.getParentId())
                     .orElseThrow(() -> new NotFoundException("[Movie Item] Parent not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
+
+            // cannot create trailer for episode
+            if (form.getKind().equals(BaseConstant.MOVIE_ITEM_KIND_TRAILER) && Objects.equals(parent.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
+                throw new BadRequestException("[Movie Item] cannot create trailer for episode", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
+            }
+
+            // cannot create episode for episode
+            if (form.getKind().equals(BaseConstant.MOVIE_ITEM_KIND_EPISODE) && Objects.equals(parent.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
+                throw new BadRequestException("[Movie Item] cannot create episode for episode", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
+            }
+
+            // if create episode -> increase total episode for this parent
             if (form.getKind().equals(BaseConstant.MOVIE_ITEM_KIND_EPISODE) && Objects.equals(parent.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
                 movieItemRepository.increaseTotalEpisode(parent.getId());
             }
-            isRequiredVideo = true;
         }
 
-        if (isRequiredVideo && form.getVideoId() != null) {
-//            if (form.getVideoId() == null) {
-//                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
-//            }
+        if (form.getVideoId() != null) {
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
@@ -106,6 +114,9 @@ public class MovieItemController extends ABasicController {
         movieItem.setParent(parent);
         movieItem.setVideo(video);
         movieItem.setMovie(movie);
+        int ordering = movieItemRepository.findMaxOrdering(movie.getId(), form.getKind(), form.getParentId())
+                .map(o -> o + 1).orElse(0);
+        movieItem.setOrdering(ordering);
 
         movieItemRepository.save(movieItem);
 
@@ -207,7 +218,7 @@ public class MovieItemController extends ABasicController {
         List<Long> movieItemIds = new ArrayList<>();
         movieItemIds.add(id);
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
-            movieItemIds.addAll(movieItemRepository.findAllByParentIdAndKindNot(id, BaseConstant.MOVIE_ITEM_KIND_TRAILER));
+            movieItemIds.addAll(movieItemRepository.findIdByParentIdAndKindNot(id, BaseConstant.MOVIE_ITEM_KIND_TRAILER));
         }
         watchHistoryRepository.deleteByMovieItemIds(movieItemIds);
 
@@ -239,7 +250,6 @@ public class MovieItemController extends ABasicController {
         for (UpdateOrderingForm f : form) {
             MovieItem movieItem = itemMap.get(f.getId());
             movieItem.setOrdering(f.getOrdering());
-            movieItem.setParent(f.getParentId() != null ? itemMap.get(f.getParentId()) : null);
         }
 
         movieItemRepository.saveAll(itemMap.values());

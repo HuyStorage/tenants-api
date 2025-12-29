@@ -22,4 +22,6 @@ public interface CollectionItemRepository extends JpaRepository<CollectionItem, 
     void deleteByMovieId(@Param("movieId") Long movieId);
 
     boolean existsByCollectionIdAndMovieId(Long collectionId, Long movieId);
+
+    int countByCollectionId(Long collectionId);
 }

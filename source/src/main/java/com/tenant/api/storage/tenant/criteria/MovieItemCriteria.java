@@ -17,6 +17,7 @@ public class MovieItemCriteria {
     private Long id;
     private String title;
     private Integer kind;
+    private Integer excludeKind;
     private Integer status;
     private Long movieId;
     private Long parentId;
@@ -42,6 +43,10 @@ public class MovieItemCriteria {
 
                 if (getKind() != null) {
                     predicates.add(cb.equal(root.get("kind"), getKind()));
+                }
+
+                if (getExcludeKind() != null) {
+                    predicates.add(cb.notEqual(root.get("kind"), getExcludeKind()));
                 }
 
                 if (getMovieId() != null) {

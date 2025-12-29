@@ -58,5 +58,15 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
 
     Long countByMovieIdAndKind(Long movieId, Integer kind);
 
-    List<Long> findAllByParentIdAndKindNot(Long parentId, Integer kind);
+    @Query("SELECT mi.id FROM MovieItem mi WHERE mi.parent.id = :parentId AND mi.kind != :kind")
+    List<Long> findIdByParentIdAndKindNot(@Param("parentId") Long parentId, @Param("kind") Integer kind);
+
+    @Query("SELECT MAX(mi.ordering) " +
+            "FROM MovieItem mi " +
+            "WHERE mi.movie.id = :movieId " +
+            "AND (" +
+            "   (:kind = 1 AND mi.parent IS NULL) " +
+            "   OR (:kind != 1 AND mi.parent.id = :parentId)" +
+            ")")
+    Optional<Integer> findMaxOrdering(@Param("movieId") Long movieId, @Param("kind") Integer kind, @Param("parentId") Long parentId);
 }

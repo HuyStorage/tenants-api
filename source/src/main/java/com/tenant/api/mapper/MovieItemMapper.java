@@ -91,7 +91,6 @@ public interface MovieItemMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "kind", target = "kind")
     @Mapping(source = "label", target = "label")
-    @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "releaseDate", target = "releaseDate")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
     @Mapping(source = "status", target = "status")
