@@ -18,8 +18,4 @@ public class CreateCollectionItemForm {
     @NotNull(message = "movieId cannot be empty")
     @ApiModelProperty(required = true)
     private Long movieId;
-
-    @NotNull(message = "ordering cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordering;
 }

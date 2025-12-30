@@ -34,7 +34,6 @@ public interface CollectionMapper {
     List<CollectionDto> entityToCollectionDtoList(List<Collection> collections);
 
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "ordering", target = "ordering")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "randomData", target = "randomData")
     @Mapping(source = "filter", target = "filter")

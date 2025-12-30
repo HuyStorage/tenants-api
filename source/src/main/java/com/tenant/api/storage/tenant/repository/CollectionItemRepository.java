@@ -24,4 +24,7 @@ public interface CollectionItemRepository extends JpaRepository<CollectionItem, 
     boolean existsByCollectionIdAndMovieId(Long collectionId, Long movieId);
 
     int countByCollectionId(Long collectionId);
+
+    @Query("SELECT MAX(ci.ordering) FROM CollectionItem ci WHERE ci.collection.id = :collectionId")
+    Optional<Integer> findMaxOrdering(@Param("collectionId") Long collectionId);
 }

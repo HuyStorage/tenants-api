@@ -73,6 +73,9 @@ public class MoviePersonController extends ABasicController {
                         : null
         );
 
+        int ordering = moviePersonRepository.findMaxOrdering(movie.getId(), form.getKind()).map(o -> o + 1).orElse(0);
+        moviePerson.setOrdering(ordering);
+
         moviePersonRepository.save(moviePerson);
         return makeSuccessResponse("Create movie person successfully");
     }

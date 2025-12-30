@@ -36,7 +36,6 @@ public interface MoviePersonMapper {
     List<MoviePersonDto> fromEntityToMoviePersonDtoList(List<MoviePerson> moviePersons);
 
     @Mapping(source = "kind", target = "kind")
-    @Mapping(source = "ordering", target = "ordering")
     @BeanMapping(ignoreByDefault = true)
     MoviePerson fromCreateMoviePersonFormToEntity(CreateMoviePersonForm form);
 

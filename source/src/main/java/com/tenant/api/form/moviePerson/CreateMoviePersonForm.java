@@ -27,8 +27,4 @@ public class CreateMoviePersonForm {
     @PersonKindConstraint
     @ApiModelProperty(required = true)
     private Integer kind; // 1: Director, 2: Actor
-
-    @NotNull(message = "ordering cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordering;
 }

@@ -84,7 +84,8 @@ public class CollectionItemController extends ABasicController {
         CollectionItem collectionItem = new CollectionItem();
         collectionItem.setMovie(movie);
         collectionItem.setCollection(collection);
-        collectionItem.setOrdering(form.getOrdering());
+        int ordering = collectionItemRepository.findMaxOrdering(collection.getId()).map(o -> o + 1).orElse(0);
+        collectionItem.setOrdering(ordering);
         collectionItemRepository.save(collectionItem);
         return makeSuccessResponse("Create collection item success");
     }

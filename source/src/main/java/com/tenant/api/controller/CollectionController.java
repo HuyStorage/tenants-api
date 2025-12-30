@@ -69,6 +69,8 @@ public class CollectionController extends ABasicController {
             collection.setStyle(style);
         }
         collection.setColor(objectMapper.writeValueAsString(form.getColors()));
+        int ordering = collectionRepository.findMaxOrdering(form.getType()).map(o -> o + 1).orElse(0);
+        collection.setOrdering(ordering);
         collectionRepository.save(collection);
         return makeSuccessResponse("Create collection success");
     }

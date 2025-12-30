@@ -30,10 +30,6 @@ public class CreateCollectionForm {
     @Valid
     private List<@ColorConstraint String> colors;
 
-    @NotNull(message = "ordering cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordering;
-
     private Long styleId;
 
     @CollectionTypeConstraint
