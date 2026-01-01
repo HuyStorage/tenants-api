@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -21,40 +20,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/configuration/**",
             "/swagger-ui.html",
             "/webjars/**",
-
-            // LOGIN
-            "/v1/employee/login",
-            "/v1/user/login",
-            "/v1/user/register",
-            "/v1/user/verify-otp",
-            "/v1/user/resend-otp",
-            "/v1/user/request-forgot-password",
-            "/v1/user/forgot-password",
-            "/v1/user/auth/social-login",
-            "/v1/user/auth/web-callback",
-            "/v1/user/auth/mobile-callback",
-
-            // Public GET APIs
-            "/v1/category/get/**",
-            "/v1/category/list",
-            "/v1/movie/get/**",
-            "/v1/movie/list",
-            "/v1/movie/recommendations/**",
-            "/v1/movie-item/get/**",
-            "/v1/movie-item/list",
-            "/v1/movie-person/list",
-            "/v1/person/get/**",
-            "/v1/person/list",
-            "/v1/person/auto-complete",
-            "/v1/sidebar/get/**",
-            "/v1/sidebar/list",
-            "/v1/comment/list",
-            "/v1/review/list",
-            "/v1/review/get",
-            "/v1/app-version/check-version/**",
-            "/v1/collection/list",
-            "/v1/collection/topics",
-            "/v1/collection-item/list"
     };
 
     @Override

@@ -1,25 +1,25 @@
 package com.tenant.api.service.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class RedisService {
-    public static final int TTL = 7200; // 2 hours
+    public static final int TTL = 300; // 5 minutes
 
     @Autowired
-    @Qualifier("customRedisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -27,53 +27,80 @@ public class RedisService {
         return String.join("::", parts);
     }
 
-    public <T> void put(String key, T value, String... ignoreFields) {
-        putInternal(key, value, TTL, ignoreFields);
+    public <T> void put(String key, T value) {
+        handlePut(key, value, TTL);
     }
 
-    public <T> void put(String key, T value, Integer ttl, String... ignoreFields) {
-        putInternal(key, value, ttl, ignoreFields);
+    public <T> void put(String key, T value, Integer ttl) {
+        handlePut(key, value, ttl);
     }
 
-    private <T> void putInternal(String key, T value, int ttl, String... ignoreFields) {
-        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
-            redisTemplate.opsForValue().set(key, String.valueOf(value), ttl, TimeUnit.SECONDS);
-            return;
+    /**
+     * Save object to Redis - Always save type JSON
+     */
+    private <T> void handlePut(String key, T value, Integer ttl) {
+        try {
+            if (value == null) {
+                log.warn("Attempting to save null value for key: {}", key);
+                return;
+            }
+
+            String jsonValue = objectMapper.writeValueAsString(value);
+            redisTemplate.opsForValue().set(key, jsonValue, ttl, TimeUnit.SECONDS);
+
+            log.debug("Saved to Redis - Key: {}, Type: {}, TTL: {}s",
+                    key, value.getClass().getSimpleName(), ttl);
+
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing object to JSON for key: {}", key, e);
+            throw new RuntimeException("Failed to serialize object to Redis", e);
         }
-
-        Map<String, Object> valueMap = objectMapper.convertValue(value, new TypeReference<>() {});
-
-        for (String field : ignoreFields) {
-            valueMap.remove(field);
-        }
-
-        Map<String, Object> stringKeyMap = new HashMap<>();
-        for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
-            stringKeyMap.put(entry.getKey(), entry.getValue());
-        }
-
-        redisTemplate.opsForHash().putAll(key, stringKeyMap);
-        redisTemplate.expire(key, ttl, TimeUnit.SECONDS);
     }
 
+    /**
+     * Get object from Redis with Class
+     * deserialize JSON
+     */
     public <T> T get(String key, Class<T> clazz) {
-        if (clazz == String.class || clazz == Integer.class || clazz == Long.class || clazz == Boolean.class) {
-            Object raw = redisTemplate.opsForValue().get(key);
-            if (raw == null) return null;
-            return clazz.cast(raw);
-        }
+        try {
+            String jsonValue = (String) redisTemplate.opsForValue().get(key);
 
-        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
-        if (map.isEmpty()) {
-            return null;
-        }
+            if (jsonValue == null) {
+                log.debug("Key not found in Redis: {}", key);
+                return null;
+            }
 
-        Map<String, Object> stringKeyMap = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : map.entrySet()) {
-            stringKeyMap.put(String.valueOf(entry.getKey()), entry.getValue());
-        }
+            // Deserialize JSON to object
+            T result = objectMapper.readValue(jsonValue, clazz);
+            log.debug("Retrieved from Redis - Key: {}, Type: {}", key, clazz.getSimpleName());
+            return result;
 
-        return objectMapper.convertValue(stringKeyMap, clazz);
+        } catch (JsonProcessingException e) {
+            log.error("Error deserializing JSON for key: {}", key, e);
+            throw new RuntimeException("Failed to deserialize object from Redis", e);
+        }
+    }
+
+    /**
+     * Get object from Redis with TypeReference (for List, Map, etc.)
+     */
+    public <T> T get(String key, TypeReference<T> typeReference) {
+        try {
+            String jsonValue = (String) redisTemplate.opsForValue().get(key);
+
+            if (jsonValue == null) {
+                log.debug("⚠️ Key not found in Redis: {}", key);
+                return null;
+            }
+
+            T result = objectMapper.readValue(jsonValue, typeReference);
+            log.debug("Retrieved from Redis - Key: {}", key);
+            return result;
+
+        } catch (JsonProcessingException e) {
+            log.error("Error deserializing JSON for key: {}", key, e);
+            throw new RuntimeException("Failed to deserialize object from Redis", e);
+        }
     }
 
     public Set<String> getKeysByPrefix(String prefix) {
@@ -82,10 +109,12 @@ public class RedisService {
 
     public void delete(String key) {
         redisTemplate.delete(key);
+        log.debug("========> key {}", key);
     }
 
     public void deleteKeys(Collection<String> keys) {
         redisTemplate.delete(keys);
+        log.debug("========> keys {}", keys);
     }
 
     public void deleteByPrefix(String prefix) {
