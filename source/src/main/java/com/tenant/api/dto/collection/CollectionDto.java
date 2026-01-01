@@ -20,7 +20,6 @@ public class CollectionDto extends ABasicAdminDto {
     private Integer styleType;
     private StyleDto style;
     private Integer type;
-    private Boolean randomData;
     private String filter;
     private List<CollectionItemDto> collectionItems;
     private List<MovieDto> movies;

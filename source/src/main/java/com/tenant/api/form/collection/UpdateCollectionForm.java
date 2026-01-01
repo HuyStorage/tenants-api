@@ -41,10 +41,6 @@ public class UpdateCollectionForm {
     @ApiModelProperty(required = true)
     private Integer type;
 
-    @NotNull(message = "randomData cannot be null")
-    @ApiModelProperty(required = true)
-    private Boolean randomData;
-
     @ApiModelProperty(required = true, example = BaseConstant.FILTER_MOVIE_SAMPLE_DATA)
     @ValidJsonField(classType = FilterMovieForm.class)
     private String filter;

@@ -13,6 +13,7 @@ import com.tenant.api.form.UpdateOrderingForm;
 import com.tenant.api.form.collection.CreateCollectionForm;
 import com.tenant.api.form.collection.UpdateCollectionForm;
 import com.tenant.api.mapper.CollectionMapper;
+import com.tenant.api.service.CollectionService;
 import com.tenant.api.storage.tenant.criteria.CollectionCriteria;
 import com.tenant.api.storage.tenant.model.Collection;
 import com.tenant.api.storage.tenant.model.Style;
@@ -55,6 +56,9 @@ public class CollectionController extends ABasicController {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private CollectionService collectionService;
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('COL_C')")
     public ApiMessageDto<Void> create(@Valid @RequestBody CreateCollectionForm form) throws JsonProcessingException {
@@ -72,6 +76,11 @@ public class CollectionController extends ABasicController {
         int ordering = collectionRepository.findMaxOrdering(form.getType()).map(o -> o + 1).orElse(0);
         collection.setOrdering(ordering);
         collectionRepository.save(collection);
+
+        if (Boolean.TRUE.equals(form.getFillData())) {
+            collectionService.fillDataForCollection(collection);
+        }
+
         return makeSuccessResponse("Create collection success");
     }
 

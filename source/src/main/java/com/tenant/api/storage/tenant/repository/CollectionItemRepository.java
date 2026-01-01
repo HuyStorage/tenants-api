@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CollectionItemRepository extends JpaRepository<CollectionItem, Long>, JpaSpecificationExecutor<CollectionItem> {
@@ -27,4 +28,7 @@ public interface CollectionItemRepository extends JpaRepository<CollectionItem, 
 
     @Query("SELECT MAX(ci.ordering) FROM CollectionItem ci WHERE ci.collection.id = :collectionId")
     Optional<Integer> findMaxOrdering(@Param("collectionId") Long collectionId);
+
+    @Query("select ci.id from CollectionItem ci where ci.collection.id = :collectionId")
+    List<Long> findMovieIdByCollectionId(@Param("collectionId") Long collectionId);
 }

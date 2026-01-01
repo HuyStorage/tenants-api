@@ -3,4 +3,7 @@
     <changeSet author="Tenant" id="1767001410545-1">
         <dropColumn columnName="short_description" tableName="db_video_library"/>
     </changeSet>
+    <changeSet author="Tenant" id="1767248459835-1">
+        <dropColumn columnName="random_data" tableName="db_collection"/>
+    </changeSet>
 </databaseChangeLog>

@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -21,6 +22,8 @@ public class MovieItemCriteria {
     private Integer status;
     private Long movieId;
     private Long parentId;
+    private Date fromDate;
+    private Date toDate;
 
     public Specification<MovieItem> getSpecification() {
         return new Specification<MovieItem>() {
@@ -55,6 +58,14 @@ public class MovieItemCriteria {
 
                 if (getParentId() != null) {
                     predicates.add(cb.equal(root.get("parent").get("id"), getParentId()));
+                }
+
+                if (getFromDate() != null && getToDate() != null) {
+                    predicates.add(cb.between(root.get("createdDate"), getFromDate(), getToDate()));
+                } else if (getCreatedDateFrom() != null) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("createdDate"), getFromDate()));
+                } else if (getCreatedDateTo() != null) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("createdDate"), getToDate()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

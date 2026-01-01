@@ -35,8 +35,6 @@ public class Collection extends Auditable<String> {
 
     private Integer type;
 
-    private Boolean randomData = false;
-
     private String filter;
 
     @OneToMany(mappedBy = "collection", fetch = FetchType.LAZY)

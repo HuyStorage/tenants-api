@@ -1,6 +1,5 @@
 package com.tenant.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
@@ -11,12 +10,12 @@ import com.tenant.api.dto.movieItem.MovieItemDto;
 import com.tenant.api.dto.watchHistory.WatchHistoryDto;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
-import com.tenant.api.form.movie.FilterMovieForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.mapper.WatchHistoryMapper;
 import com.tenant.api.service.MediaService;
+import com.tenant.api.service.MovieService;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Collection;
@@ -89,13 +88,13 @@ public class MovieController extends ABasicController {
     private SidebarRepository sidebarRepository;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     private PlaylistRepository playlistRepository;
 
     @Autowired
     private PlaylistItemRepository playlistItemRepository;
+
+    @Autowired
+    private MovieService movieService;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -107,6 +106,7 @@ public class MovieController extends ABasicController {
             movie.setCategories(categories);
         }
 
+        movie.setSlug(StringUtils.slugify(form.getTitle()));
         movieRepository.save(movie);
         return makeSuccessResponse("Create movie success");
     }
@@ -244,6 +244,7 @@ public class MovieController extends ABasicController {
         movieMapper.fromUpdateMovieFormToEntity(form, movie);
         movieRepository.save(movie);
 
+        log.debug("========> start remove movieId {}", movie.getId());
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movie.getId().toString()));
         return makeSuccessResponse("Update movie success");
     }
@@ -304,11 +305,11 @@ public class MovieController extends ABasicController {
         return makeSuccessResponse("Delete movie success");
     }
 
-    @GetMapping(value = "/recommendations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<List<MovieDto>> recommendations(@PathVariable("id") Long id) {
+    @GetMapping(value = "/suggestion/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<MovieDto>> suggestion(@PathVariable("id") Long id) {
         Movie movie = movieRepository.findByIdAndStatus(id, BaseConstant.STATUS_ACTIVE)
                 .orElseThrow(() -> new NotFoundException("[Movie] Not found", ErrorCode.MOVIE_ERROR_NOT_FOUND));
-        List<Movie> movies = movieRepository.findRecommendations(id,
+        List<Movie> movies = movieRepository.findSuggestion(id,
                 movie.getCategories().stream().map(Category::getId).collect(Collectors.toList()),
                 movie.getCountry(),
                 movie.getLanguage(),
@@ -334,27 +335,14 @@ public class MovieController extends ABasicController {
     @GetMapping(value = "/collection-filter/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_L')")
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> collectionFilter(@PathVariable("collectionId") Long collectionId, @RequestParam(value = "title", required = false) String title, Pageable pageable) {
-        MovieCriteria criteria = fromCollection(collectionId);
+        Collection collection = collectionRepository.findById(collectionId)
+                .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COLLECTION_ERROR_NOT_FOUND));
+        MovieCriteria criteria = movieMapper.fromFilterMovieFromToMovieCriteria(movieService.parseFilterMovie(collection.getFilter()));
         criteria.setCollectionId(collectionId);
         if (title != null) {
             criteria.setTitle(title);
         }
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
-
         return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
-    }
-
-    private MovieCriteria fromCollection(Long collectionId) {
-        Collection collection = collectionRepository.findById(collectionId)
-                .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COLLECTION_ERROR_NOT_FOUND));
-        FilterMovieForm filter;
-        try {
-            filter = objectMapper.readValue(collection.getFilter(), FilterMovieForm.class);
-        } catch (Exception e) {
-            log.error("Failed to parse filter JSON for collectionId {}: {}", collectionId, collection.getFilter(), e);
-            filter = new FilterMovieForm();
-        }
-
-        return movieMapper.fromFilterMovieFromToMovieCriteria(filter);
     }
 }

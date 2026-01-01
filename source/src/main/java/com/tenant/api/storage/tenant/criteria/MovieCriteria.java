@@ -26,6 +26,7 @@ public class MovieCriteria {
     private Long collectionId;
     private Integer releaseYear;
     private String keyword;
+    private List<Long> excludeIds;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -37,6 +38,10 @@ public class MovieCriteria {
                 query.distinct(true);
                 if (getId() != null) {
                     predicates.add(cb.equal(root.get("id"), getId()));
+                }
+
+                if (getExcludeIds() != null && !getExcludeIds().isEmpty()) {
+                    predicates.add(cb.not(root.get("id").in(getExcludeIds())));
                 }
 
                 if (getStatus() != null) {

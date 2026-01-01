@@ -1,17 +1,24 @@
 package com.tenant.api.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.dto.review.ReviewStatisticsDto;
 import com.tenant.api.exception.NotFoundException;
+import com.tenant.api.form.movie.FilterMovieForm;
+import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.service.redis.RedisService;
+import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
 import com.tenant.api.storage.tenant.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -21,7 +28,13 @@ public class MovieService {
     private MovieRepository movieRepository;
 
     @Autowired
+    private MovieMapper movieMapper;
+
+    @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * Calculate reviewCount và averageRating for Movie.
@@ -101,5 +114,28 @@ public class MovieService {
             redisService.put(key, movieDto, 5 * 60);
             log.debug("Updated movie commentCount cache for movieId {}", movie.getId());
         }
+    }
+
+    public FilterMovieForm parseFilterMovie(String filterString) {
+        FilterMovieForm filter;
+        try {
+            filter = objectMapper.readValue(filterString, FilterMovieForm.class);
+        } catch (Exception e) {
+            log.error("Failed to parse filter JSON for collection: {}", filterString, e);
+            filter = new FilterMovieForm();
+        }
+        return filter;
+    }
+
+    public List<Movie> getMovieForCollection(String filterString, List<Long> existedMovieIds) {
+        FilterMovieForm filter = parseFilterMovie(filterString);
+        MovieCriteria criteria = movieMapper.fromFilterMovieFromToMovieCriteria(filter);
+        criteria.setExcludeIds(existedMovieIds);
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+
+        int limit = filter.getLimit() == null ? 10 : filter.getLimit();
+        Pageable pageable = PageRequest.of(0, limit);
+
+        return movieRepository.findAll(criteria.getSpecification(), pageable).getContent();
     }
 }

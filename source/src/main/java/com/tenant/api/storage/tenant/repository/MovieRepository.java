@@ -16,7 +16,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecific
     boolean existsByCategories_Id(Long categoryId);
 
     /**
-     * Tìm phim liên quan theo scoring algorithm
+     * Find suggestion movie by scoring algorithm
      * Score calculation:
      * - Same category: +10 points per match
      * - Same country: +5 points
@@ -58,7 +58,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecific
             "ORDER BY relevance_score DESC, m.view_count DESC, m.created_date DESC " +
             "LIMIT :#{#pageable.pageSize}", nativeQuery = true
     )
-    List<Movie> findRecommendations(
+    List<Movie> findSuggestion(
             @Param("movieId") Long movieId,
             @Param("categoryIds") List<Long> categoryIds,
             @Param("country") String country,
