@@ -1,5 +1,6 @@
 package com.tenant.api.cfg.secutity;
 
+import com.tenant.api.constant.SecurityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,44 +21,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Value("${auth.signing.key}")
     private String signingKey;
+
     @Autowired
     private CustomTokenConverter customTokenConverter;
-
-    private static final String[] PUBLIC_ENDPOINTS = {
-            // LOGIN
-            "/v1/employee/login",
-            "/v1/user/login",
-            "/v1/user/register",
-            "/v1/user/verify-otp",
-            "/v1/user/resend-otp",
-            "/v1/user/request-forgot-password",
-            "/v1/user/forgot-password",
-            "/v1/user/auth/social-login",
-            "/v1/user/auth/web-callback",
-            "/v1/user/auth/mobile-callback",
-
-            // Public GET APIs
-            "/v1/category/get/**",
-            "/v1/category/list",
-            "/v1/movie/get/**",
-            "/v1/movie/list",
-            "/v1/movie/suggestion/**",
-            "/v1/movie-item/get/**",
-            "/v1/movie-item/list",
-            "/v1/movie-person/list",
-            "/v1/person/get/**",
-            "/v1/person/list",
-            "/v1/person/auto-complete",
-            "/v1/sidebar/get/**",
-            "/v1/sidebar/list",
-            "/v1/comment/list",
-            "/v1/review/list",
-            "/v1/review/get",
-            "/v1/app-version/check-version/**",
-            "/v1/collection/list",
-            "/v1/collection/topics",
-            "/v1/collection-item/list"
-    };
 
     @Bean
     public TokenStore tokenStore() {
@@ -79,7 +45,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/v2/api-docs", "/api-docs/**", "/index", "/actuator/**", "/pub/**").permitAll()
-                .antMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .antMatchers(SecurityConstant.ENDPOINTS_BYPASS_JWT.toArray(new String[0])).permitAll()
                 .antMatchers("/**").authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());

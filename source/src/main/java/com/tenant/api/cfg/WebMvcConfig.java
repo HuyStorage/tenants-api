@@ -1,6 +1,5 @@
 package com.tenant.api.cfg;
 
-
 import com.tenant.api.cfg.component.LogInterceptor;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;

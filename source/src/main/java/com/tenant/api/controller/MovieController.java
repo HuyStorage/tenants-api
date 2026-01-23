@@ -18,11 +18,13 @@ import com.tenant.api.service.MediaService;
 import com.tenant.api.service.MovieService;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
+import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
 import com.tenant.api.storage.tenant.model.Collection;
 import com.tenant.api.storage.tenant.model.*;
 import com.tenant.api.storage.tenant.repository.*;
 import com.tenant.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -344,5 +346,18 @@ public class MovieController extends ABasicController {
         }
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+    }
+
+    @GetMapping(value = "/schedule", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<MovieItemDto>> schedule(@RequestParam("date") Date date) {
+        Date startOfDay = DateUtils.truncate(date, Calendar.DAY_OF_MONTH);
+        Date endOfDay = DateUtils.addDays(startOfDay, 1);
+        MovieItemCriteria criteria = new MovieItemCriteria();
+        criteria.setFromDate(startOfDay);
+        criteria.setToDate(endOfDay);
+        criteria.setExcludeKind(BaseConstant.MOVIE_ITEM_KIND_TRAILER);
+        List<MovieItem> movieItems = movieItemRepository.findAll(criteria.getSpecification());
+
+        return makeSuccessResponse(movieItemMapper.entityToMovieItemDtoWithMovieList(movieItems), "List schedule success");
     }
 }

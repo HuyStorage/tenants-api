@@ -1,6 +1,5 @@
 package com.tenant.api.cfg.component;
 
-
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.SecurityConstant;
 import com.tenant.api.dto.ApiMessageDto;
@@ -23,57 +22,20 @@ import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @Component
 public class LogInterceptor implements HandlerInterceptor {
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    ObjectMapper mapper = new ObjectMapper();
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Autowired
-    LoggingService loggingService;
+    private LoggingService loggingService;
 
     @Autowired
     private UserServiceImpl userService;
-
-    final static List<Integer> BYPASS_TENANT_INFO = List.of(
-            SecurityConstant.USER_KIND_ADMIN,
-            SecurityConstant.USER_KIND_USER
-    );
-    final static List<String> BYPASS_JWT = List.of(
-            "/v1/employee/login",
-            "/v1/user/register",
-            "/v1/user/verify-otp",
-            "/v1/user/resend-otp",
-            "/v1/user/request-forgot-password",
-            "/v1/user/forgot-password",
-            "/v1/user/login",
-            "/v1/user/auth/social-login",
-            "/v1/user/auth/web-callback",
-            "/v1/user/auth/mobile-callback",
-            "/v1/category/get/**",
-            "/v1/category/list",
-            "/v1/movie/get/**",
-            "/v1/movie/list",
-            "/v1/movie/recommendations/**",
-            "/v1/movie-item/get/**",
-            "/v1/movie-item/list",
-            "/v1/movie-person/list",
-            "/v1/person/get/**",
-            "/v1/person/list",
-            "/v1/person/auto-complete",
-            "/v1/sidebar/get/**",
-            "/v1/sidebar/list",
-            "/v1/comment/list",
-            "/v1/review/list",
-            "/v1/review/get",
-            "/v1/app-version/check-version/**",
-            "/v1/collection/list",
-            "/v1/collection/topics",
-            "/v1/collection-item/list"
-    );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
@@ -88,7 +50,7 @@ public class LogInterceptor implements HandlerInterceptor {
         log.error("Starting call url: [" + getUrl(request) + "]");
 
         String tenantName = request.getHeader("X-tenant");
-        if (isAllowed(request, BYPASS_JWT)) {
+        if (isAllowed(request, SecurityConstant.ENDPOINTS_BYPASS_JWT)) {
             if (tenantName == null) {
                 throw new UnauthorizationException("Invalid tenant");
             }
@@ -107,25 +69,17 @@ public class LogInterceptor implements HandlerInterceptor {
 
         // manager
         if (jwt != null && jwt.getTenantId() != null) {
-            TenantDBContext.setCurrentTenant(jwt.getTenantId().split("&")[0]);
-            return true;
-        } else if (tenantName != null) {
-            // employee
-            if (jwt != null) {
-                List<String> tenantContextList = Arrays.asList(jwt.getTenantId().split(":"));
-                for (String tenantContext : tenantContextList) {
-                    if (tenantContext.split("&")[0].equals(tenantName)) {
-                        TenantDBContext.setCurrentTenant(tenantName);
-                        return true;
-                    }
+            // customer, employee, user
+            String[] tenantContextList = jwt.getTenantId().split(":");
+            for (String tenantContext : tenantContextList) {
+                if (tenantContext.split("&")[0].equals(tenantName)) {
+                    TenantDBContext.setCurrentTenant(tenantName);
+                    return true;
                 }
-            } else {
-                TenantDBContext.setCurrentTenant(tenantName);
-                return true;
             }
         }
         // tenant error
-        throw new UnauthorizationException("Invalid tenant: " + TenantDBContext.getCurrentTenant());
+        throw new UnauthorizationException("Invalid tenant: " + tenantName);
     }
 
     @Override
@@ -171,7 +125,6 @@ public class LogInterceptor implements HandlerInterceptor {
     }
 
     private boolean isAllowed(HttpServletRequest request, List<String> whiteList) {
-        AntPathMatcher pathMatcher = new AntPathMatcher();
         return whiteList.stream().anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
     }
 }

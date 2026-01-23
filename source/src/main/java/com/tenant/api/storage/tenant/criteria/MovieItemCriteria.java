@@ -61,11 +61,11 @@ public class MovieItemCriteria {
                 }
 
                 if (getFromDate() != null && getToDate() != null) {
-                    predicates.add(cb.between(root.get("createdDate"), getFromDate(), getToDate()));
-                } else if (getCreatedDateFrom() != null) {
-                    predicates.add(cb.greaterThanOrEqualTo(root.get("createdDate"), getFromDate()));
-                } else if (getCreatedDateTo() != null) {
-                    predicates.add(cb.lessThanOrEqualTo(root.get("createdDate"), getToDate()));
+                    predicates.add(cb.between(root.get("releaseDate"), getFromDate(), getToDate()));
+                } else if (getFromDate() != null) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("releaseDate"), getFromDate()));
+                } else if (getToDate() != null) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("releaseDate"), getToDate()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

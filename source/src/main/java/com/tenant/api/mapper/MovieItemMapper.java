@@ -87,6 +87,22 @@ public interface MovieItemMapper {
     @Named("entityToMovieItemPublicDto")
     MovieItemDto entityToMovieItemPublicDto(MovieItem movieItem);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "kind", target = "kind")
+    @Mapping(source = "label", target = "label")
+    @Mapping(source = "ordering", target = "ordering")
+    @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieAutoCompleteDto")
+    @Mapping(source = "releaseDate", target = "releaseDate")
+    @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToMovieItemDtoWithMovie")
+    MovieItemDto entityToMovieItemDtoWithMovie(MovieItem movieItem);
+
+    @IterableMapping(elementTargetType = MovieItemDto.class, qualifiedByName = "entityToMovieItemDtoWithMovie")
+    List<MovieItemDto> entityToMovieItemDtoWithMovieList(List<MovieItem> movieItems);
+
     @Mapping(source = "title", target = "title")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "kind", target = "kind")
