@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -17,7 +18,6 @@ import java.util.List;
 @Setter
 @ApiModel
 public class UpdateMovieForm {
-
     @NotNull(message = "id cannot be empty")
     @ApiModelProperty(required = true)
     private Long id;
@@ -46,22 +46,29 @@ public class UpdateMovieForm {
     @ApiModelProperty(required = true)
     private Date releaseDate;
 
-    @MovieTypeConstraint
-    @ApiModelProperty(required = true)
-    private Integer type;
-
     @NotNull(message = "isFeatured cannot be empty")
     @ApiModelProperty(required = true)
     private Boolean isFeatured;
 
+    @ApiModelProperty
     private String language;
 
+    @ApiModelProperty
     private String country;
 
     @AgeRatingConstraint
     @ApiModelProperty(required = true)
     private Integer ageRating;
 
+    @NotNull(message = "year cannot be null")
+    @ApiModelProperty(required = true)
+    private Integer year;
+
+    @Min(1)
+    @ApiModelProperty
+    private Long duration;
+
+    @ApiModelProperty
     private List<@NotNull Long> categoryIds;
 
     @StatusConstraint

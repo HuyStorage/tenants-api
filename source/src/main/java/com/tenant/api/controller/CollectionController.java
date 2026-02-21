@@ -7,6 +7,7 @@ import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.collection.CollectionDto;
+import com.tenant.api.dto.comment.CommentDto;
 import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.UpdateOrderingForm;
@@ -16,6 +17,7 @@ import com.tenant.api.mapper.CollectionMapper;
 import com.tenant.api.service.CollectionService;
 import com.tenant.api.storage.tenant.criteria.CollectionCriteria;
 import com.tenant.api.storage.tenant.model.Collection;
+import com.tenant.api.storage.tenant.model.Comment;
 import com.tenant.api.storage.tenant.model.Style;
 import com.tenant.api.storage.tenant.repository.CollectionItemRepository;
 import com.tenant.api.storage.tenant.repository.CollectionRepository;
@@ -86,7 +88,7 @@ public class CollectionController extends ABasicController {
 
     @GetMapping(value = "/admin/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('COL_V')")
-    public ApiMessageDto<CollectionDto> get(@PathVariable("id") Long id) {
+    public ApiMessageDto<CollectionDto> adminGet(@PathVariable("id") Long id) {
         Collection collection = collectionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COLLECTION_ERROR_NOT_FOUND));
         return makeSuccessResponse(collectionMapper.entityToCollectionDto(collection), "Get collection success.");
@@ -97,6 +99,13 @@ public class CollectionController extends ABasicController {
     public ApiMessageDto<ResponseListDto<List<CollectionDto>>> adminList(CollectionCriteria criteria, Pageable pageable) {
         Page<Collection> collections = collectionRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(collections, collectionMapper::entityToCollectionDtoList), "List collection success");
+    }
+
+    @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<CollectionDto> get(@PathVariable("id") Long id) {
+        Collection collection = collectionRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("[Collection] Not found", ErrorCode.COMMENT_ERROR_NOT_FOUND));
+        return makeSuccessResponse(collectionMapper.entityToCollectionDto(collection), "Get collection success");
     }
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

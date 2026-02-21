@@ -20,7 +20,7 @@ import java.util.List;
 public interface MoviePersonMapper {
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieShortDto")
+    @Mapping(source = "movie", target = "movie", qualifiedByName = "entityToMovieAutoCompleteDto")
     @Mapping(source = "person", target = "person", qualifiedByName = "entityToPersonAutoCompleteDto")
     @Mapping(source = "kind", target = "kind")
     @Mapping(source = "characterName", target = "characterName")

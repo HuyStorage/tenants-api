@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1769952879307-4">
+        <addColumn tableName="db_movie">
+            <column name="year" type="integer" afterColumn="age_rating"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1769952879307-3">
+        <addColumn tableName="db_movie">
+            <column name="latest_season" type="integer" afterColumn="year"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1769952879307-2">
+        <addColumn tableName="db_movie">
+            <column name="latest_episode" type="integer" afterColumn="latest_season"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1769952879307-1">
+        <addColumn tableName="db_movie">
+            <column name="duration" type="bigint" afterColumn="latest_episode"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1769952879307-5">
+        <modifyDataType
+                tableName="db_movie"
+                columnName="latest_season"
+                newDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet author="Tenant" id="1769952879307-6">
+        <modifyDataType
+                tableName="db_movie"
+                columnName="latest_episode"
+                newDataType="VARCHAR(255)"/>
+    </changeSet>
+</databaseChangeLog>

@@ -24,13 +24,15 @@ public interface WatchHistoryRepository extends JpaRepository<WatchHistory, Long
             "WHERE wh.movie.id = :movieId " +
             "AND wh.user.id = :userId " +
             "AND wh.isCompleted = true " +
-            "AND wh.movieItem IS NOT NULL")
-    Long countCompletedWatchHistory(@Param("movieId") Long movieId, @Param("userId") Long userId);
+            "AND wh.movieItem IS NOT NULL " +
+            "AND wh.status = :status")
+    Long countCompletedWatchHistory(@Param("movieId") Long movieId, @Param("userId") Long userId, @Param("status") Integer status);
 
     @Query(
             "SELECT wh FROM WatchHistory wh " +
                     "WHERE wh.user.id = :userId " +
                     "AND wh.isCompleted = false " +
+                    "AND wh.status = 1 " +
                     "AND wh.movieItem IS NOT NULL " +
                     "AND wh.modifiedDate = ( " +
                     "    SELECT MAX(wh2.modifiedDate) " +
@@ -38,6 +40,7 @@ public interface WatchHistoryRepository extends JpaRepository<WatchHistory, Long
                     "    WHERE wh2.user.id = wh.user.id " +
                     "    AND wh2.movie.id = wh.movie.id " +
                     "    AND wh2.isCompleted = false " +
+                    "    AND wh2.status = 1 " +
                     ") " +
                     "ORDER BY wh.modifiedDate DESC"
     )
@@ -57,4 +60,9 @@ public interface WatchHistoryRepository extends JpaRepository<WatchHistory, Long
     @Modifying
     @Query("DELETE FROM WatchHistory WHERE movieItem.id IN :movieItemIds")
     void deleteByMovieItemIds(@Param("movieItemIds") List<Long> movieItemIds);
+
+    @Transactional
+    @Modifying
+    @Query("update WatchHistory wh set wh.status = :statusDelete where wh.user.id = :userId and wh.movie.id = :movieId")
+    void softDeleteByUserIdAndMovieId(@Param("statusDelete") Integer statusDelete, @Param("userId") Long userId, @Param("movieId") Long movieId);
 }

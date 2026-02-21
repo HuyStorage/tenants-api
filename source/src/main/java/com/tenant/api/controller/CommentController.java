@@ -160,10 +160,10 @@ public class CommentController extends ABasicController {
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListDto<List<CommentDto>>> list(CommentCriteria criteria, Pageable pageable) {
+        Sort.Direction dateDirection = (criteria.getParentId() == null) ? Sort.Direction.DESC : Sort.Direction.ASC;
         pageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
-//        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+                Sort.by(Sort.Order.desc("isPinned"), new Sort.Order(dateDirection, "createdDate")));
         criteria.setIsParent(criteria.getParentId() == null);
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");
@@ -172,9 +172,10 @@ public class CommentController extends ABasicController {
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CMT_L')")
     public ApiMessageDto<ResponseListDto<List<CommentDto>>> listAdmin(CommentCriteria criteria, Pageable pageable) {
+        Sort.Direction dateDirection = (criteria.getParentId() == null) ? Sort.Direction.DESC : Sort.Direction.ASC;
         pageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("createdDate")));
+                Sort.by(Sort.Order.desc("isPinned"), new Sort.Order(dateDirection, "createdDate")));
         criteria.setIsParent(criteria.getParentId() == null);
         Page<Comment> comments = commentRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(comments, commentMapper::fromEntityToCommentDtoList), "Get list comment success");

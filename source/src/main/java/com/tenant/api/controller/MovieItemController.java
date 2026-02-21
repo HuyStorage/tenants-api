@@ -13,6 +13,7 @@ import com.tenant.api.form.movieItem.CreateMovieItemForm;
 import com.tenant.api.form.movieItem.UpdateMovieItemForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.service.MediaService;
+import com.tenant.api.service.MovieService;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieItemCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
@@ -44,7 +45,6 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 public class MovieItemController extends ABasicController {
-
     @Autowired
     private MovieItemRepository movieItemRepository;
 
@@ -65,8 +65,12 @@ public class MovieItemController extends ABasicController {
 
     @Autowired
     private MediaService mediaService;
+
     @Autowired
     private WatchHistoryRepository watchHistoryRepository;
+
+    @Autowired
+    private MovieService movieService;
 
     @Transactional("tenantTransactionManager")
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,6 +83,16 @@ public class MovieItemController extends ABasicController {
 
         if (Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE) && Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
             throw new BadRequestException("[Movie Item] cannot create episode for movie type season", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
+        }
+
+        // check label existed by kind not trailer
+        if (movieItemRepository.existsByMovieIdAndKindAndLabel(movie.getId(), form.getKind(), form.getLabel())) {
+            throw new BadRequestException("[Movie Item] label existed", ErrorCode.MOVIE_ITEM_ERROR_LABEL_EXISTED);
+        }
+
+        if (form.getVideoId() != null) {
+            video = videoLibraryRepository.findById(form.getVideoId())
+                    .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
 
         // if episode or trailer -> required parent
@@ -99,15 +113,12 @@ public class MovieItemController extends ABasicController {
                 throw new BadRequestException("[Movie Item] cannot create episode for episode", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
             }
 
-            // if create episode -> increase total episode for this parent
-            if (form.getKind().equals(BaseConstant.MOVIE_ITEM_KIND_EPISODE) && Objects.equals(parent.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
-                movieItemRepository.increaseTotalEpisode(parent.getId());
+            if (form.getKind().equals(BaseConstant.MOVIE_ITEM_KIND_EPISODE)
+                    && parent.getTotalEpisode() != null
+                    && parent.getTotalEpisode() < movieItemRepository.countCurrentTotalEpisodes(parent.getId())) {
+                throw new BadRequestException("[Movie Item] Invalid total episode", ErrorCode.MOVIE_ITEM_ERROR_INVALID_TOTAL_EPISODES);
             }
-        }
-
-        if (form.getVideoId() != null) {
-            video = videoLibraryRepository.findById(form.getVideoId())
-                    .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
+            form.setTotalEpisode(null);
         }
 
         MovieItem movieItem = movieItemMapper.fromCreateMovieItemFormToEntity(form);
@@ -117,8 +128,9 @@ public class MovieItemController extends ABasicController {
         int ordering = movieItemRepository.findMaxOrdering(movie.getId(), form.getKind(), form.getParentId())
                 .map(o -> o + 1).orElse(0);
         movieItem.setOrdering(ordering);
+        movieItem = movieItemRepository.save(movieItem);
 
-        movieItemRepository.save(movieItem);
+        handleUpdateLatestMovieItem(movieItem, form.getIsLatest());
 
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movie.getId().toString()));
 
@@ -173,14 +185,15 @@ public class MovieItemController extends ABasicController {
             if (Objects.equals(movieItem.getMovie().getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
                 isRequiredVideo = true;
             }
+            if (form.getTotalEpisode() != null && form.getTotalEpisode() < movieItemRepository.countCurrentTotalEpisodes(movieItem.getId())) {
+                throw new BadRequestException("[Movie Item] Invalid total episode", ErrorCode.MOVIE_ITEM_ERROR_INVALID_TOTAL_EPISODES);
+            }
         } else {
             isRequiredVideo = true;
+            form.setTotalEpisode(null);
         }
 
         if (isRequiredVideo && form.getVideoId() != null) {
-//            if (form.getVideoId() == null) {
-//                throw new BadRequestException("[Movie Item] Video is required", ErrorCode.MOVIE_ITEM_ERROR_VIDEO_REQUIRED);
-//            }
             video = videoLibraryRepository.findById(form.getVideoId())
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
@@ -190,13 +203,11 @@ public class MovieItemController extends ABasicController {
                 && !Objects.equals(form.getThumbnailUrl(), movieItem.getThumbnailUrl())) {
             mediaService.deleteFile(movieItem.getThumbnailUrl());
         }
-
         movieItemMapper.fromUpdateMovieItemFormToEntity(form, movieItem);
         movieItem.setVideo(video);
         movieItemRepository.save(movieItem);
-
+        handleUpdateLatestMovieItem(movieItem, form.getIsLatest());
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movieItem.getMovie().getId().toString()));
-
         return makeSuccessResponse("Update movie item success");
     }
 
@@ -211,10 +222,6 @@ public class MovieItemController extends ABasicController {
             mediaService.deleteFile(movieItem.getThumbnailUrl());
         }
 
-        if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
-            movieItemRepository.decreaseTotalEpisode(movieItem.getParent().getId());
-        }
-
         List<Long> movieItemIds = new ArrayList<>();
         movieItemIds.add(id);
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
@@ -225,6 +232,21 @@ public class MovieItemController extends ABasicController {
         commentRepository.deleteByMovieItemId(id);
 
         movieItemRepository.delete(movieItem);
+
+        if (Boolean.TRUE.equals(movieItem.getIsLatest())) {
+            movieItemRepository.findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(
+                    movieItem.getMovie().getId(),
+                    movieItem.getKind(),
+                    movieItem.getId()
+            ).ifPresentOrElse(
+                    nextLatest -> {
+                        nextLatest.setIsLatest(true);
+                        movieItemRepository.save(nextLatest);
+                        movieService.updateMetaDataMovie(nextLatest);
+                    },
+                    () -> movieService.resetMetaDataMovie(movieItem.getMovie())
+            );
+        }
 
         redisService.delete(redisService.buildKey(TenantDBContext.getCurrentTenant(), "movie", movieItem.getMovie().getId().toString()));
 
@@ -253,8 +275,38 @@ public class MovieItemController extends ABasicController {
         }
 
         movieItemRepository.saveAll(itemMap.values());
-        // sync data
-        movieItemRepository.syncTotalEpisode();
         return makeSuccessResponse("Update movie item success");
+    }
+
+    private void handleUpdateLatestMovieItem(MovieItem movieItem, Boolean isLatest) {
+        if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_TRAILER)) {
+            return;
+        }
+
+        if (Boolean.TRUE.equals(movieItem.getIsLatest()) && Boolean.FALSE.equals(isLatest)) {
+            movieItem.setIsLatest(false);
+            movieItemRepository.save(movieItem);
+
+            movieItemRepository.findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(
+                    movieItem.getMovie().getId(),
+                    movieItem.getKind(),
+                    movieItem.getId()
+            ).ifPresentOrElse(
+                    nextLatest -> {
+                        nextLatest.setIsLatest(true);
+                        movieItemRepository.save(nextLatest);
+                        movieService.updateMetaDataMovie(nextLatest);
+                    },
+                    () -> movieService.resetMetaDataMovie(movieItem.getMovie())
+            );
+            return;
+        }
+
+        if (Boolean.TRUE.equals(isLatest)) {
+            movieItemRepository.resetLatest(movieItem.getMovie().getId(), movieItem.getKind());
+            movieItem.setIsLatest(true);
+            movieItemRepository.save(movieItem);
+            movieService.updateMetaDataMovie(movieItem);
+        }
     }
 }

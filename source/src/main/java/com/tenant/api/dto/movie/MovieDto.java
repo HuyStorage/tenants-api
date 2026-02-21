@@ -21,6 +21,7 @@ public class MovieDto extends ABasicAdminDto {
     private String thumbnailUrl;
     private String posterUrl;
     private Date releaseDate;
+    private Integer year;
     private Integer type;
     private Boolean isFeatured;
     private String language;
@@ -31,5 +32,6 @@ public class MovieDto extends ABasicAdminDto {
     private Long commentCount;
     private Long reviewCount;
     private Double averageRating;
+    private String metadata;
     private List<MovieItemDto> seasons;
 }

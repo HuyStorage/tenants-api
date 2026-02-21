@@ -7,10 +7,13 @@ import com.tenant.api.dto.movie.MovieDto;
 import com.tenant.api.dto.review.ReviewStatisticsDto;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.FilterMovieForm;
+import com.tenant.api.form.movie.MovieMetadataForm;
+import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
 import com.tenant.api.service.redis.RedisService;
 import com.tenant.api.storage.tenant.criteria.MovieCriteria;
 import com.tenant.api.storage.tenant.model.Movie;
+import com.tenant.api.storage.tenant.model.MovieItem;
 import com.tenant.api.storage.tenant.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -35,6 +39,9 @@ public class MovieService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private MovieItemMapper movieItemMapper;
 
     /**
      * Calculate reviewCount và averageRating for Movie.
@@ -89,7 +96,7 @@ public class MovieService {
      * Calculate commentCount for Movie.
      *
      * @param movieId id of Movie
-     * @param action 1 = add, -1 = remove
+     * @param action  1 = add, -1 = remove
      */
     public void calculateComment(Long movieId, int action) {
         Movie movie = movieRepository.findById(movieId)
@@ -137,5 +144,48 @@ public class MovieService {
         Pageable pageable = PageRequest.of(0, limit);
 
         return movieRepository.findAll(criteria.getSpecification(), pageable).getContent();
+    }
+
+    public void updateMetaDataMovie(MovieItem movieItem) {
+        Movie movie = movieItem.getMovie();
+        try {
+            MovieMetadataForm metadata = (movie.getMetadata() != null && !movie.getMetadata().isEmpty())
+                    ? objectMapper.readValue(movie.getMetadata(), MovieMetadataForm.class)
+                    : new MovieMetadataForm();
+
+            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
+                if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+                    metadata.setLatestSeason(movieItemMapper.entityToMovieItemMetadataDto(movieItem));
+                }
+                if (movieItem.getVideo() != null) {
+                    metadata.setDuration(movieItem.getVideo().getDuration());
+                }
+            } else if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
+                metadata.setLatestSeason(movieItemMapper.entityToMovieItemMetadataDto(movieItem.getParent()));
+                metadata.setLatestEpisode(movieItemMapper.entityToMovieItemMetadataDto(movieItem));
+            }
+            movie.setMetadata(objectMapper.writeValueAsString(metadata));
+            movieRepository.save(movie);
+        } catch (Exception ex) {
+            log.error("Failed to parse metadata JSON for movie: {}", movie.getId(), ex);
+        }
+    }
+
+    public void resetMetaDataMovie(Movie movie) {
+        if (movie.getMetadata() != null && !movie.getMetadata().isEmpty()) {
+            try {
+                if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)) {
+                    movie.setMetadata(null);
+                } else {
+                    MovieMetadataForm metadata = objectMapper.readValue(movie.getMetadata(), MovieMetadataForm.class);
+                    metadata.setLatestSeason(null);
+                    metadata.setLatestEpisode(null);
+                    movie.setMetadata(objectMapper.writeValueAsString(metadata));
+                }
+                movieRepository.save(movie);
+            } catch (Exception ex) {
+                log.error("Failed to parse metadata JSON for movie id: {}", movie.getId(), ex);
+            }
+        }
     }
 }

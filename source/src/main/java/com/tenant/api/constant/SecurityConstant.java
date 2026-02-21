@@ -38,6 +38,7 @@ public class SecurityConstant {
             "/v1/review/list",
             "/v1/review/get",
             "/v1/app-version/check-version/**",
+            "/v1/collection/get/**",
             "/v1/collection/list",
             "/v1/collection/topics",
             "/v1/collection-item/list"

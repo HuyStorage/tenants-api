@@ -1,5 +1,6 @@
 package com.tenant.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.dto.ApiMessageDto;
@@ -10,6 +11,7 @@ import com.tenant.api.dto.movieItem.MovieItemDto;
 import com.tenant.api.dto.watchHistory.WatchHistoryDto;
 import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.movie.CreateMovieForm;
+import com.tenant.api.form.movie.MovieMetadataForm;
 import com.tenant.api.form.movie.UpdateMovieForm;
 import com.tenant.api.mapper.MovieItemMapper;
 import com.tenant.api.mapper.MovieMapper;
@@ -97,6 +99,9 @@ public class MovieController extends ABasicController {
 
     @Autowired
     private MovieService movieService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MOV_C')")
@@ -207,7 +212,7 @@ public class MovieController extends ABasicController {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
-        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieAutoCompleteDtoList), "List movie success");
     }
 
     @GetMapping(value = "/admin/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -215,7 +220,7 @@ public class MovieController extends ABasicController {
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> listForAdmin(MovieCriteria criteria, Pageable pageable) {
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
-        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieAutoCompleteDtoList), "List movie success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -244,6 +249,18 @@ public class MovieController extends ABasicController {
         mediaService.deleteFiles(deletedFiles);
 
         movieMapper.fromUpdateMovieFormToEntity(form, movie);
+        if (BaseConstant.MOVIE_TYPE_SERIES.equals(movie.getType()) && form.getDuration() != null) {
+            MovieMetadataForm metadata = new MovieMetadataForm();
+            try {
+                if (!movie.getMetadata().isEmpty()) {
+                    metadata = objectMapper.readValue(movie.getMetadata(), MovieMetadataForm.class);
+                }
+                metadata.setDuration(form.getDuration());
+                movie.setMetadata(objectMapper.writeValueAsString(metadata));
+            } catch (Exception ex) {
+                log.error("Failed to parse metadata JSON for movie: {}", metadata, ex);
+            }
+        }
         movieRepository.save(movie);
 
         log.debug("========> start remove movieId {}", movie.getId());
@@ -317,7 +334,7 @@ public class MovieController extends ABasicController {
                 movie.getLanguage(),
                 movie.getType(),
                 PageRequest.of(0, 10));
-        return makeSuccessResponse(movieMapper.fromEntityToMovieDtoList(movies), "List movie success");
+        return makeSuccessResponse(movieMapper.fromEntityToMovieAutoCompleteDtoList(movies), "List movie success");
     }
 
     @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -331,7 +348,7 @@ public class MovieController extends ABasicController {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
-        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieAutoCompleteDtoList), "List movie success");
     }
 
     @GetMapping(value = "/collection-filter/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -345,7 +362,7 @@ public class MovieController extends ABasicController {
             criteria.setTitle(title);
         }
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
-        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieDtoList), "List movie success");
+        return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieAutoCompleteDtoList), "List movie success");
     }
 
     @GetMapping(value = "/schedule", produces = MediaType.APPLICATION_JSON_VALUE)

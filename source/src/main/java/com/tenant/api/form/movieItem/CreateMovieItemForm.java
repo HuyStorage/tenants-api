@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -31,12 +32,14 @@ public class CreateMovieItemForm {
     @ApiModelProperty(required = true)
     private String label;
 
+    @ApiModelProperty
     private Long parentId; // can be null
 
     @NotNull(message = "movieId cannot be null")
     @ApiModelProperty(required = true)
     private Long movieId;
 
+    @ApiModelProperty
     private Long videoId; // can be null
 
     @StatusConstraint
@@ -47,5 +50,13 @@ public class CreateMovieItemForm {
     @ApiModelProperty(required = true)
     private Date releaseDate;
 
+    @ApiModelProperty
     private String thumbnailUrl;
+
+    @ApiModelProperty
+    @Min(value = 1)
+    private Integer totalEpisode;
+
+    @ApiModelProperty
+    private Boolean isLatest = false;
 }

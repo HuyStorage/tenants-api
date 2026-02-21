@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -34,11 +35,20 @@ public class UpdateMovieItemForm {
     @ApiModelProperty(required = true)
     private Integer status;
 
+    @ApiModelProperty
     private Long videoId;
 
     @NotNull(message = "releaseDate cannot be null")
     @ApiModelProperty(required = true)
     private Date releaseDate;
 
+    @ApiModelProperty
     private String thumbnailUrl;
+
+    @ApiModelProperty
+    @Min(value = 1)
+    private Integer totalEpisode;
+
+    @ApiModelProperty
+    private Boolean isLatest = false;
 }

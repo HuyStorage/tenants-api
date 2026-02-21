@@ -17,31 +17,8 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
 
     Optional<MovieItem> findByIdAndKindNot(Long id, Integer kind);
 
-    @Query("SELECT mi FROM MovieItem mi LEFT JOIN FETCH mi.parent WHERE mi.movie.id = :movieId AND mi.status = :status")
+    @Query("SELECT mi FROM MovieItem mi LEFT JOIN FETCH mi.parent LEFT JOIN FETCH mi.video WHERE mi.movie.id = :movieId AND mi.status = :status")
     List<MovieItem> findByMovieIdAndStatusWithParent(@Param("movieId") Long movieId, @Param("status") Integer status);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE MovieItem mi SET mi.totalEpisode = COALESCE(mi.totalEpisode, 0) + 1 WHERE mi.id = :id")
-    void increaseTotalEpisode(@Param("id") Long id);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE MovieItem mi SET mi.totalEpisode = mi.totalEpisode - 1 WHERE mi.id = :id AND mi.totalEpisode > 0")
-    void decreaseTotalEpisode(@Param("id") Long id);
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE db_movie_item season " +
-            "LEFT JOIN ( " +
-            "   SELECT parent_id, COUNT(*) AS total " +
-            "   FROM db_movie_item " +
-            "   WHERE kind = 2 " +
-            "   GROUP BY parent_id " +
-            ") AS episode_count ON season.id = episode_count.parent_id " +
-            "SET season.total_episode = IFNULL(episode_count.total, 0) " +
-            "WHERE season.kind = 1", nativeQuery = true)
-    void syncTotalEpisode();
 
     @Modifying
     @Transactional
@@ -69,4 +46,16 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
             "   OR (:kind != 1 AND mi.parent.id = :parentId)" +
             ")")
     Optional<Integer> findMaxOrdering(@Param("movieId") Long movieId, @Param("kind") Integer kind, @Param("parentId") Long parentId);
+
+    boolean existsByMovieIdAndKindAndLabel(Long movieId, Integer kind, String label);
+
+    Optional<MovieItem> findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(Long movieId, Integer kind, Long id);
+
+    @Query("select count(mi) from MovieItem mi where mi.parent.id = :parentId and mi.kind = 2")
+    Long countCurrentTotalEpisodes(@Param("parentId") Long parentId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE FROM MovieItem mi SET mi.isLatest = false WHERE mi.movie.id = :movieId AND mi.kind = :kind AND mi.isLatest = true")
+    void resetLatest(@Param("movieId") Long movieId, @Param("kind") Integer kind);
 }

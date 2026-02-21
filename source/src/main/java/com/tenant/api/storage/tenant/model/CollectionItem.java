@@ -25,7 +25,7 @@ public class CollectionItem extends Auditable<String> {
     @JoinColumn(name = "collection_id")
     private Collection collection;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "movie_id")
     private Movie movie;
 

@@ -9,10 +9,7 @@ import com.tenant.api.exception.NotFoundException;
 import com.tenant.api.form.watchHistory.TrackingWatchHistoryForm;
 import com.tenant.api.mapper.WatchHistoryMapper;
 import com.tenant.api.storage.tenant.criteria.WatchHistoryCriteria;
-import com.tenant.api.storage.tenant.model.Movie;
-import com.tenant.api.storage.tenant.model.MovieItem;
-import com.tenant.api.storage.tenant.model.User;
-import com.tenant.api.storage.tenant.model.WatchHistory;
+import com.tenant.api.storage.tenant.model.*;
 import com.tenant.api.storage.tenant.repository.MovieItemRepository;
 import com.tenant.api.storage.tenant.repository.UserRepository;
 import com.tenant.api.storage.tenant.repository.WatchHistoryRepository;
@@ -65,6 +62,7 @@ public class WatchHistoryController extends ABasicController {
             watchHistory.setMovie(movieItem.getMovie());
             watchHistory.setMovieItem(movieItem);
         }
+        watchHistory.setStatus(BaseConstant.STATUS_ACTIVE);
 
         Long endOfVideo = movieItem.getVideo().getOutroStart() != null
                 ? movieItem.getVideo().getOutroStart()
@@ -76,13 +74,10 @@ public class WatchHistoryController extends ABasicController {
             if (watchHistory.getLastWatchSeconds() < endOfVideo) {
                 watchHistory.setIsCompleted(false);
             }
-        } else { // completed watch
-            if (watchHistory.getLastWatchSeconds() >= endOfVideo) {
-                watchHistory.setIsCompleted(true);
-                watchHistory.setTimesWatched(watchHistory.getTimesWatched() + 1);
-            }
+        } else if (watchHistory.getLastWatchSeconds() >= endOfVideo) { // completed watch
+            watchHistory.setIsCompleted(true);
+            watchHistory.setTimesWatched(watchHistory.getTimesWatched() + 1);
         }
-
         watchHistoryRepository.save(watchHistory);
 
         WatchHistory movieWatchHistory = watchHistoryRepository.findWatchHistoryMovie(movieItem.getMovie().getId(), user.getId()).orElse(null);
@@ -91,11 +86,13 @@ public class WatchHistoryController extends ABasicController {
             movieWatchHistory.setUser(user);
             movieWatchHistory.setMovie(movieItem.getMovie());
         }
+        movieWatchHistory.setStatus(BaseConstant.STATUS_ACTIVE);
+
         boolean isCompletedMovie = checkCompletedMovie(movieWatchHistory);
-        if (isCompletedMovie) {
-            movieWatchHistory.setIsCompleted(true);
+        if (isCompletedMovie && !movieWatchHistory.getIsCompleted()) {
             movieWatchHistory.setTimesWatched(movieWatchHistory.getTimesWatched() + 1);
         }
+        movieWatchHistory.setIsCompleted(isCompletedMovie);
         watchHistoryRepository.save(movieWatchHistory);
         return makeSuccessResponse("Tracking watch history success");
     }
@@ -105,6 +102,7 @@ public class WatchHistoryController extends ABasicController {
         WatchHistoryCriteria criteria = new WatchHistoryCriteria();
         criteria.setUserId(getCurrentUser());
         criteria.setMovieId(movieId);
+        criteria.setStatus(BaseConstant.STATUS_ACTIVE);
 
         List<WatchHistory> watchHistories = watchHistoryRepository.findAll(criteria.getSpecification());
 
@@ -132,6 +130,12 @@ public class WatchHistoryController extends ABasicController {
         return makeSuccessResponse(listWatchHistoryDto, "List watch movie success");
     }
 
+    @DeleteMapping(value = "/delete/{movieId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> delete(@PathVariable("movieId") Long movieId) {
+        watchHistoryRepository.softDeleteByUserIdAndMovieId(BaseConstant.STATUS_DELETE, getCurrentUser(), movieId);
+        return makeSuccessResponse("Delete watch history success");
+    }
+
     private boolean checkCompletedMovie(WatchHistory movieWatchHistory) {
         Movie movie = movieWatchHistory.getMovie();
         User user = movieWatchHistory.getUser();
@@ -139,7 +143,7 @@ public class WatchHistoryController extends ABasicController {
                 ? BaseConstant.MOVIE_ITEM_KIND_SEASON
                 : BaseConstant.MOVIE_ITEM_KIND_EPISODE;
         Long targetTotal = movieItemRepository.countByMovieIdAndKind(movie.getId(), kind);
-        Long totalCompleted = watchHistoryRepository.countCompletedWatchHistory(movie.getId(), user.getId());
+        Long totalCompleted = watchHistoryRepository.countCompletedWatchHistory(movie.getId(), user.getId(), BaseConstant.STATUS_ACTIVE);
         return Objects.equals(totalCompleted, targetTotal);
     }
 }

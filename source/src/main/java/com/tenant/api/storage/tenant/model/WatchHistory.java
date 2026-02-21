@@ -16,7 +16,6 @@ import javax.persistence.*;
 @Getter
 @Setter
 public class WatchHistory extends Auditable<String> {
-
     @Id
     @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)

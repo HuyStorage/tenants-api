@@ -55,6 +55,10 @@ public class CreateMovieForm {
     @ApiModelProperty(required = true)
     private Integer ageRating;
 
+    @NotNull(message = "year cannot be null")
+    @ApiModelProperty(required = true)
+    private Integer year;
+
     private List<@NotNull Long> categoryIds;
 
     @StatusConstraint

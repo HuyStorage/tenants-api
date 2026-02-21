@@ -88,6 +88,8 @@ public class ErrorCode {
     public static final String MOVIE_ITEM_ERROR_VIDEO_REQUIRED = "ERROR-MOVIE-ITEM-ERROR-0003";
     public static final String MOVIE_ITEM_ERROR_KIND_INVALID = "ERROR-MOVIE-ITEM-ERROR-0004";
     public static final String MOVIE_ITEM_ERROR_INVALID_REQUEST = "ERROR-MOVIE-ITEM-ERROR-0005";
+    public static final String MOVIE_ITEM_ERROR_LABEL_EXISTED = "ERROR-MOVIE-ITEM-ERROR-0006";
+    public static final String MOVIE_ITEM_ERROR_INVALID_TOTAL_EPISODES = "ERROR-MOVIE-ITEM-ERROR-0007";
 
     /**
      * Starting error code Person

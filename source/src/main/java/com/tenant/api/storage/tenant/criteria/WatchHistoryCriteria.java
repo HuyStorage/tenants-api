@@ -16,6 +16,7 @@ public class WatchHistoryCriteria {
     private Long userId;
     private Long movieId;
     private Boolean isCompleted;
+    private Integer status;
 
     public Specification<WatchHistory> getSpecification() {
         return new Specification<WatchHistory>() {
@@ -34,6 +35,10 @@ public class WatchHistoryCriteria {
 
                 if (getIsCompleted() != null) {
                     predicates.add(cb.equal(root.get("isCompleted"), getIsCompleted()));
+                }
+
+                if (getStatus() != null) {
+                    predicates.add(cb.equal(root.get("status"), getStatus()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

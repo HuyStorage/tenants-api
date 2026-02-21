@@ -58,12 +58,10 @@ public class CommentCriteria {
                     predicates.add(cb.equal(root.get("status"), getStatus()));
                 }
 
-                if (getIsParent() != null) {
-                    if (getIsParent()) {
-                        predicates.add(cb.isNull(root.get("parent")));
-                    }
+                if (Boolean.TRUE.equals(getIsParent())) {
+                    predicates.add(cb.isNull(root.get("parent")));
                 }
-                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+                return cb.and(predicates.toArray(new Predicate[0]));
             }
         };
     }

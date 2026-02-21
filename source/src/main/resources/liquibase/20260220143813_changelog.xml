@@ -1,0 +1,28 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1771598319631-1">
+        <addColumn tableName="db_movie_item">
+            <column name="is_latest" type="bit" afterColumn="thumbnail_url"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1771598319631-2">
+        <addColumn tableName="db_movie">
+            <column name="metadata" type="LONGTEXT" afterColumn="average_rating"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Tenant" id="1771598319631-3">
+        <createIndex indexName="inx_movie_kind" tableName="db_movie_item">
+            <column name="movie_id"/>
+            <column name="kind"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Tenant" id="1771598319631-4">
+        <dropColumn columnName="duration" tableName="db_movie"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1771598319631-5">
+        <dropColumn columnName="latest_episode" tableName="db_movie"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1771598319631-6">
+        <dropColumn columnName="latest_season" tableName="db_movie"/>
+    </changeSet>
+</databaseChangeLog>
