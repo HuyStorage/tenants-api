@@ -20,4 +20,14 @@ public class StringUtils {
                 .replaceAll("-{2,}", "-")
                 .replaceAll("^-|-$", "");
     }
+
+    public static boolean isNullOrEmpty(String string) {
+        if (string == null) {
+            return true;
+        }
+        if (string.isEmpty()) {
+            return true;
+        }
+        return string.isBlank();
+    }
 }

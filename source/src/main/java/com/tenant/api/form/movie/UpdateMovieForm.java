@@ -42,6 +42,9 @@ public class UpdateMovieForm {
     @ApiModelProperty(required = true)
     private String posterUrl;
 
+    @ApiModelProperty
+    private String imageTitleUrl;
+
     @NotNull(message = "releaseDate cannot be null")
     @ApiModelProperty(required = true)
     private Date releaseDate;

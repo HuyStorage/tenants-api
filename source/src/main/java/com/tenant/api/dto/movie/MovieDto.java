@@ -20,6 +20,7 @@ public class MovieDto extends ABasicAdminDto {
     private String description;
     private String thumbnailUrl;
     private String posterUrl;
+    private String imageTitleUrl;
     private Date releaseDate;
     private Integer year;
     private Integer type;

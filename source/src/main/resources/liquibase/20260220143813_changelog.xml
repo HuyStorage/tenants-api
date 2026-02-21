@@ -25,4 +25,9 @@
     <changeSet author="Tenant" id="1771598319631-6">
         <dropColumn columnName="latest_season" tableName="db_movie"/>
     </changeSet>
+    <changeSet author="Tenant" id="1771678644382-1">
+        <addColumn tableName="db_movie">
+            <column name="image_title_url" type="varchar(255)" afterColumn="poster_url"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

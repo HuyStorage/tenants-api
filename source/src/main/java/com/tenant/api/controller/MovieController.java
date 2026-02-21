@@ -246,6 +246,9 @@ public class MovieController extends ABasicController {
         if (!Objects.equals(form.getPosterUrl(), movie.getPosterUrl())) {
             deletedFiles.add(movie.getPosterUrl());
         }
+        if (StringUtils.isNullOrEmpty(form.getImageTitleUrl()) && !Objects.equals(form.getImageTitleUrl(), movie.getImageTitleUrl())) {
+            deletedFiles.add(movie.getImageTitleUrl());
+        }
         mediaService.deleteFiles(deletedFiles);
 
         movieMapper.fromUpdateMovieFormToEntity(form, movie);
@@ -277,6 +280,7 @@ public class MovieController extends ABasicController {
         List<String> deletedFiles = new ArrayList<>();
         deletedFiles.add(movie.getThumbnailUrl());
         deletedFiles.add(movie.getPosterUrl());
+        deletedFiles.add(movie.getImageTitleUrl());
 
         List<String> movieItemThumbnails = movieItemRepository.findThumbnailsByMovieId(movie.getId());
         deletedFiles.addAll(movieItemThumbnails);

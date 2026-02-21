@@ -41,6 +41,9 @@ public class Movie extends Auditable<String> {
     @Column(name = "poster_url")
     private String posterUrl;
 
+    @Column(name = "image_title_url")
+    private String imageTitleUrl;
+
     @Column(name = "release_date")
     private Date releaseDate;
 
