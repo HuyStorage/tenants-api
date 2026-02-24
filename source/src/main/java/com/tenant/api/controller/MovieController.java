@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -350,6 +351,12 @@ public class MovieController extends ABasicController {
     @GetMapping(value = "/top-views", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListDto<List<MovieDto>>> topViews(MovieCriteria criteria, Pageable pageable) {
         criteria.setStatus(BaseConstant.STATUS_ACTIVE);
+        Sort sort = Sort.by(
+                Sort.Order.desc("viewCount"),
+                Sort.Order.desc("isFeatured"),
+                Sort.Order.desc("createdDate")
+        );
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         Page<Movie> movies = movieRepository.findAll(criteria.getSpecification(), pageable);
 
         return makeSuccessResponse(makeResponseListDto(movies, movieMapper::fromEntityToMovieAutoCompleteDtoList), "List movie success");
