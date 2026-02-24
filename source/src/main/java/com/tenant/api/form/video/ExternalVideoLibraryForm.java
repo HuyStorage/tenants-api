@@ -9,8 +9,6 @@ import lombok.Setter;
 @ApiModel
 public class ExternalVideoLibraryForm {
     private String vttUrl;
-
     private String spriteUrl;
-
     private Long duration;
 }

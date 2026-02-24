@@ -17,7 +17,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class MoviePerson extends Auditable<String> {
-
     @Id
     @GenericGenerator(name = BaseConstant.APP_ID_GENERATOR_NAME, strategy = BaseConstant.APP_ID_GENERATOR_STRATEGY)
     @GeneratedValue(generator = BaseConstant.APP_ID_GENERATOR_NAME)

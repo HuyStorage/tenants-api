@@ -34,6 +34,10 @@ public class ABasicController {
         return makeResponse(true, data, message, null);
     }
 
+    public <T> ApiMessageDto<T> makeErrorResponse(String message) {
+        return makeResponse(false, null, message, null);
+    }
+
     public <T, R> ResponseListDto<R> makeResponseListDto(Page<T> page, Function<List<T>, R> mapper) {
         return new ResponseListDto<>(
                 mapper.apply(page.getContent()),

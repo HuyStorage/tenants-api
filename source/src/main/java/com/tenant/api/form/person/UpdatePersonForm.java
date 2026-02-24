@@ -20,7 +20,7 @@ public class UpdatePersonForm {
     @ApiModelProperty(required = true)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "name cannot be null")
     @ApiModelProperty(required = true)
     private String name;
 
@@ -40,6 +40,7 @@ public class UpdatePersonForm {
     @ApiModelProperty
     private Date dateOfBirth;
 
+    @ApiModelProperty
     private String country;
 
     @PersonKindConstraint

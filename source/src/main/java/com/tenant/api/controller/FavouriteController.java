@@ -5,8 +5,8 @@ import com.tenant.api.dto.ApiMessageDto;
 import com.tenant.api.dto.ErrorCode;
 import com.tenant.api.dto.ResponseListDto;
 import com.tenant.api.dto.favourite.FavouriteDto;
+import com.tenant.api.exception.BadRequestException;
 import com.tenant.api.exception.NotFoundException;
-import com.tenant.api.exception.UnauthorizationException;
 import com.tenant.api.form.favourite.CreateFavouriteForm;
 import com.tenant.api.mapper.FavouriteMapper;
 import com.tenant.api.storage.tenant.criteria.FavouriteCriteria;
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,8 +81,10 @@ public class FavouriteController extends ABasicController {
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<FavouriteDto> get(@RequestParam("targetId") Long targetId, @RequestParam("type") Integer type) {
-        Favourite favourite = favouriteRepository.findByUserIdAndTypeAndTargetId(getCurrentUser(), type, targetId)
-                .orElseThrow(() -> new NotFoundException("[Favourite] not found", ErrorCode.FAVOURITE_ERROR_NOT_FOUND));
+        Favourite favourite = favouriteRepository.findByUserIdAndTypeAndTargetId(getCurrentUser(), type, targetId).orElse(null);
+        if (favourite == null) {
+            return makeErrorResponse("Favourite not found");
+        }
         FavouriteDto favouriteDto = new FavouriteDto();
         favouriteDto.setId(favourite.getId());
         return makeSuccessResponse(favouriteDto, "Get favourite success");
@@ -97,14 +98,25 @@ public class FavouriteController extends ABasicController {
         return makeSuccessResponse(makeResponseListDto(favourites, favouriteMapper::fromEntityToFavouriteDtoList), "List favourite success");
     }
 
-    @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
-        Favourite favourite = favouriteRepository.findById(id)
+    @DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<Void> delete(@RequestParam("targetId") Long targetId, @RequestParam("type") Integer type) {
+        Favourite favourite = favouriteRepository.findByUserIdAndTypeAndTargetId(getCurrentUser(), type, targetId)
                 .orElseThrow(() -> new NotFoundException("[Favourite] Not found", ErrorCode.FAVOURITE_ERROR_NOT_FOUND));
-        if (!favourite.getUser().getId().equals(getCurrentUser())) {
-            throw new UnauthorizationException("Not allow");
-        }
         favouriteRepository.delete(favourite);
         return makeSuccessResponse("Delete favourite success");
+    }
+
+    @GetMapping(value = "/get-list-ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<List<Long>> getListId(@RequestParam("type") Integer type, @RequestParam(value = "movieId", required = false) Long movieId) {
+        List<Long> ids;
+        Long userId = getCurrentUser();
+        if (Objects.equals(type, BaseConstant.FAVOURITE_TYPE_MOVIE)) {
+            ids = favouriteRepository.findFavouriteMovieIds(userId);
+        } else if (Objects.equals(type, BaseConstant.FAVOURITE_TYPE_PERSON)) {
+            ids = favouriteRepository.findFavouritePersonIds(userId, movieId);
+        } else {
+            throw new BadRequestException("Invalid type");
+        }
+        return makeSuccessResponse(ids, "List favourite success");
     }
 }

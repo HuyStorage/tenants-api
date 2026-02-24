@@ -67,5 +67,4 @@ public class CreateMovieForm {
     @StatusConstraint
     @ApiModelProperty(required = true)
     private Integer status;
-
 }

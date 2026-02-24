@@ -12,9 +12,8 @@ import org.mapstruct.*;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
 public interface PersonMapper {
-
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "otherName", target = "otherName")
@@ -68,5 +67,4 @@ public interface PersonMapper {
     @Mapping(source = "kinds", target = "kinds")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdatePersonFormToEntity(UpdatePersonForm form, @MappingTarget Person person);
-
 }
