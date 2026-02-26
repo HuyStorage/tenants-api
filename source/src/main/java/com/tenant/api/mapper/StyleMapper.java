@@ -24,6 +24,17 @@ public interface StyleMapper {
     @IterableMapping(elementTargetType = StyleDto.class, qualifiedByName = "entityToStyleDto")
     List<StyleDto> entityToStyleDtoList(List<Style> styles);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "type", target = "type")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "isDefault", target = "isDefault")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("entityToStyleAutoCompleteDto")
+    StyleDto entityToStyleAutoCompleteDto(Style style);
+
+    @IterableMapping(elementTargetType = StyleDto.class, qualifiedByName = "entityToStyleAutoCompleteDto")
+    List<StyleDto> entityToStyleAutoCompleteDtoList(List<Style> styles);
+
     @Mapping(source = "type", target = "type")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
@@ -32,7 +43,6 @@ public interface StyleMapper {
     @BeanMapping(ignoreByDefault = true)
     Style fromCreateStyleFormToEntity(CreateStyleForm form);
 
-    @Mapping(source = "type", target = "type")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "imageUrl", target = "imageUrl")

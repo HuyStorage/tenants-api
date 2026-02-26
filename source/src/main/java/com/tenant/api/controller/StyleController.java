@@ -10,6 +10,7 @@ import com.tenant.api.form.style.CreateStyleForm;
 import com.tenant.api.form.style.UpdateStyleForm;
 import com.tenant.api.mapper.StyleMapper;
 import com.tenant.api.service.MediaService;
+import com.tenant.api.storage.tenant.criteria.StyleCriteria;
 import com.tenant.api.storage.tenant.model.Style;
 import com.tenant.api.storage.tenant.repository.CollectionRepository;
 import com.tenant.api.storage.tenant.repository.StyleRepository;
@@ -70,9 +71,15 @@ public class StyleController extends ABasicController {
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('STL_L')")
-    public ApiMessageDto<ResponseListDto<List<StyleDto>>> list(Pageable pageable) {
-        Page<Style> styles = styleRepository.findAll(pageable);
+    public ApiMessageDto<ResponseListDto<List<StyleDto>>> list(StyleCriteria criteria, Pageable pageable) {
+        Page<Style> styles = styleRepository.findAll(criteria.getSpecification(), pageable);
         return makeSuccessResponse(makeResponseListDto(styles, styleMapper::entityToStyleDtoList), "List style success");
+    }
+
+    @GetMapping(value = "/auto-complete", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListDto<List<StyleDto>>> autoComplete(StyleCriteria criteria, Pageable pageable) {
+        Page<Style> styles = styleRepository.findAll(criteria.getSpecification(), pageable);
+        return makeSuccessResponse(makeResponseListDto(styles, styleMapper::entityToStyleAutoCompleteDtoList), "List style success");
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -80,10 +87,6 @@ public class StyleController extends ABasicController {
     public ApiMessageDto<Void> update(@Valid @RequestBody UpdateStyleForm form) {
         Style style = styleRepository.findById(form.getId())
                 .orElseThrow(() -> new NotFoundException("[Style] Not found", ErrorCode.STYLE_ERROR_NOT_FOUND));
-
-        if (!Objects.equals(form.getType(), style.getType()) && styleRepository.existsByType(form.getType())) {
-            throw new BadRequestException("[Style] type existed", ErrorCode.STYLE_ERROR_TYPE_EXISTED);
-        }
 
         if (style.getIsDefault() && !form.getIsDefault()) {
             throw new BadRequestException("[Style] not have default", ErrorCode.STYLE_ERROR_TYPE_NOT_HAVE_DEFAULT);

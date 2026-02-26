@@ -30,4 +30,7 @@
             <column name="image_title_url" type="varchar(255)" afterColumn="poster_url"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Tenant" id="1772034218321-1">
+        <addUniqueConstraint columnNames="user_id, movie_item_id" constraintName="uk_watch_history_user_movie_item" tableName="db_watch_history"/>
+    </changeSet>
 </databaseChangeLog>

@@ -11,7 +11,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 
 @Entity
-@Table(name = DatabaseConstant.PREFIX_TABLE + "watch_history")
+@Table(
+        name = DatabaseConstant.PREFIX_TABLE + "watch_history",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_watch_history_user_movie_item",
+                        columnNames = {"user_id", "movie_item_id"}
+                )
+        }
+)
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter

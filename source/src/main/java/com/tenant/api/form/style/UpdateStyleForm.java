@@ -16,10 +16,6 @@ public class UpdateStyleForm {
     @ApiModelProperty(required = true)
     private Long id;
 
-    @NotNull(message = "type cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer type;
-
     @NotBlank(message = "name cannot be empty")
     @ApiModelProperty(required = true)
     private String name;
