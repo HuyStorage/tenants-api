@@ -10,9 +10,6 @@ import lombok.Setter;
 @Setter
 @ApiModel
 public class GroupPermissionDto extends ABasicAdminDto {
-    @ApiModelProperty(name = "id") // permissionId
-    private Long id;
-
     @ApiModelProperty(name = "id")
     private String permissionCode;
 }

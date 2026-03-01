@@ -1,5 +1,7 @@
 package com.tenant.api.dto.comment;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tenant.api.dto.LongToStringIfWebSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +10,7 @@ import lombok.Setter;
 @Setter
 @ApiModel
 public class AuthorInfoDto {
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long id;
     private String email;
     private String fullName;

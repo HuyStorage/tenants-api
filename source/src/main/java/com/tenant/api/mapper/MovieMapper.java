@@ -126,6 +126,7 @@ public interface MovieMapper {
     @Mapping(source = "language", target = "language")
     @Mapping(source = "country", target = "country")
     @Mapping(source = "ageRating", target = "ageRating")
+    @Mapping(source = "comingSoon", target = "comingSoon")
     @Mapping(source = "categoryIds", target = "categoryIds")
     @BeanMapping(ignoreByDefault = true)
     MovieCriteria fromFilterMovieFromToMovieCriteria(FilterMovieForm form);

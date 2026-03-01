@@ -12,6 +12,7 @@ public class StyleDto extends ABasicAdminDto {
     private Integer type;
     private String name;
     private String description;
-    private String imageUrl;
+    private String imageMobileUrl;
+    private String imageWebUrl;
     private Boolean isDefault;
 }

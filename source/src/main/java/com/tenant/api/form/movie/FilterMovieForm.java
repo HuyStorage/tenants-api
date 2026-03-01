@@ -27,6 +27,8 @@ public class FilterMovieForm {
 
     private List<Long> categoryIds;
 
+    private Boolean comingSoon;
+
     @Min(value = 1)
     private Integer limit;
 }

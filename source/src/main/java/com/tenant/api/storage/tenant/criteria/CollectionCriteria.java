@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class CollectionCriteria {
     private String name;
-    private Integer style;
+    private Long styleId;
     private Integer type;
     private Boolean randomData;
     private Integer status;
@@ -30,8 +30,8 @@ public class CollectionCriteria {
                     predicates.add(cb.like(cb.lower(root.get("name")), "%" + getName().toLowerCase() + "%"));
                 }
 
-                if (getStyle() != null) {
-                    predicates.add(cb.equal(root.get("style"), getStyle()));
+                if (getStyleId() != null) {
+                    predicates.add(cb.equal(root.get("style").get("id"), getStyleId()));
                 }
 
                 if (getType() != null) {

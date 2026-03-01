@@ -379,7 +379,7 @@ public class MovieController extends ABasicController {
     @GetMapping(value = "/schedule", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<List<MovieItemDto>> schedule(@RequestParam("date") Date date) {
         Date startOfDay = DateUtils.truncate(date, Calendar.DAY_OF_MONTH);
-        Date endOfDay = DateUtils.addDays(startOfDay, 1);
+        Date endOfDay = DateUtils.addMilliseconds(DateUtils.addDays(startOfDay, 1), -1);
         MovieItemCriteria criteria = new MovieItemCriteria();
         criteria.setFromDate(startOfDay);
         criteria.setToDate(endOfDay);

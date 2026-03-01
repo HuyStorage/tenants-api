@@ -1,5 +1,7 @@
 package com.tenant.api.dto.sns;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tenant.api.dto.LongToStringIfWebSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +14,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SnsConfigDto {
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long applicationId;
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long applicationChannelId;
     private String secretKey;
 }

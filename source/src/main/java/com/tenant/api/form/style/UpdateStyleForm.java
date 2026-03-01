@@ -24,7 +24,11 @@ public class UpdateStyleForm {
 
     @NotBlank(message = "imageUrl cannot be null")
     @ApiModelProperty(required = true)
-    private String imageUrl;
+    private String imageMobileUrl;
+
+    @NotBlank(message = "imageUrl cannot be null")
+    @ApiModelProperty(required = true)
+    private String imageWebUrl;
 
     @NotNull(message = "isDefault cannot be null")
     @ApiModelProperty(required = true)

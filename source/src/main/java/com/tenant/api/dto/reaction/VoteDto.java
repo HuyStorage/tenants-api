@@ -1,5 +1,7 @@
 package com.tenant.api.dto.reaction;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tenant.api.dto.LongToStringIfWebSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @ApiModel
 public class VoteDto {
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long id;
     private Integer type;
 }

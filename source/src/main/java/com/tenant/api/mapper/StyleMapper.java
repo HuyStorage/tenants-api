@@ -15,7 +15,8 @@ public interface StyleMapper {
     @Mapping(source = "type", target = "type")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "imageUrl", target = "imageUrl")
+    @Mapping(source = "imageMobileUrl", target = "imageMobileUrl")
+    @Mapping(source = "imageWebUrl", target = "imageWebUrl")
     @Mapping(source = "isDefault", target = "isDefault")
     @BeanMapping(ignoreByDefault = true)
     @Named("entityToStyleDto")
@@ -38,14 +39,16 @@ public interface StyleMapper {
     @Mapping(source = "type", target = "type")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "imageUrl", target = "imageUrl")
+    @Mapping(source = "imageMobileUrl", target = "imageMobileUrl")
+    @Mapping(source = "imageWebUrl", target = "imageWebUrl")
     @Mapping(source = "isDefault", target = "isDefault")
     @BeanMapping(ignoreByDefault = true)
     Style fromCreateStyleFormToEntity(CreateStyleForm form);
 
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "imageUrl", target = "imageUrl")
+    @Mapping(source = "imageMobileUrl", target = "imageMobileUrl")
+    @Mapping(source = "imageWebUrl", target = "imageWebUrl")
     @Mapping(source = "isDefault", target = "isDefault")
     @BeanMapping(ignoreByDefault = true)
     void fromUpdateStyleFormToEntity(UpdateStyleForm form, @MappingTarget Style style);

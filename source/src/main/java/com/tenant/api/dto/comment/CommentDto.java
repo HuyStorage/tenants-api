@@ -1,6 +1,8 @@
 package com.tenant.api.dto.comment;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tenant.api.dto.ABasicAdminDto;
+import com.tenant.api.dto.LongToStringIfWebSerializer;
 import com.tenant.api.dto.account.AccountDto;
 import com.tenant.api.dto.movieItem.MovieItemDto;
 import io.swagger.annotations.ApiModel;
@@ -12,6 +14,7 @@ import lombok.Setter;
 @ApiModel
 public class CommentDto extends ABasicAdminDto {
     private MovieItemDto movieItem;
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long movieId;
     private String content;
     private Integer totalLike;
@@ -19,8 +22,10 @@ public class CommentDto extends ABasicAdminDto {
     private Integer totalChildren;
     private Boolean isPinned;
     private CommentDto parent;
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long authorId;
     private String authorInfo;
+    @JsonSerialize(using = LongToStringIfWebSerializer.class)
     private Long replyToId;
     private String replyToInfo;
 }

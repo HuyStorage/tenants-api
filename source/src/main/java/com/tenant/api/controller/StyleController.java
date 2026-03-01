@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -92,9 +93,15 @@ public class StyleController extends ABasicController {
             throw new BadRequestException("[Style] not have default", ErrorCode.STYLE_ERROR_TYPE_NOT_HAVE_DEFAULT);
         }
 
-        if (!Objects.equals(form.getImageUrl(), style.getImageUrl())) {
-            mediaService.deleteFile(style.getImageUrl());
+        List<String> deletedFiles = new ArrayList<>();
+        if (!Objects.equals(form.getImageMobileUrl(), style.getImageMobileUrl())) {
+            deletedFiles.add(style.getImageMobileUrl());
         }
+
+        if (!Objects.equals(form.getImageWebUrl(), style.getImageWebUrl())) {
+            deletedFiles.add(style.getImageWebUrl());
+        }
+        mediaService.deleteFiles(deletedFiles);
 
         if (!style.getIsDefault() && form.getIsDefault()) {
             styleRepository.resetDefault();
@@ -114,7 +121,11 @@ public class StyleController extends ABasicController {
             throw new BadRequestException("[Style] not have default", ErrorCode.STYLE_ERROR_TYPE_NOT_HAVE_DEFAULT);
         }
 
-        mediaService.deleteFile(style.getImageUrl());
+        List<String> deletedFiles = new ArrayList<>();
+        deletedFiles.add(style.getImageMobileUrl());
+        deletedFiles.add(style.getImageWebUrl());
+        mediaService.deleteFiles(deletedFiles);
+
         collectionRepository.updateStyleToDefault(style.getId());
         styleRepository.delete(style);
         return makeSuccessResponse("Delete style success.");

@@ -22,9 +22,13 @@ public class CreateStyleForm {
 
     private String description;
 
-    @NotNull(message = "imageUrl cannot be null")
+    @NotNull(message = "imageMobileUrl cannot be null")
     @ApiModelProperty(required = true)
-    private String imageUrl;
+    private String imageMobileUrl;
+
+    @NotNull(message = "imageWebUrl cannot be null")
+    @ApiModelProperty(required = true)
+    private String imageWebUrl;
 
     @NotNull(message = "isDefault cannot be null")
     @ApiModelProperty(required = true)

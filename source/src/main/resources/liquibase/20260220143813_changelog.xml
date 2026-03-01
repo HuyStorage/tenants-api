@@ -33,4 +33,16 @@
     <changeSet author="Tenant" id="1772034218321-1">
         <addUniqueConstraint columnNames="user_id, movie_item_id" constraintName="uk_watch_history_user_movie_item" tableName="db_watch_history"/>
     </changeSet>
+    <changeSet author="Tenant" id="1772077361849-1">
+        <renameColumn
+                tableName="db_style"
+                oldColumnName="image_url"
+                newColumnName="image_mobile_url"
+                columnDataType="varchar(255)"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1772077361849-2">
+        <addColumn tableName="db_style">
+            <column name="image_web_url" type="varchar(255)" afterColumn="image_mobile_url"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

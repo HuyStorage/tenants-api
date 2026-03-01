@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -27,6 +28,7 @@ public class MovieCriteria {
     private Integer releaseYear;
     private String keyword;
     private List<Long> excludeIds;
+    private Boolean comingSoon;
 
     public Specification<Movie> getSpecification() {
         return new Specification<Movie>() {
@@ -99,6 +101,10 @@ public class MovieCriteria {
                     Predicate titleLike = cb.like(cb.lower(root.get("title")), kw);
                     Predicate originalTitleLike = cb.like(cb.lower(root.get("originalTitle")), kw);
                     predicates.add(cb.or(titleLike, originalTitleLike));
+                }
+
+                if (Boolean.TRUE.equals(getComingSoon())) {
+                    predicates.add(cb.greaterThan(root.get("releaseDate"), new Date()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }

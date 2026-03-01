@@ -1,7 +1,6 @@
 package com.tenant.api.constant;
 
 public class BaseConstant {
-
     public static final Integer USER_KIND_ADMIN = 1;
     public static final Integer USER_KIND_MANAGER = 2;
     public static final Integer USER_KIND_EMPLOYEE = 3;
@@ -38,6 +37,9 @@ public class BaseConstant {
 
     public static final String APP_ID_GENERATOR_NAME = "idGenerator";
     public static final String APP_ID_GENERATOR_STRATEGY = "com.tenant.api.storage.id.IdGenerator";
+
+    public static final String HEADER_CLIENT_TYPE = "X-Client-Type";
+    public static final String HEADER_CLIENT_TYPE_WEB = "WEB";
 
     public static final String USERNAME_PATTERN = "^(?=.{3,20}$)(?!.*[_.]{2})[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]$";
     public static final String PHONE_PATTERN = "^0[35789][0-9]{8}$";
@@ -80,7 +82,7 @@ public class BaseConstant {
 
     public static final Integer JSON_TYPE_FILTER_MOVIE = 1;
 
-    public static final String FILTER_MOVIE_SAMPLE_DATA = "{\"type\":1,\"ageRating\":1,\"language\":\"en-US\",\"country\":\"US\",\"isFeatured\":true,\"categoryIds\":[101,102,103],\"limit\":10}";
+    public static final String FILTER_MOVIE_SAMPLE_DATA = "{\"type\":1,\"ageRating\":1,\"language\":\"en-US\",\"country\":\"US\",\"isFeatured\":true,\"categoryIds\":[101,102,103],\"comingSoon\":true,\"limit\":10}";
 
     public static final Integer ACTION_DELETE_FROM_PLAYLIST = 0;
     public static final Integer ACTION_ADD_TO_PLAYLIST = 1;

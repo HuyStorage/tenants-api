@@ -11,9 +11,6 @@ import lombok.Setter;
 @Setter
 @ApiModel
 public class EmployeeDto extends ABasicAdminDto {
-    @ApiModelProperty(name = "id")
-    private Long id;
-
     @ApiModelProperty(name = "kind")
     private int kind;
 
