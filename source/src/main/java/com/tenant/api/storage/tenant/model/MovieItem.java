@@ -27,7 +27,7 @@ public class MovieItem extends Auditable<String> {
 
     private String title;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "longtext")
     private String description;
 
     private Integer kind; // 1: season, 2: episode, 3: trailer

@@ -29,7 +29,7 @@ public class Review extends Auditable<String> {
 
     private Integer rate;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "longtext")
     private String content;
 
     private Integer totalLike = 0;

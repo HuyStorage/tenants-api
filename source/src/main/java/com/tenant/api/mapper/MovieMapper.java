@@ -48,6 +48,7 @@ public interface MovieMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "originalTitle", target = "originalTitle")
+    @Mapping(source = "description", target = "description")
     @Mapping(source = "slug", target = "slug")
     @Mapping(source = "type", target = "type")
     @Mapping(source = "thumbnailUrl", target = "thumbnailUrl")

@@ -1,0 +1,54 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Tenant" id="1773240942970-1">
+        <modifyDataType
+                tableName="db_comment"
+                columnName="content"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-2">
+        <modifyDataType
+                tableName="db_movie"
+                columnName="description"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-3">
+        <modifyDataType
+                tableName="db_movie_item"
+                columnName="description"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-4">
+        <modifyDataType
+                tableName="db_person"
+                columnName="bio"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-5">
+        <modifyDataType
+                tableName="db_review"
+                columnName="content"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-6">
+        <modifyDataType
+                tableName="db_side_bar"
+                columnName="description"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-7">
+        <modifyDataType
+                tableName="db_style"
+                columnName="description"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+    <changeSet author="Tenant" id="1773240942970-8">
+        <modifyDataType
+                tableName="db_video_library"
+                columnName="description"
+                newDataType="LONGTEXT"/>
+    </changeSet>
+</databaseChangeLog>

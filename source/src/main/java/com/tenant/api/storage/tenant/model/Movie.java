@@ -32,7 +32,7 @@ public class Movie extends Auditable<String> {
 
     private String slug;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "longtext")
     private String description;
 
     @Column(name = "thumbnail_url")

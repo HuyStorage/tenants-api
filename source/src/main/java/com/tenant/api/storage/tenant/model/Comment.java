@@ -27,7 +27,7 @@ public class Comment extends Auditable<String> {
 
     private Long movieId;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "longtext")
     private String content;
 
     private Integer totalLike = 0;

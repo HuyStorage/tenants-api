@@ -25,7 +25,7 @@ public class Style extends Auditable<String> {
 
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "longtext")
     private String description;
 
     private String imageMobileUrl;

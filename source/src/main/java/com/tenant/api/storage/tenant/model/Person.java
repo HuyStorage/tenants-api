@@ -32,7 +32,7 @@ public class Person extends Auditable<String> {
     @Column(name = "avatar_path")
     private String avatarPath;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "longtext")
     private String bio;
 
     @ElementCollection(fetch = FetchType.EAGER)
