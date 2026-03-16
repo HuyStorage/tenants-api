@@ -51,7 +51,7 @@ public class LoginService {
     @Value("${auth.internal.employee.username}")
     private String employeeInternalUsername;
 
-    @Value("${auth.internal.user.password}")
+    @Value("${auth.internal.password}")
     private String password;
 
     public OAuth2AccessToken getToken(Account account, Integer role) {

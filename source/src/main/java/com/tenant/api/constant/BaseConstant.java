@@ -58,9 +58,16 @@ public class BaseConstant {
     public static final Integer VIDEO_LIBRARY_STATE_READY = 1;
     public static final Integer VIDEO_LIBRARY_STATE_ERROR = 2;
 
+    // CMD VIDEO
     public static final String CMD_DONE_CONVERT_VIDEO = "CMD_DONE_CONVERT_VIDEO";
     public static final String CMD_CONVERT_VIDEO = "CMD_CONVERT_VIDEO";
     public static final String CMD_DELETE_VIDEO = "CMD_DELETE_VIDEO";
+
+    // CMD NOTIFICATION
+    public static final String CMD_BROADCAST = "BROADCAST";
+
+    public static final String APP_TENANT = "TENANT";
+    public static final String APP_USER = "USER";
 
     public static final Boolean SIDEBAR_ACTIVE_TRUE = true;
     public static final boolean SIDEBAR_ACTIVE_FALSE = false;
@@ -70,9 +77,6 @@ public class BaseConstant {
 
     public static final Integer FAVOURITE_TYPE_MOVIE = 1;
     public static final Integer FAVOURITE_TYPE_PERSON = 2;
-
-    public static final String APP_NAME_CMS = "CMS";
-    public static final String APP_NAME_CLIENT = "CLIENT";
 
     public static final Integer SOURCE_TYPE_INTERNAL = 1;
     public static final Integer SOURCE_TYPE_EXTERNAL = 2;

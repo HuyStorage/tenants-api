@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenant.api.cfg.tenants.TenantDBContext;
 import com.tenant.api.constant.BaseConstant;
 import com.tenant.api.form.rabbit.BaseSendMsgForm;
+import com.tenant.api.form.sns.BaseSendSignalPayloadForm;
 import com.tenant.api.form.video.UpdateVideoForm;
 import com.tenant.api.service.SnsService;
 import com.tenant.api.service.VideoService;
@@ -40,8 +41,12 @@ public class RabbitMQListener {
                 TenantDBContext.setCurrentTenant(baseMessageForm.getTenantId());
                 videoService.updateVideoLibrary(baseMessageForm.getData());
 
+                BaseSendSignalPayloadForm<UpdateVideoForm> signalPayload = new BaseSendSignalPayloadForm<>();
+                signalPayload.setCmd(baseMessageForm.getCmd());
+                signalPayload.setData(baseMessageForm.getData());
+
                 // send sns
-                snsService.sendSignal(BaseConstant.APP_NAME_CMS, baseMessageForm.getCmd(), baseMessageForm.getData(), baseMessageForm.getTenantId());
+                snsService.sendSignalForAllTenantApp(signalPayload, baseMessageForm.getTenantId());
 
                 log.warn("==> DONE processing message");
             }
