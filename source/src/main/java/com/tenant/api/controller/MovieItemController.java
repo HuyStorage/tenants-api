@@ -85,10 +85,11 @@ public class MovieItemController extends ABasicController {
             throw new BadRequestException("[Movie Item] cannot create episode for movie type season", ErrorCode.MOVIE_ITEM_ERROR_INVALID_REQUEST);
         }
 
-        // check label existed by kind not trailer
-        if (movieItemRepository.existsByMovieIdAndKindAndLabel(movie.getId(), form.getKind(), form.getLabel())) {
-            throw new BadRequestException("[Movie Item] label existed", ErrorCode.MOVIE_ITEM_ERROR_LABEL_EXISTED);
+        if (!Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON) && form.getParentId() == null) {
+            throw new BadRequestException("[Movie Item] Parent is required", ErrorCode.MOVIE_ITEM_ERROR_PARENT_REQUIRED);
         }
+
+        checkLabel(form.getKind(), form.getLabel(), form.getMovieId(), form.getParentId());
 
         if (form.getVideoId() != null) {
             video = videoLibraryRepository.findById(form.getVideoId())
@@ -97,9 +98,6 @@ public class MovieItemController extends ABasicController {
 
         // if episode or trailer -> required parent
         if (!Objects.equals(form.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
-            if (form.getParentId() == null) {
-                throw new BadRequestException("[Movie Item] Parent is required", ErrorCode.MOVIE_ITEM_ERROR_PARENT_REQUIRED);
-            }
             parent = movieItemRepository.findById(form.getParentId())
                     .orElseThrow(() -> new NotFoundException("[Movie Item] Parent not found", ErrorCode.MOVIE_ITEM_ERROR_NOT_FOUND));
 
@@ -198,6 +196,11 @@ public class MovieItemController extends ABasicController {
                     .orElseThrow(() -> new NotFoundException("[Video Library] Video not found", ErrorCode.VIDEO_LIBRARY_ERROR_NOT_FOUND));
         }
 
+        if (!Objects.equals(form.getLabel(), movieItem.getLabel())) {
+            Long parentId = movieItem.getParent() != null ? movieItem.getParent().getId() : null;
+            checkLabel(movieItem.getKind(), form.getLabel(), movieItem.getMovie().getId(), parentId);
+        }
+
         if (StringUtils.isNoneBlank(form.getThumbnailUrl())
                 && StringUtils.isNoneBlank(movieItem.getThumbnailUrl())
                 && !Objects.equals(form.getThumbnailUrl(), movieItem.getThumbnailUrl())) {
@@ -278,35 +281,125 @@ public class MovieItemController extends ABasicController {
         return makeSuccessResponse("Update movie item success");
     }
 
+
+    // check label existed by kind not trailer
+    private void checkLabel(Integer kind, String label, Long movieId, Long parentId) {
+        if (Objects.equals(kind, BaseConstant.MOVIE_ITEM_KIND_TRAILER)) {
+            return;
+        }
+
+        boolean labelExists;
+        if (Objects.equals(kind, BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+            labelExists = movieItemRepository.existsByMovieIdAndKindAndLabelAndParentIsNull(movieId, kind, label);
+        } else {
+            labelExists = movieItemRepository.existsByMovieIdAndKindAndLabelAndParentId(movieId, kind, label, parentId);
+        }
+        if (labelExists) {
+            throw new BadRequestException("[Movie Item] label existed", ErrorCode.MOVIE_ITEM_ERROR_LABEL_EXISTED);
+        }
+    }
+
     private void handleUpdateLatestMovieItem(MovieItem movieItem, Boolean isLatest) {
         if (Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_TRAILER)) {
             return;
         }
 
-        if (Boolean.TRUE.equals(movieItem.getIsLatest()) && Boolean.FALSE.equals(isLatest)) {
+        Movie movie = movieItem.getMovie();
+        boolean currentLatest = Boolean.TRUE.equals(movieItem.getIsLatest());
+        boolean newLatest = Boolean.TRUE.equals(isLatest);
+        boolean removeLatest = currentLatest && Boolean.FALSE.equals(isLatest);
+
+        if (removeLatest) {
             movieItem.setIsLatest(false);
             movieItemRepository.save(movieItem);
 
-            movieItemRepository.findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(
-                    movieItem.getMovie().getId(),
-                    movieItem.getKind(),
-                    movieItem.getId()
-            ).ifPresentOrElse(
-                    nextLatest -> {
-                        nextLatest.setIsLatest(true);
-                        movieItemRepository.save(nextLatest);
-                        movieService.updateMetaDataMovie(nextLatest);
-                    },
-                    () -> movieService.resetMetaDataMovie(movieItem.getMovie())
-            );
+            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)
+                    && Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+                movieItemRepository.findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(
+                        movie.getId(),
+                        BaseConstant.MOVIE_ITEM_KIND_SEASON,
+                        movieItem.getId()
+                ).ifPresentOrElse(
+                        nextLatestSeason -> {
+                            nextLatestSeason.setIsLatest(true);
+                            movieItemRepository.save(nextLatestSeason);
+                            movieService.updateMetaDataMovie(nextLatestSeason);
+                        },
+                        () -> movieService.clearLatestMetadata(movie, true, false)
+                );
+                return;
+            }
+
+            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SERIES)
+                    && Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
+
+                movieItemRepository.findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(
+                        movie.getId(),
+                        BaseConstant.MOVIE_ITEM_KIND_EPISODE,
+                        movieItem.getId()
+                ).ifPresentOrElse(
+                        nextLatestEpisode -> {
+                            nextLatestEpisode.setIsLatest(true);
+                            movieItemRepository.save(nextLatestEpisode);
+
+                            MovieItem nextParent = nextLatestEpisode.getParent();
+                            if (nextParent != null && !Boolean.TRUE.equals(nextParent.getIsLatest())) {
+                                movieItemRepository.resetLatest(
+                                        movie.getId(),
+                                        BaseConstant.MOVIE_ITEM_KIND_SEASON
+                                );
+                                nextParent.setIsLatest(true);
+                                movieItemRepository.save(nextParent);
+                            }
+
+                            movieService.updateMetaDataMovie(nextLatestEpisode);
+                        },
+                        () -> {
+                            movieItemRepository.resetLatest(
+                                    movie.getId(),
+                                    BaseConstant.MOVIE_ITEM_KIND_SEASON
+                            );
+                            movieService.clearLatestMetadata(movie, true, true);
+                        }
+                );
+            }
             return;
         }
 
-        if (Boolean.TRUE.equals(isLatest)) {
-            movieItemRepository.resetLatest(movieItem.getMovie().getId(), movieItem.getKind());
-            movieItem.setIsLatest(true);
-            movieItemRepository.save(movieItem);
-            movieService.updateMetaDataMovie(movieItem);
+        if (newLatest) {
+            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SINGLE)
+                    && Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_SEASON)) {
+                movieItemRepository.resetLatest(
+                        movie.getId(),
+                        BaseConstant.MOVIE_ITEM_KIND_SEASON
+                );
+                movieItem.setIsLatest(true);
+                movieItemRepository.save(movieItem);
+                movieService.updateMetaDataMovie(movieItem);
+                return;
+            }
+
+            if (Objects.equals(movie.getType(), BaseConstant.MOVIE_TYPE_SERIES)
+                    && Objects.equals(movieItem.getKind(), BaseConstant.MOVIE_ITEM_KIND_EPISODE)) {
+                movieItemRepository.resetLatest(
+                        movie.getId(),
+                        BaseConstant.MOVIE_ITEM_KIND_EPISODE
+                );
+                movieItem.setIsLatest(true);
+                movieItemRepository.save(movieItem);
+
+                MovieItem parent = movieItem.getParent();
+                if (parent != null && !Boolean.TRUE.equals(parent.getIsLatest())) {
+                    movieItemRepository.resetLatest(
+                            movie.getId(),
+                            BaseConstant.MOVIE_ITEM_KIND_SEASON
+                    );
+                    parent.setIsLatest(true);
+                    movieItemRepository.save(parent);
+                }
+
+                movieService.updateMetaDataMovie(movieItem);
+            }
         }
     }
 }

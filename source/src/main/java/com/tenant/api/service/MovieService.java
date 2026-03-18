@@ -188,4 +188,24 @@ public class MovieService {
             }
         }
     }
+
+    public void clearLatestMetadata(Movie movie, boolean clearLatestSeason, boolean clearLatestEpisode) {
+        try {
+            MovieMetadataForm metadata = (movie.getMetadata() != null && !movie.getMetadata().isEmpty())
+                    ? objectMapper.readValue(movie.getMetadata(), MovieMetadataForm.class)
+                    : new MovieMetadataForm();
+
+            if (clearLatestSeason) {
+                metadata.setLatestSeason(null);
+            }
+            if (clearLatestEpisode) {
+                metadata.setLatestEpisode(null);
+            }
+
+            movie.setMetadata(objectMapper.writeValueAsString(metadata));
+            movieRepository.save(movie);
+        } catch (Exception ex) {
+            log.error("Failed to clear metadata JSON for movie: {}", movie.getId(), ex);
+        }
+    }
 }

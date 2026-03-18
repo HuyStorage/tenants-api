@@ -47,7 +47,9 @@ public interface MovieItemRepository extends JpaRepository<MovieItem, Long>, Jpa
             ")")
     Optional<Integer> findMaxOrdering(@Param("movieId") Long movieId, @Param("kind") Integer kind, @Param("parentId") Long parentId);
 
-    boolean existsByMovieIdAndKindAndLabel(Long movieId, Integer kind, String label);
+    boolean existsByMovieIdAndKindAndLabelAndParentIsNull(Long movieId, Integer kind, String label);
+
+    boolean existsByMovieIdAndKindAndLabelAndParentId(Long movieId, Integer kind, String label, Long parentId);
 
     Optional<MovieItem> findFirstByMovieIdAndKindAndIdNotOrderByOrderingDesc(Long movieId, Integer kind, Long id);
 

@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 @Configuration
 @CrossOrigin
@@ -128,8 +129,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         SimpleDateFormat format = new SimpleDateFormat(WebMvcConfig.DATE_TIME_FORMAT);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         objectMapper.setDateFormat(format);
+        objectMapper.setTimeZone(TimeZone.getTimeZone("UTC"));
         return objectMapper;
     }
-
 }
